@@ -1,0 +1,91 @@
+{% extends "userbase.html" %}
+{% block title %}Stocks{% endblock title %}
+{% load static %}
+{% block body %}
+<main id="main" class="main">
+    <div class="pagetitle">
+      <h1>THIS IS STOCKS PAGE</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url "UserDashboard"%}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url "NIFTYbees" %}">Niftybees</a></li>
+          <li class="breadcrumb-item"><a href="{% url "ITbees" %}">Itbees</a></li>
+          <li class="breadcrumb-item"><a href="{% url "SBIetfit" %}">Sbietfit</a></li>
+        </ol>
+      </nav>
+    </div>
+
+    <section class="section">
+      <div class="row ">
+          <div class="col-lg-12">        
+              <div class="card">
+                  <div class="card-body">
+                      <h5 class="card-title fw-bold">{{table_name}}</h5>     
+                        <table class="table datatable table-hover"> 
+                            <thead>                           
+                                <tr>
+                                    <th>Underlying assets</th>
+                                    <th>Open</th>
+                                    <th>High</th>
+                                    <th>Low</th>
+                                    <th>CMP</th> 
+                                    <th>20 DMA</th> 
+                                    <th>Close - 20 DMA</th> 
+                                    <th>Close vs 20 DMA</th> 
+
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for d in data %}
+                                <tr>
+                                    <td>{{ d.Etfnames }}</td>
+                                    <td>{{ d.Open|floatformat:2 }}</td>
+                                    <td>{{ d.high|floatformat:2 }}</td>
+                                    <td>{{ d.low|floatformat:2 }}</td>
+                                    <td>{{ d.close|floatformat:2 }}</td> 
+                                </tr>
+                                {% endfor %}  
+                                                   
+                            </tbody>  
+                            {% comment %} <tbody>
+                                {% for d in data %}
+                                <tr>
+                                    <td>{{ d.Etfnames }}</td>
+                                    <td>{{ d.Open|floatformat:2 }}</td>
+                                    <td>{{ d.high|floatformat:2 }}</td>
+                                    <td>{{ d.low|floatformat:2 }}</td>
+                                    <td>{{ d.close|floatformat:2 }}</td> 
+                                    <td>{{ d.twenty_dma|floatformat:2 }}</td>
+                                    
+                                    {% if d.close_minus_twenty_dma %}
+                                        {% if d.close_minus_twenty_dma > 0 %}
+                                            <td class="positive">{{ d.close_minus_twenty_dma|floatformat:2 }}</td>
+                                        {% else %}
+                                            <td class="negative">{{ d.close_minus_twenty_dma|floatformat:2 }}</td>
+                                        {% endif %}
+                                    {% else %}
+                                        <td>-</td>
+                                    {% endif %}
+                                    
+                                    {% if d.close_vs_twenty_dma %}
+                                        {% if d.close_vs_twenty_dma > 0 %}
+                                            <td class="positive">{{ d.close_vs_twenty_dma|floatformat:2 }}</td>
+                                        {% else %}
+                                            <td class="negative">{{ d.close_vs_twenty_dma|floatformat:2 }}</td>
+                                        {% endif %}
+                                    {% else %}
+                                        <td>-</td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}                     
+                            </tbody> {% endcomment %}
+                    
+                        </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+  </main>  
+  {% endblock body %}

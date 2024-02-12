@@ -1,0 +1,62 @@
+{% extends "base1.html" %}
+{% block title %}Commodities{% endblock title %}
+{% load static %}
+{% block body %}
+<main id="main" class="main">
+    <div class="pagetitle">
+      <h1>Commodities details</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url "admindashboard" %}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url "goldbeesns" %}">Goldbees</a></li>
+          <li class="breadcrumb-item"><a href="{% url "silverbeesns" %}">Silverbees</a></li>
+        </ol>
+      </nav>
+    </div>
+ {% comment %} <section class="section">
+        <div class="row">
+            <div class="col-lg-12">        
+                <div class="card">
+                    <div class="card-body">
+                    <h5 class="card-title">Silverbees</h5>  
+                        <label for="startDate">Select start Date</label>
+                        <input type="date" id="startDate" name="start_date" class="form-control">
+                        <label for="endDate">Select end Date</label>
+                        <input type="date" id="endDate" name="end_date" class="form-control">
+                        <button type="submit" class="btn-primary btn mt-1 btn-sm btn-rounded">Apply filter</button>
+                    
+                    <table class="table datatable table-hover" id="datatable" name="datatable">   
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Open</th>
+                                <th>High</th>
+                                <th>Low</th>
+                                <th>Close</th> 
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in data %}
+                            <tr>
+                                <td>{{d.date}}</td>
+                                <td>{{d.Open|floatformat:4}}</td>
+                                <td>{{d.high|floatformat:4}}</td>
+                                <td>{{d.low|floatformat:4}}</td>
+                                <td>{{d.close|floatformat:4}}</td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+ </section>  {% endcomment %}
+    
+
+</main>
+{% endblock body %}
+

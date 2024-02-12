@@ -1,0 +1,360 @@
+from django.shortcuts import render
+from django.shortcuts import render, redirect ,HttpResponse
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login as loginuser, authenticate, logout ,login
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from registeredUser.models import RegisteredUser
+from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import user_passes_test
+from Custom_admin.models import *
+from datetime import datetime,date
+from django.db.models import Q
+
+
+
+def admindashboard(request):
+        return render(request, 'admindashboard.html')
+        
+
+def Logout(request):
+    logout(request)
+    messages.info(request, "Logged out successfully!")
+    return redirect('Userlogin')
+
+
+
+
+
+def delete_profile(request, profile_id):
+    # profile_instance = get_object_or_404(profile_model, id=profile_id)
+
+    # if request.method == 'POST':
+    #     profile_instance.delete()
+    #     return redirect('admin_profile')
+
+    return HttpResponse("Invalid request method for delete")
+
+
+def update(request, id):
+    return render(request, 'admin_profile.html')
+
+
+# @login_required
+def users_data(request):
+        users = RegisteredUser.objects.all()
+        return render(request, 'users_data.html', {'users': users})
+    
+
+# @login_required
+def Approve(request,username):
+    update=RegisteredUser.objects.get(username=username)
+    user=User.objects.get(username=username)
+    if user is not None:
+        update.login_status=True
+        update.save()
+        messages.success(request, f'{username} is now allowed to Login')  
+    else:
+        update.delete()
+    return redirect('users_data')
+
+# @login_required
+def Decline(request,username):
+    update=RegisteredUser.objects.get(username=username)
+    user=User.objects.get(username=username)
+    if user is not None:    
+        update.login_status=False
+        update.save()
+        messages.error(request, f'{username} is not allowed to Login')
+    else:
+        update.delete()
+    return redirect('users_data')
+
+
+# def stocks(request):
+#     return render(request, 'stocks.html')
+
+# def commodities(request):
+#     return render(request, 'commodities.html')
+
+def admin_profile(request):
+    return render(request, 'admin_profile.html')
+
+
+def active_user(request):
+    return render(request, 'active_user.html')
+
+
+def faq(request):
+    return render(request, 'faq.html')
+
+
+def blank(request):
+    return render(request, 'blank.html')
+
+
+def error_404(request):
+    return render(request, 'error_404.html')
+
+
+def contact(request):
+    return render(request, 'contact.html')
+
+def niftybeesns(request):
+    table_name = 'NIFTYBEES'
+    category = 'Stocks'
+    alldata = NIFTYBEES_NS.objects.all()
+    data = list(alldata)
+    calculate_percentage_diff(data)
+
+    if request.method == 'POST':
+        start_date_str = request.POST.get('start_date')
+        end_date_str = request.POST.get('end_date')
+        print(start_date_str, end_date_str)
+
+        if start_date_str and end_date_str:
+            # Convert string dates to datetime objects
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+            queryset = alldata.filter(date__range=[start_date, end_date])
+            data = list(queryset)
+            calculate_percentage_diff(data)
+            print(start_date, end_date)
+            context = {
+                'data': queryset,
+                  'table_name':table_name,
+                    'category':category
+                
+            }
+            return render(request, 'adminNifty.html', context)
+        else:
+            # If start_date or end_date is not provided, show all data
+            context = {
+                'data': alldata,
+                  'table_name':table_name,
+                    'category':category
+            }
+            return render(request, 'adminNifty.html', context)
+
+    # Default behavior: show all data
+    context = {
+                'data': alldata,
+               'table_name':table_name,
+                 'category':category
+               
+               }
+    return render(request,'adminNifty.html',context)
+
+def itbeesns(request):
+    table_name = 'ITBEES'
+    category = 'Stocks'
+    alldata = ITBEES_NS.objects.all()
+    data = list(alldata)
+    calculate_percentage_diff(data)
+
+    if request.method == 'POST':
+        start_date_str = request.POST.get('start_date')
+        end_date_str = request.POST.get('end_date')
+        print(start_date_str, end_date_str)
+
+        if start_date_str and end_date_str:
+            # Convert string dates to datetime objects
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+            queryset = alldata.filter(date__range=[start_date, end_date])
+            data = list(queryset)
+            calculate_percentage_diff(data)
+            print(start_date, end_date)
+            context = {
+                'data': queryset,
+                  'table_name':table_name,
+                    'category':category
+            }
+            return render(request, 'adminIt.html', context)
+        else:
+            # If start_date or end_date is not provided, show all data
+            context = {
+                'data': alldata,
+                'table_name':table_name,
+                  'category':category
+            }
+            return render(request, 'adminIt.html', context)
+
+    # Default behavior: show all data
+    context = {
+        'data': alldata,
+        'table_name':table_name,
+          'category':category
+               }
+    return render(request,'adminIt.html',context)
+
+def sbietfitns(request):
+    table_name = 'SBIETFIT'
+    category = 'Stocks'
+    alldata = SBIETFIT_NS.objects.all()
+    data = list(alldata)
+    calculate_percentage_diff(data)
+
+    if request.method == 'POST':
+        start_date_str = request.POST.get('start_date')
+        end_date_str = request.POST.get('end_date')
+        print(start_date_str, end_date_str)
+
+        if start_date_str and end_date_str:
+            # Convert string dates to datetime objects
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+            queryset = alldata.filter(date__range=[start_date, end_date])
+            calculate_percentage_diff(data)
+            print(start_date, end_date)
+            print(start_date, end_date)
+            context = {
+                'data': queryset,
+                 'table_name':table_name,
+                   'category':category
+            }
+            return render(request, 'adminSbi.html', context)
+        else:
+            # If start_date or end_date is not provided, show all data
+            context = {
+                'data': alldata,
+                 'table_name':table_name,
+                   'category':category
+            }
+            return render(request, 'adminSbi.html', context)
+
+    # Default behavior: show all data
+    context = {'data': alldata,
+               'table_name':table_name,
+                 'category':category
+               }
+    return render(request,'adminSbi.html',context)
+
+
+
+def calculate_percentage_diff(data):
+    for i in range(1,len(data)):
+            data[i].percent_diff = ((data[i].close - data[i-1].close) / data[i-1].close) * 100
+
+
+
+def goldbeesns(request):
+    table_name = 'GOLDBEES'
+    category= 'Commodities'
+
+    alldata = GOLDBEES_NS.objects.all()
+    data = list(alldata)
+    calculate_percentage_diff(data)
+
+    if request.method == 'POST':
+        start_date_str = request.POST.get('start_date')
+        end_date_str = request.POST.get('end_date')
+        print(start_date_str, end_date_str)
+
+        if start_date_str and end_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+            queryset = alldata.filter(date__range=[start_date, end_date])
+            data = list(queryset)
+            calculate_percentage_diff(data)
+
+            context = {
+                'data': data,
+                'table_name': table_name,
+                'category':category
+            }
+            return render(request, 'adminGold.html', context)
+        else:
+            context = {
+                'data': data,
+                'table_name': table_name,
+                  'category':category
+            }
+            return render(request, 'adminGold.html', context)
+
+    context = {
+        'data': data,
+        'table_name': table_name,
+          'category':category
+    }
+    return render(request, 'adminGold.html', context)
+
+def silverbeesns(request):
+        table_name = 'SILVERBEES'
+        category= 'Commodities'
+        alldata = SILVERBEES_NS.objects.all()
+        data = list(alldata) 
+        calculate_percentage_diff(data)
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
+                print(start_date, end_date)
+
+                context = {
+                    'data': queryset,
+                    'table_name':table_name,
+                      'category':category
+                }
+                return render(request, 'adminSilver.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name,
+                      'category':category
+                }
+                return render(request, 'adminSilver.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name,
+                     'category':category
+                   }
+        return render(request,'adminSilver.html',context)
+
+
+
+def adminstocksdd(request):
+     
+    category = 'Stocks'
+    stocks1 = 'NIFTYBEES'
+    stocks2 = 'ITBEES'
+    stocks3 = 'SBIETFIT'
+    context = {
+        'nifty':stocks1,
+        'it':stocks2,
+        'sbi':stocks3,
+        'category':category
+    }
+     
+    return render(request,'stocks.html',context)
+ 
+def admincommoditiesdd(request):
+    category = 'Commodities'
+    com1 = 'SILVERBEES'
+    com2 = 'GOLDBEES'
+    
+    context = {
+        'silver':com1,
+        'gold':com2,
+        'category':category
+        
+    }
+    return render(request,'commodities.html',context)

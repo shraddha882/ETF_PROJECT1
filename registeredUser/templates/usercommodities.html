@@ -1,0 +1,34 @@
+{% extends "userbase.html" %}
+{% block title %}Stocks{% endblock title %}
+{% load static %}
+{% block body %}
+<main id="main" class="main">
+    <div class="pagetitle">
+      <h1>THIS IS COMMODITIES PAGE</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url "UserDashboard"%}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url "SILVERbees" %}">SilverBees</a></li>
+          <li class="breadcrumb-item"><a href="{% url "GOLDbees" %}">GoldBees</a></li>
+          <!-- <li class="breadcrumb-item"><a href="{% url "sbietfit" %}">Sbietfit</a></li> -->
+        </ol>
+      </nav>
+    </div>
+
+   
+</main>
+{% endblock body %}
+{% block myscript %}
+<script src="{% static 'vendor/apexcharts/apexcharts.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'vendor/chart.js/chart.umd.js' %}"></script>
+<script src="{% static 'vendor/echarts/echarts.min.js' %}"></script>
+<script src="{% static 'vendor/quill/quill.min.js' %}"></script>
+<script src="{% static 'vendor/simple-datatables/simple-datatables.js' %}"></script>
+<script src="{% static 'vendor/tinymce/tinymce.min.js' %}"></script>
+<script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+<!-- Template Main JS File -->
+<script src="{% static 'js/main.js' %}"></script>
+
+ 
+{% endblock myscript %}
