@@ -263,6 +263,585 @@ def silverbees(request):
 
 
 
+def egold(request):
+        table_name = 'EGOLD'
+        alldata = EGOLD_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'egold.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'egold.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'egold.html', context)
+
+
+
+def abslnn50et(request):
+        table_name = 'ABSLNN50ET'
+        alldata = ABSLNN50ET_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'abslnn50et.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'abslnn50et.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'abslnn50et.html', context)
+
+def commoietf(request):
+        table_name = 'COMMOIETF'
+        alldata = COMMOIETF_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'commoietf.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'commoietf.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'commoietf.html', context)
+
+
+def cpseetf(request):
+        table_name = 'CPSEETF'
+        alldata = COMMOIETF_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'cpseetf.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'cpseetf.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'cpseetf.html', context)
+
+
+def dspitetf(request):
+        table_name = 'DSPITETF'
+        alldata = DSPITETF_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'dspitetf.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'dspitetf.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'dspitetf.html', context)
+
+
+
+def dspq50etf(request):
+        table_name = 'DSPQ50ETF'
+        alldata = DSPQ50ETF_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'dspq50.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'dspq50.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'dspq50.html', context)
+
+def axistec(request):
+        table_name = 'AXISTEC'
+        alldata = AXISTECETF_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'axistec.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'axistec.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'axistec.html', context)
+
+
+def icicib22(request):
+        table_name = 'ICICIB22'
+        alldata = ICICIB22_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'icicib22.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'icicib22.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'icicib22.html', context)
+
+
+def infrabees(request):
+        table_name = 'INFRABEES'
+        alldata = INFRABEES_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'infrabees.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'infrabees.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'infrabees.html', context)
+
+
+def iti(request):
+        table_name = 'ITI'
+        alldata = ITIETF_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'iti.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'iti.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'iti.html', context)
+
+
+def kotak(request):
+        table_name = 'KOTAK'
+        alldata = KOTAKPSUBK_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'kotak.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'kotak.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'kotak.html', context)
+
+def mafang(request):
+        table_name = 'MAFANG'
+        alldata = MAFANG_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'mafang.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'mafang.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'mafang.html', context)
+
+
+def movalue(request):
+        table_name = 'MOVALUE'
+        alldata = MOVALUE_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'movalue.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'movalue.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'movalue.html', context)
+
+
+def nifitetf(request):
+        table_name = 'NIFITETF'
+        alldata = NIFITETF_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'nifitetf.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'nifitetf.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'nifitetf.html', context)
+
+def psubnk(request):
+        table_name = 'PSUBNKIETF'
+        alldata = PSUBNKIETF_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'psubnkietf.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'psubnkietf.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'psubnkietf.html', context)
+
+
+
+
+def tech(request):
+        table_name = 'TECH'
+        alldata = TECH_NS.objects.all()
+
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            print(start_date_str, end_date_str)
+
+            if start_date_str and end_date_str:
+                # Convert string dates to datetime objects
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+                queryset = alldata.filter(date__range=[start_date, end_date])
+                print(start_date, end_date)
+                context = {
+                    'data': queryset,
+                    'table_name':table_name
+                }
+                return render(request, 'tech.html', context)
+            else:
+                # If start_date or end_date is not provided, show all data
+                context = {
+                    'data': alldata,
+                    'table_name':table_name
+                }
+                return render(request, 'tech.html', context)
+
+        # Default behavior: show all data
+        context = {'data': alldata,
+                   'table_name':table_name
+                   }
+        return render(request, 'tech.html', context)
+
+
+
+
+
 
 def faq(request):
     return render(request, 'faq.html')
