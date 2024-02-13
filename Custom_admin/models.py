@@ -302,10 +302,12 @@ class INFRABEES_NS(models.Model):
 
 class AllETF(models.Model):
     Etfnames = models.CharField(max_length = 225, default = 'Name')
+    # Date = models.DateField(null = True)
     Open = models.FloatField(null = True, default = '-')
     high = models.FloatField(null = True, default = '-')
     low = models.FloatField(null = True, default = '-')
     close = models.FloatField(null = True, default = '-')
+
 
     def __str__(self):
         

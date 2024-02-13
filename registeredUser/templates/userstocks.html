@@ -32,22 +32,85 @@
                                     <th>20 DMA</th> 
                                     <th>Close - 20 DMA</th> 
                                     <th>Close vs 20 DMA</th> 
-
-                                    
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for d in data %}
+                                
+
                                 <tr>
                                     <td>{{ d.Etfnames }}</td>
                                     <td>{{ d.Open|floatformat:2 }}</td>
                                     <td>{{ d.high|floatformat:2 }}</td>
                                     <td>{{ d.low|floatformat:2 }}</td>
                                     <td>{{ d.close|floatformat:2 }}</td> 
+                                    {% comment %} <td>{{ etf_data }}</td>  {% endcomment %}
+                                    
+                                    {% for key, value in etf_data.items %}
+                                        {% if key == d.Etfnames %}
+                                            <td>{{ value|floatformat:2  }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for key, value in etf_close_minus_20dma.items %}
+                                    {% if key == d.Etfnames %}
+                                        {% if value < 0 %}
+                                            <td style="color: red">{{ value|floatformat:2 }}</td>
+                                        {% elif value > 0 %}
+                                            <td style="color: green">{{ value|floatformat:2 }}</td>
+                                        {% else %}
+                                            <td>{{ value|floatformat:2 }}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                        
+                                {% for key, value in etf_close_div_20dma.items %}
+                                    {% if key == d.Etfnames %}
+                                        {% if value < 0 %}
+                                            <td style="color: red">{{ value|floatformat:2 }}</td>
+                                        {% elif value > 0 %}
+                                            <td style="color: green">{{ value|floatformat:2 }}</td>
+                                        {% else %}
+                                            <td>{{ value|floatformat:2 }}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                    {% comment %} {% if etf_data.key == d.Etfnames %}<td>{{etf_data.value}}</td>{% endif %} {% endcomment %}
                                 </tr>
                                 {% endfor %}  
                                                    
-                            </tbody>  
+                            </tbody> 
+                            {% comment %} <tbody>
+                                {% for d in all_data %}
+                                <tr>
+                                    <td>{{ d.Etfnames }}</td>
+                                    <td>{{ d.Open|floatformat:2 }}</td>
+                                    <td>{{ d.high|floatformat:2 }}</td>
+                                    <td>{{ d.low|floatformat:2 }}</td>
+                                    <td>{{ d.close|floatformat:2 }}</td>
+                                    <td>
+                                        {% if d.Etfnames in etf_data %}
+                                            {{ etf_data.d.Etfnames.20dma }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ d.close|floatformat:2 }} - 
+                                        {% if d.Etfnames in etf_data %}
+                                            {{ etf_data.d.Etfnames.20dma }}
+                                        {% endif %}
+                                    </td> 
+                                    <td>{{ d.close|floatformat:2 }} - 
+                                        {% if d.Etfnames in etf_data %}
+                                            {{ etf_data.d.Etfnames.20dma }}
+                                        {% endif %}
+                                    </td> 
+                                </tr>
+                                {% endfor %}  
+                            </tbody>  {% endcomment %}
+
+                        
+                            
+                            
+
                             {% comment %} <tbody>
                                 {% for d in data %}
                                 <tr>

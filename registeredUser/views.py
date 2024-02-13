@@ -15,6 +15,7 @@ from django.conf import settings
 from django.db.models import Avg
 from datetime import timedelta, date
 
+
 # Create your views here.
 
 
@@ -503,41 +504,131 @@ def usercommoditiesdd(request):
 
 def userstocks(request):
     alldata = AllETF.objects.all()
-    etf_data = calculate_20dma()
-    # print(etf_data)
-    print(alldata)
+    # etf_names = AllETF.objects.all().values('Etfnames' ,flat=True)
+    # etf_name_list = list(etf_names.values())
+    # print(etf_name_list)
+    etf_names = AllETF.objects.all().values_list('Etfnames', flat=True)
+    etf_name_list = list(etf_names)
+    print(etf_name_list)
+
+    etf_data, etf_close_minus_20dma, etf_close_div_20dma = calculate_20dma(etf_name_list)
+    
+    print(etf_data)
+    # print(alldata)
+    
+
     context = {
         'data':alldata,
         'etf_data':etf_data,
+        'etf_close_minus_20dma': etf_close_minus_20dma,
+        'etf_close_div_20dma': etf_close_div_20dma,
 
     }
     return render(request, 'userstocks.html',context)
 
-def calculate_20dma():
+def calculate_20dma(etf_name_list):
     # Get today's date
     today = date.today()
 
-    # Calculate 20-day moving average for each ETF
+    # Initialize a dictionary to store 20DMA data for each ETF
     etf_data = {}
-    for etf_name in ['GOLDBEES_NS']:  # Add more ETF names as needed
+    etf_close_minus_20dma = {}
+    etf_close_div_20dma = {}
+    
+    # Calculate 20-day moving average for each ETF
+    for etf in etf_name_list:
+        etf_name = etf.upper()
+        # Get the model corresponding to the ETF name dynamically
+        etf_model = globals()[etf_name]
+        
         # Get 20-day data
         twenty_day_ago = today - timedelta(days=20)
-        twenty_day_data = GOLDBEES_NS.objects.filter(date__gte=twenty_day_ago)
+        twenty_day_data = etf_model.objects.filter(date__gte=twenty_day_ago)
         
-
         # Calculate 20DMA
         twenty_day_sum = sum([price.close for price in twenty_day_data])
         twenty_day_avg = twenty_day_sum / len(twenty_day_data) if len(twenty_day_data) > 0 else 0
 
-        # Store 20DMA in dictionary
-        etf_data[etf_name] = twenty_day_avg
+       
 
-    return etf_data
+        close_minus_20dma = twenty_day_data.last().close - twenty_day_avg
+
+        # Calculate close / 20DMA
+        close_div_20dma = twenty_day_data.last().close / twenty_day_avg if twenty_day_avg != 0 else 0
+
+        # Store 20DMA, close - 20DMA, and close / 20DMA ratio in respective dictionaries
+        etf_data[etf] = twenty_day_avg
+        etf_close_minus_20dma[etf] = close_minus_20dma
+        etf_close_div_20dma[etf] = close_div_20dma
+
+       
+
+    return etf_data, etf_close_minus_20dma, etf_close_div_20dma
+
+
 
 
 def calculate_percentage_diff(data):
     for i in range(1,len(data)):
             data[i].percent_diff = ((data[i].close - data[i-1].close) / data[i-1].close) * 100
+
+
+
+
+# def calculate_etf_data(etf_name):
+#     # Get today's date
+#     today = date.today()
+    
+
+#     # Calculate 20-day moving average
+#     twenty_day_ago = today - timedelta(days=20)
+#     twenty_day_data = None
+#     if etf_name == 'GOLDBEES_NS':
+#         twenty_day_data = GOLDBEES_NS.objects.filter(date__gte=twenty_day_ago)
+#     elif etf_name == 'NIFTYBEES_NS':
+#         twenty_day_data = NIFTYBEES_NS.objects.filter(date__gte=twenty_day_ago)
+#     elif etf_name == 'SILVERBEES_NS':
+#         twenty_day_data = SILVERBEES_NS.objects.filter(date__gte=twenty_day_ago)
+#     elif etf_name == 'ITBEES_NS':
+#         twenty_day_data = ITBEES_NS.objects.filter(date__gte=twenty_day_ago)
+#     elif etf_name == 'SBIETFIT_NS':
+#         twenty_day_data = SBIETFIT_NS.objects.filter(date__gte=twenty_day_ago)
+    
+#     twenty_day_sum = sum(price.close for price in twenty_day_data)
+#     twenty_day_avg = twenty_day_sum / len(twenty_day_data) if len(twenty_day_data) > 0 else 0
+
+#     # Get today's close price
+#     today_data = None
+#     if etf_name == 'GOLDBEES_NS':
+#         today_data = GOLDBEES_NS.objects.filter(date=today)
+#     elif etf_name == 'NIFTYBEES_NS':
+#         today_data = NIFTYBEES_NS.objects.filter(date=today)
+#     elif etf_name == 'SILVERBEES_NS':
+#         today_data = SILVERBEES_NS.objects.filter(date=today)
+#     elif etf_name == 'ITBEES_NS':
+#         today_data = ITBEES_NS.objects.filter(date=today)
+#     elif etf_name == 'SBIETFIT_NS':
+#         today_data = SBIETFIT_NS.objects.filter(date=today)
+
+#     if today_data.exists():
+#         today_close = today_data.first().close
+#         cmp_vs_20dma = today_close - twenty_day_avg
+#         if today_close > twenty_day_avg:
+#             cmp_result = 'Above'
+#         elif today_close < twenty_day_avg:
+#             cmp_result = 'Below'
+#         else:
+#             cmp_result = 'Equal'
+#         return {
+#             '20dma': twenty_day_avg,
+#             'close_vs_20dma': cmp_vs_20dma,
+#             'cmp_vs_20dma': cmp_result
+#         }
+#     else:
+#         return None
+
+
+
 
 
 
