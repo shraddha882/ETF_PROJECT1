@@ -73,6 +73,232 @@ class SBIETFIT_NS(models.Model):
     def __str__(self):
         # return self.date
         return self.date.strftime("%Y-%m-%d")
+    
+class EGOLD_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class ABSLNN50ET_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class CPSEETF_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class MAFANG_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class MOVALUE_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class ICICIB22_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+    
+class NIFITETF_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+    
+class DSPITETF_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+    
+class PSUBNKIETF_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class COMMOIETF_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+    
+class ITIETF_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class AXISTECETF_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class TECH_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class KOTAKPSUBK_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+class DSPQ50ETF_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
+
+class INFRABEES_NS(models.Model):
+    date = models.DateField(primary_key=True, default = '-')
+    Open = models.FloatField(null = True, default = '-')
+    high = models.FloatField(null = True, default = '-')
+    low = models.FloatField(null = True, default = '-')
+    close = models.FloatField(null = True, default = '-')
+    volume = models.BigIntegerField(null = True, default = '-')
+    dividends = models.FloatField(null = True, default = '-')
+    stock_splits = models.FloatField(null = True, default = '-')
+
+    def __str__(self):
+        # return self.date
+        return self.date.strftime("%Y-%m-%d")
+
 
 class AllETF(models.Model):
     Etfnames = models.CharField(max_length = 225, default = 'Name')
@@ -82,6 +308,6 @@ class AllETF(models.Model):
     close = models.FloatField(null = True, default = '-')
 
     def __str__(self):
-        # return self.date
+        
         return self.Etfnames
     
