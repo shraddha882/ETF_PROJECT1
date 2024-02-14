@@ -239,7 +239,6 @@ def contact(request):
 
 def NIFTYbees(request):
     table_name = 'NIFTYBEES'
-    category = 'Stocks'
     alldata = NIFTYBEES_NS.objects.all()
     data = list(alldata)
     calculate_percentage_diff(data)
@@ -261,7 +260,6 @@ def NIFTYbees(request):
             context = {
                 'data': data,
                 'table_name':table_name,
-                'category':category
                 
             }
             return render(request, 'usernifty.html', context)
@@ -270,7 +268,7 @@ def NIFTYbees(request):
             context = {
                 'data': data,
                 'table_name':table_name,
-                'category':category
+                
             }
             return render(request, 'usernifty.html', context)
 
@@ -278,7 +276,6 @@ def NIFTYbees(request):
     context = {
                'data': data,
                'table_name':table_name,
-               'category':category
                
                }
     return render(request, 'usernifty.html', context)
@@ -290,7 +287,7 @@ def GOLDbees(request):
         alldata = GOLDBEES_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
-        category = 'Commodities'
+        
 
 
         if request.method == 'POST':
@@ -310,7 +307,7 @@ def GOLDbees(request):
                 context = {
                     'data': data,
                     'table_name':table_name,
-                    'category':category
+                    
                 }
                 return render(request, 'usergold.html', context)
             else:
@@ -318,7 +315,7 @@ def GOLDbees(request):
                 context = {
                     'data': data,
                     'table_name':table_name,
-                    'category':category
+                    
                 }
                 return render(request, 'usergold.html', context)
 
@@ -326,7 +323,7 @@ def GOLDbees(request):
         context = {
             'data': data,
             'table_name':table_name,
-            'category':category
+            
 
                    }
         return render(request, 'usergold.html', context)
@@ -338,7 +335,7 @@ def ITbees(request):
     alldata = ITBEES_NS.objects.all()
     data = list(alldata)
     calculate_percentage_diff(data)
-    category = 'Stocks'
+    
 
 
     if request.method == 'POST':
@@ -358,7 +355,7 @@ def ITbees(request):
             context = {
                 'data': data,
                 'table_name':table_name,
-                'category':category
+                
             }
             return render(request, 'userit.html', context)
         else:
@@ -366,7 +363,7 @@ def ITbees(request):
             context = {
                 'data': data,
                 'table_name':table_name,
-                'category':category
+                
             }
             return render(request, 'userit.html', context)
 
@@ -374,7 +371,7 @@ def ITbees(request):
     context = {
         'data': data,
         'table_name':table_name,
-        'category':category
+        
                }
     return render(request, 'userit.html', context)
 
@@ -384,7 +381,7 @@ def SBIetfit(request):
     alldata = SBIETFIT_NS.objects.all()
     data = list(alldata)
     calculate_percentage_diff(data)
-    category = 'Stocks'
+    
 
 
     if request.method == 'POST':
@@ -405,7 +402,7 @@ def SBIetfit(request):
             context = {
                 'data': data,
                   'table_name':table_name,
-                  'category':category
+                  
             }
             return render(request, 'usersbi.html', context)
         else:
@@ -419,7 +416,7 @@ def SBIetfit(request):
     # Default behavior: show all data
     context = {'data': data,
                'table_name':table_name,
-               'category':category
+               
                }
     return render(request, 'usersbi.html', context)
 
@@ -429,7 +426,7 @@ def SILVERbees(request):
         alldata = SILVERBEES_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
-        category = 'Commodities'
+        
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
             end_date_str = request.POST.get('end_date')
@@ -448,7 +445,7 @@ def SILVERbees(request):
                 context = {
                     'data': data,
                       'table_name':table_name,
-                      'category':category
+                      
                 }
                 return render(request, 'usersilver.html', context)
             else:
@@ -456,14 +453,14 @@ def SILVERbees(request):
                 context = {
                     'data': data,
                     'table_name':table_name,
-                    'category':category
+                    
                 }
                 return render(request, 'usersilver.html', context)
 
         # Default behavior: show all data
         context = {'data': data,
                    'table_name':table_name,
-                   'category':category
+                   
                    
                    }
         return render(request, 'usersilver.html', context)
@@ -473,20 +470,20 @@ def Logout(request):
     messages.info(request, "Logged out successfully!")
     return redirect('Userlogin')
 
-def userstocksdd(request):
+# def userstocksdd(request):
      
-    category = 'Stocks'
-    stocks1 = 'NIFTYBEES'
-    stocks2 = 'ITBEES'
-    stocks3 = 'SBIETFIT'
-    context = {
-        'nifty':stocks1,
-        'it':stocks2,
-        'sbi':stocks3,
-        'category':category
-    }
+#     category = 'Stocks'
+#     stocks1 = 'NIFTYBEES'
+#     stocks2 = 'ITBEES'
+#     stocks3 = 'SBIETFIT'
+#     context = {
+#         'nifty':stocks1,
+#         'it':stocks2,
+#         'sbi':stocks3,
+#         'category':category
+#     }
      
-    return render(request,'userstocks.html',context)
+#     return render(request,'userstocks.html',context)
  
 def usercommoditiesdd(request):
     category = 'Commodities'
@@ -503,17 +500,20 @@ def usercommoditiesdd(request):
 
 
 def userstocks(request):
+    category = 'Stocks'
+    stocks1 = 'NIFTYBEES'
+    stocks2 = 'ITBEES'
+    stocks3 = 'SBIETFIT'
     alldata = AllETF.objects.all()
     # etf_names = AllETF.objects.all().values('Etfnames' ,flat=True)
     # etf_name_list = list(etf_names.values())
     # print(etf_name_list)
     etf_names = AllETF.objects.all().values_list('Etfnames', flat=True)
     etf_name_list = list(etf_names)
-    print(etf_name_list)
+    
 
     etf_data, etf_close_minus_20dma, etf_close_div_20dma = calculate_20dma(etf_name_list)
     
-    print(etf_data)
     # print(alldata)
     
 
@@ -522,6 +522,10 @@ def userstocks(request):
         'etf_data':etf_data,
         'etf_close_minus_20dma': etf_close_minus_20dma,
         'etf_close_div_20dma': etf_close_div_20dma,
+        'nifty':stocks1,
+        'it':stocks2,
+        'sbi':stocks3,
+        'category':category
 
     }
     return render(request, 'userstocks.html',context)
@@ -554,7 +558,7 @@ def calculate_20dma(etf_name_list):
         close_minus_20dma = twenty_day_data.last().close - twenty_day_avg
 
         # Calculate close / 20DMA
-        close_div_20dma = twenty_day_data.last().close / twenty_day_avg if twenty_day_avg != 0 else 0
+        close_div_20dma = (twenty_day_avg / twenty_day_data.last().close) if twenty_day_avg != 0 else 0
 
         # Store 20DMA, close - 20DMA, and close / 20DMA ratio in respective dictionaries
         etf_data[etf] = twenty_day_avg

@@ -1,5 +1,5 @@
 {% load static %}
-{% comment %} {% if request.user.is_staff %} {% endcomment %}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -51,7 +51,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center" >
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="{% url "admindashboard" %}" class="logo d-flex align-items-center">
+      <a href="{% url "UserDashboard" %}" class="logo d-flex align-items-center">
         <img src="{% static 'img/logo.png' %}" alt="">
         <span class="d-none d-lg-block">User Panel</span>
       </a>
@@ -81,7 +81,7 @@
         <ul class="list-group list-group">
           <li class="list-group-item d-flex justify-content-between align-items-start">
             <div class="ms-2 me-auto ">
-              <a href="{% url 'userstocksdropdown' %}"><div class="fw-bold text-dark">Stocks</div></a>
+              <a href="{% url 'userstocks' %}"><div class="fw-bold text-dark">Stocks</div></a>
               
             </div>
             <span class="badge bg-info ms-4 rounded-pill">14</span>

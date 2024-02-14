@@ -17,8 +17,8 @@ urlpatterns = [
     path('itbees/', views.ITbees,name="ITbees"),
     path('sbietfit/', views.SBIetfit,name="SBIetfit"),
     # path('account-verify/<token>',views.accout_verify, name='account-verify'),
-     path('userstocksdd/',views.userstocksdd, name="userstocksdropdown"),
-      path('usercommoditiesdd/',views.usercommoditiesdd, name="usercommoditiesdropdown"),
+    # path('userstocksdd/',views.userstocksdd, name="userstocksdropdown"),
+    path('usercommoditiesdd/',views.usercommoditiesdd, name="usercommoditiesdropdown"),
     
     
 ]
