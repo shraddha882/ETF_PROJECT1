@@ -5,7 +5,7 @@ from Custom_admin.views import *
 urlpatterns = [
     path('', admindashboard, name='admindashboard'),
     path('logout/', Logout , name='adminlogout'),
-    # path('stocks/', stocks, name='stocks'),
+    path('stocks/', stocks, name='stocks'),
     # path('commodities/', commodities, name='commodities'),
     path('users_data/', users_data, name='users_data'),
     path('Approve/<str:username>/',Approve,name='approve'),

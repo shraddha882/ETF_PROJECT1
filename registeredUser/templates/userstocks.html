@@ -44,7 +44,6 @@
                                     <td>{{ d.high|floatformat:2 }}</td>
                                     <td>{{ d.low|floatformat:2 }}</td>
                                     <td>{{ d.close|floatformat:2 }}</td> 
-                                    {% comment %} <td>{{ etf_data }}</td>  {% endcomment %}
                                     
                                     {% for key, value in etf_data.items %}
                                         {% if key == d.Etfnames %}
@@ -80,70 +79,6 @@
                                 {% endfor %}  
                                                    
                             </tbody> 
-                            {% comment %} <tbody>
-                                {% for d in all_data %}
-                                <tr>
-                                    <td>{{ d.Etfnames }}</td>
-                                    <td>{{ d.Open|floatformat:2 }}</td>
-                                    <td>{{ d.high|floatformat:2 }}</td>
-                                    <td>{{ d.low|floatformat:2 }}</td>
-                                    <td>{{ d.close|floatformat:2 }}</td>
-                                    <td>
-                                        {% if d.Etfnames in etf_data %}
-                                            {{ etf_data.d.Etfnames.20dma }}
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ d.close|floatformat:2 }} - 
-                                        {% if d.Etfnames in etf_data %}
-                                            {{ etf_data.d.Etfnames.20dma }}
-                                        {% endif %}
-                                    </td> 
-                                    <td>{{ d.close|floatformat:2 }} - 
-                                        {% if d.Etfnames in etf_data %}
-                                            {{ etf_data.d.Etfnames.20dma }}
-                                        {% endif %}
-                                    </td> 
-                                </tr>
-                                {% endfor %}  
-                            </tbody>  {% endcomment %}
-
-                        
-                            
-                            
-
-                            {% comment %} <tbody>
-                                {% for d in data %}
-                                <tr>
-                                    <td>{{ d.Etfnames }}</td>
-                                    <td>{{ d.Open|floatformat:2 }}</td>
-                                    <td>{{ d.high|floatformat:2 }}</td>
-                                    <td>{{ d.low|floatformat:2 }}</td>
-                                    <td>{{ d.close|floatformat:2 }}</td> 
-                                    <td>{{ d.twenty_dma|floatformat:2 }}</td>
-                                    
-                                    {% if d.close_minus_twenty_dma %}
-                                        {% if d.close_minus_twenty_dma > 0 %}
-                                            <td class="positive">{{ d.close_minus_twenty_dma|floatformat:2 }}</td>
-                                        {% else %}
-                                            <td class="negative">{{ d.close_minus_twenty_dma|floatformat:2 }}</td>
-                                        {% endif %}
-                                    {% else %}
-                                        <td>-</td>
-                                    {% endif %}
-                                    
-                                    {% if d.close_vs_twenty_dma %}
-                                        {% if d.close_vs_twenty_dma > 0 %}
-                                            <td class="positive">{{ d.close_vs_twenty_dma|floatformat:2 }}</td>
-                                        {% else %}
-                                            <td class="negative">{{ d.close_vs_twenty_dma|floatformat:2 }}</td>
-                                        {% endif %}
-                                    {% else %}
-                                        <td>-</td>
-                                    {% endif %}
-                                </tr>
-                                {% endfor %}                     
-                            </tbody> {% endcomment %}
-                    
                         </table>
                   </div>
               </div>

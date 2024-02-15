@@ -14,44 +14,75 @@
         </ol>
       </nav>
     </div>
-    {% comment %} <section class="section">
-        <div class="row">
+    
+    <section class="section">
+        <div class="row ">
             <div class="col-lg-12">        
                 <div class="card">
                     <div class="card-body">
-                    <h5 class="card-title">Niftybees</h5>   
-                    <table class="table datatable table-hover" id="datatable" name="datatable"> 
-                            <label for="startDate">Select start Date</label>
-                            <input type="date" id="startDate" name="start_date" class="form-control">
-                            <label for="endDate">Select end Date</label>
-                            <input type="date" id="endDate" name="end_date" class="form-control">
-                            <button type="submit" class="btn-primary btn mt-1 btn-sm btn-rounded"  >Apply filter</button>
-                        <thead>                           
-                            <tr>
-                                <th >Date</th>
-                                <th>Open</th>
-                                <th>High</th>
-                                <th>Low</th>
-                                <th>Close</th> 
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for d in data %}
-                            <tr>
-                                <td>{{ d.date }}</td>
-                                <td>{{d.Open|floatformat:4}}</td>
-                                <td>{{d.high|floatformat:4}}</td>
-                                <td>{{d.low|floatformat:4}}</td>
-                                <td>{{d.close|floatformat:4}}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                        <h5 class="card-title fw-bold">{{table_name}}</h5>     
+                          <table class="table datatable table-hover"> 
+                              <thead>                           
+                                  <tr>
+                                      <th>Underlying assets</th>
+                                      <th>Open</th>
+                                      <th>High</th>
+                                      <th>Low</th>
+                                      <th>CMP</th> 
+                                      <th>20 DMA</th> 
+                                      <th>Close - 20 DMA</th> 
+                                      <th>Close vs 20 DMA</th> 
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for d in data %}
+                                  <tr>
+                                      <td>{{ d.Etfnames }}</td>
+                                      <td>{{ d.Open|floatformat:2 }}</td>
+                                      <td>{{ d.high|floatformat:2 }}</td>
+                                      <td>{{ d.low|floatformat:2 }}</td>
+                                      <td>{{ d.close|floatformat:2 }}</td> 
+                                      
+                                      {% for key, value in etf_data.items %}
+                                          {% if key == d.Etfnames %}
+                                              <td>{{ value|floatformat:2  }}</td>
+                                          {% endif %}
+                                      {% endfor %}
+                                      {% for key, value in etf_close_minus_20dma.items %}
+                                      {% if key == d.Etfnames %}
+                                          {% if value < 0 %}
+                                              <td style="color: red">{{ value|floatformat:2 }}</td>
+                                          {% elif value > 0 %}
+                                              <td style="color: green">{{ value|floatformat:2 }}</td>
+                                          {% else %}
+                                              <td>{{ value|floatformat:2 }}</td>
+                                          {% endif %}
+                                      {% endif %}
+                                  {% endfor %}
+                          
+                                  {% for key, value in etf_close_div_20dma.items %}
+                                      {% if key == d.Etfnames %}
+                                          {% if value < 0 %}
+                                              <td style="color: red">{{ value|floatformat:2 }}</td>
+                                          {% elif value > 0 %}
+                                              <td style="color: green">{{ value|floatformat:2 }}</td>
+                                          {% else %}
+                                              <td>{{ value|floatformat:2 }}</td>
+                                          {% endif %}
+                                      {% endif %}
+                                  {% endfor %}
+  
+                                      {% comment %} {% if etf_data.key == d.Etfnames %}<td>{{etf_data.value}}</td>{% endif %} {% endcomment %}
+                                  </tr>
+                                  {% endfor %}  
+                                                     
+                              </tbody> 
+                          </table>
                     </div>
                 </div>
             </div>
         </div>
-    </section> {% endcomment %}
+    </section>
 </main>
 {% endblock body %}
 

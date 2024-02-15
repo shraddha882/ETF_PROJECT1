@@ -12,7 +12,8 @@ from django.contrib.auth.decorators import user_passes_test
 from Custom_admin.models import *
 from datetime import datetime,date
 from django.db.models import Q
-
+from django.db.models import Avg
+from datetime import timedelta, date
 
 
 def admindashboard(request):
@@ -73,8 +74,26 @@ def Decline(request,username):
     return redirect('users_data')
 
 
-# def stocks(request):
-#     return render(request, 'stocks.html')
+def stocks(request):
+    alldata = AllETF.objects.all()
+    etf_names = AllETF.objects.all().values_list('Etfnames', flat=True)
+    etf_name_list = list(etf_names)
+    # print(etf_name_list)
+
+    etf_data, etf_close_minus_20dma, etf_close_div_20dma = calculate_20dma(etf_name_list)
+    
+    # print(etf_data)
+    # print(alldata)
+    
+
+    context = {
+        'data':alldata,
+        'etf_data':etf_data,
+        'etf_close_minus_20dma': etf_close_minus_20dma,
+        'etf_close_div_20dma': etf_close_div_20dma,
+
+    }
+    return render(request, 'stocks.html',context)
 
 # def commodities(request):
 #     return render(request, 'commodities.html')
@@ -358,3 +377,44 @@ def admincommoditiesdd(request):
         
     }
     return render(request,'commodities.html',context)
+
+
+def calculate_20dma(etf_name_list):
+    # Get today's date
+    today = date.today()
+
+    # Initialize a dictionary to store 20DMA data for each ETF
+    etf_data = {}
+    etf_close_minus_20dma = {}
+    etf_close_div_20dma = {}
+    
+    # Calculate 20-day moving average for each ETF
+    for etf in etf_name_list:
+        etf_name = etf.upper()
+        # Get the model corresponding to the ETF name dynamically
+        etf_model = globals()[etf_name]
+        
+        # Get 20-day data
+        twenty_day_ago = today - timedelta(days=20)
+        twenty_day_data = etf_model.objects.filter(date__gte=twenty_day_ago)
+        
+        # Calculate 20DMA
+        twenty_day_sum = sum([price.close for price in twenty_day_data])
+        twenty_day_avg = twenty_day_sum / len(twenty_day_data) if len(twenty_day_data) > 0 else 0
+
+       
+
+        close_minus_20dma = twenty_day_data.last().close - twenty_day_avg
+
+        # Calculate close / 20DMA
+        close_div_20dma = twenty_day_data.last().close / twenty_day_avg if twenty_day_avg != 0 else 0
+
+        # Store 20DMA, close - 20DMA, and close / 20DMA ratio in respective dictionaries
+        etf_data[etf] = twenty_day_avg
+        etf_close_minus_20dma[etf] = close_minus_20dma
+        etf_close_div_20dma[etf] = close_div_20dma
+
+       
+
+    return etf_data, etf_close_minus_20dma, etf_close_div_20dma
+
