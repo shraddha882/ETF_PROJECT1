@@ -864,10 +864,42 @@ def stocksdd(request):
     stocks1 = 'NIFTYBEES'
     stocks2 = 'ITBEES'
     stocks3 = 'SBIETFIT'
+    stocks4 = 'TECH'
+   
+    stocks5 = 'ABSLNN50ET'
+    stocks6 = 'CPSEETF'
+    stocks7 = 'MAFANG'
+    stocks8 = 'MOVALUE'
+    stocks9 = 'NIFITETF'
+    stocks10 = 'PSUBNKIETF'
+    stocks11 = 'ICICIB22'
+    stocks12  = 'DSPITETF'
+    stocks13 = 'COMMOIETF'
+    stocks14 = 'ITIETF'
+    stocks15 = 'AXISTECETF'
+    stocks16 = 'KOTAKPSUBK'
+    stocks17 = 'DSPQ50ETF'
+    stocks18 = 'INFRABEES'
+
     context = {
         'nifty':stocks1,
         'it':stocks2,
         'sbi':stocks3,
+        'tech':stocks4,
+        'abslnn':stocks5,
+        'cpse':stocks6,
+        'mafang':stocks7,
+        'movalue':stocks8,
+        'nifit':stocks9,
+        'psubnk':stocks10,
+        'icicib22':stocks11,
+        'dspit':stocks12,
+        'commoi':stocks13,
+        'iti':stocks14,
+        'axistec':stocks15,
+        'kotakp':stocks16,
+        'dspq50':stocks17,
+        'infrabees':stocks18,
         'category':category
     }
      
@@ -877,10 +909,12 @@ def commoditiesdd(request):
     category = 'Commodities'
     com1 = 'SILVERBEES'
     com2 = 'GOLDBEES'
+    com3='EGOLD'
     
     context = {
         'silver':com1,
         'gold':com2,
+        'egold':com3,
         'category':category
         
     }
