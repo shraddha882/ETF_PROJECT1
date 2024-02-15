@@ -20,39 +20,35 @@
                 <div class="card">
                     <div class="card-body">
                     <h5 class="card-title fw-bold">{{table_name}}</h5>  
-                    <form id="filterForm" action="{% url 'itbees' %}" method="POST">
+                    <form id="filterForm" action="{% url 'psubnk' %}" method="POST">
                       {% csrf_token %}
-                       <div class="row">
-                        <div class="col-5">
-                          <a class="nav-link collapsed bg-transparent" data-bs-toggle="collapse" href="#components-nav">
-                            <span>Date filter</span><i class="bi bi-chevron-down ms-auto"></i>
-                        </a>
-                        <ul id="components-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                            <li>
-                              <div class="cardbody col-5">
-                                <label for="startDate">Select start Date</label>
-                                <input type="date" id="startDate" name="start_date" class="form-control">
-                            </div>
-                            </li>
-                            <li>
-                              <div class="cardbody col-5">
-                                <label for="endDate">Select end Date</label>
-                                <input type="date" id="endDate" name="end_date" class="form-control">
-                            </div>
-                            </li>
-                            
-                        </ul>
-                        </div>
-                   <div class="col-3">
-                    <button type="submit" class="btn-primary btn mt-1 btn-sm btn-rounded" style="background-color: #000080;">Apply filter</button>
-                   </div>
-                     
-                
-                       </div>
-                        
+                      
+                          <div class="row">
+                              <div class="col-3">
+                                  <div class="cardbody">
+                                      <label for="startDate">Select start Date</label>
+                                      <input type="date" id="startDate" name="start_date" class="form-control">
+                                  </div>
+                              </div>
+                      
+                              <div class="col-3">
+                                  <div class="cardbody">
+                                      <label for="endDate">Select end Date</label>
+                                      <input type="date" id="endDate" name="end_date" class="form-control">
+                                  </div>
+                              </div>
+                      
+                              <div class="cardbody mt-3">
+                                  <button type="submit" class="btn-primary btn mt-1 btn-sm btn-rounded" style="background-color: #000080;">Apply filter</button>
+                              </div>
+                                                  
+                              <div class="col-12 mt-2">
+                                  <hr class="my-4" style="border-top: 1px solid #100f0f;">
+                              </div>
+                          </div>
                    
                       
-                  </form>      
+                  </form>     
                     <table class="table datatable table-hover"> 
                        
                    

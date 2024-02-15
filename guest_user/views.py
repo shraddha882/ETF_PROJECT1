@@ -823,20 +823,20 @@ def tech(request):
                     'data': queryset,
                     'table_name':table_name
                 }
-                return render(request, 'tech.html', context)
+                return render(request, 'techetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
                     'table_name':table_name
                 }
-                return render(request, 'tech.html', context)
+                return render(request, 'techetf.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
                    'table_name':table_name
                    }
-        return render(request, 'tech.html', context)
+        return render(request, 'techetf.html', context)
 
 
 
