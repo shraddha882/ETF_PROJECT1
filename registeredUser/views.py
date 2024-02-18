@@ -160,26 +160,28 @@ def faq(request):
 
 
 def Userbuy(request):
+    data = AllETF.objects.all()
+    closevalue = None
+    cost = None
+    
     if request.method == 'POST':
         # Retrieve form data from request.POST
-        username  = request.POST.get('username')
+        username = request.POST.get('username')
         type = request.POST.get('type')
         etf = request.POST.get('ETF')
-        close = request.POST.get('close')
-        quant = request.POST.get('quant')
+        quant = int(request.POST.get('quant'))
         
+        closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
+        cost = closevalue * quant  # Calculate the cost
         
-        data = AllETF.objects.all()
-        asset = data.filter(assettype = type)
-        closevalue = AllETF.objects.get(Etfnames = etf)
-        
-        
-        context = {
-            'data':data,
-            'asset':asset,
-            'closevalue':closevalue,
-        }
-    return render(request, 'user_buy.html',context)
+    context = {   
+        'data': data,
+        'closevalue': closevalue,
+        'cost': cost,
+    }
+    
+    return render(request, 'user_buy.html', context)
+
 
 
 def error_404(request):
