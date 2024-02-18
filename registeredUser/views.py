@@ -1314,7 +1314,7 @@ def calculate_50dma(etf_name_list):
         etf_data_50dma[etf] = fifty_day_avg
         etf_close_minus_50dma[etf] = close_minus_50dma
         etf_close_div_50dma[etf] = close_div_50dma
-        print(etf_close_div_50dma)
+        # print(etf_close_div_50dma)
 
     return etf_data_50dma, etf_close_minus_50dma, etf_close_div_50dma
 
