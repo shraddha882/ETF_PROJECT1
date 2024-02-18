@@ -19,20 +19,26 @@
       <div class="row ">
           <div class="col-lg-12">        
               <div class="card">
-                  <div class="card-body">
+                  <div class="card-body" style="overflow-x: auto;">
                       <h5 class="card-title fw-bold">{{table_name}}</h5>     
-                        <table class="table datatable table-hover"> 
+                        <table class="table   table-hover"> 
                             <thead>                           
                                 <tr>
-                                    <th>S. no. </th>
-                                    <th>Underlying assets</th>
-                                    <th>Open</th>
-                                    <th>High</th>
-                                    <th>Low</th>
-                                    <th>CMP</th> 
-                                    <th>20 DMA</th> 
-                                    <th>CMP - 20 DMA</th> 
-                                    <th>20 DMA vs CMP</th> 
+                                    <th style="white-space: nowrap;">S. no. </th>
+                                    <th style="white-space: nowrap;">Underlying assets</th>
+                                    <th style="white-space: nowrap;">Open</th>
+                                    <th style="white-space: nowrap;">High</th>
+                                    <th style="white-space: nowrap;">Low</th>
+                                    <th style="white-space: nowrap;">CMP</th> 
+                                    <th style="white-space: nowrap;">20 DMA</th> 
+                                    <th style="white-space: nowrap;">CMP - 20 DMA</th> 
+                                    <th style="white-space: nowrap;">20 DMA vs CMP</th> 
+                                    <th style="white-space: nowrap;">50 DMA</th> 
+                                    <th style="white-space: nowrap;">CMP - 50 DMA</th> 
+                                    <th style="white-space: nowrap;">50 DMA vs CMP</th> 
+                                    <th style="white-space: nowrap;">100 DMA</th> 
+                                    <th style="white-space: nowrap;">CMP - 100 DMA</th> 
+                                    <th style="white-space: nowrap;">100 DMA vs CMP</th> 
                                 </tr>
                             </thead>
                             <tbody>
@@ -77,74 +83,75 @@
                                     {% endif %}
                                 {% endfor %}
 
+
+                                {% for key, value in etf_data_50dma.items %}
+                                {% if key == d.Etfnames %}
+                                    <td>{{ value|floatformat:2 }}</td>
+                                {% endif %}
+                            {% endfor %}
+                            <!-- Close - 50DMA -->
+                            {% for key, value in etf_close_minus_50dma.items %}
+                                {% if key == d.Etfnames %}
+                                    {% if value < 0 %}
+                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                    {% elif value > 0 %}
+                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                    {% else %}
+                                        <td>{{ value|floatformat:2 }}</td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            <!-- Close / 50DMA -->
+                            {% for key, value in etf_close_div_50dma.items %}
+                                {% if key == d.Etfnames %}
+                                    {% if value < 0 %}
+                                        <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                    {% elif value > 0 %}
+                                        <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                    {% else %}
+                                        <td>{{ value|floatformat:2 }}%</td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+
+
+                            {% for key, value in etf_data_100dma.items %}
+                            {% if key == d.Etfnames %}
+                                <td>{{ value|floatformat:2 }}</td>
+                            {% endif %}
+                        {% endfor %}
+                        <!-- Close - 50DMA -->
+                        {% for key, value in etf_close_minus_100dma.items %}
+                            {% if key == d.Etfnames %}
+                                {% if value < 0 %}
+                                    <td style="color: red">{{ value|floatformat:2 }}</td>
+                                {% elif value > 0 %}
+                                    <td style="color: green">{{ value|floatformat:2 }}</td>
+                                {% else %}
+                                    <td>{{ value|floatformat:2 }}</td>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <!-- Close / 50DMA -->
+                        {% for key, value in etf_close_div_100dma.items %}
+                            {% if key == d.Etfnames %}
+                                {% if value < 0 %}
+                                    <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                {% elif value > 0 %}
+                                    <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                {% else %}
+                                    <td>{{ value|floatformat:2 }}%</td>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                                
+
                                     {% comment %} {% if etf_data.key == d.Etfnames %}<td>{{etf_data.value}}</td>{% endif %} {% endcomment %}
                                 </tr>
                                 {% endfor %}  
                                                    
                             </tbody> 
-                            {% comment %} <tbody>
-                                {% for d in all_data %}
-                                <tr>
-                                    <td>{{ d.Etfnames }}</td>
-                                    <td>{{ d.Open|floatformat:2 }}</td>
-                                    <td>{{ d.high|floatformat:2 }}</td>
-                                    <td>{{ d.low|floatformat:2 }}</td>
-                                    <td>{{ d.close|floatformat:2 }}</td>
-                                    <td>
-                                        {% if d.Etfnames in etf_data %}
-                                            {{ etf_data.d.Etfnames.20dma }}
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ d.close|floatformat:2 }} - 
-                                        {% if d.Etfnames in etf_data %}
-                                            {{ etf_data.d.Etfnames.20dma }}
-                                        {% endif %}
-                                    </td> 
-                                    <td>{{ d.close|floatformat:2 }} - 
-                                        {% if d.Etfnames in etf_data %}
-                                            {{ etf_data.d.Etfnames.20dma }}
-                                        {% endif %}
-                                    </td> 
-                                </tr>
-                                {% endfor %}  
-                            </tbody>  {% endcomment %}
-
-                        
                             
-                            
-
-                            {% comment %} <tbody>
-                                {% for d in data %}
-                                <tr>
-                                    <td>{{ d.Etfnames }}</td>
-                                    <td>{{ d.Open|floatformat:2 }}</td>
-                                    <td>{{ d.high|floatformat:2 }}</td>
-                                    <td>{{ d.low|floatformat:2 }}</td>
-                                    <td>{{ d.close|floatformat:2 }}</td> 
-                                    <td>{{ d.twenty_dma|floatformat:2 }}</td>
-                                    
-                                    {% if d.close_minus_twenty_dma %}
-                                        {% if d.close_minus_twenty_dma > 0 %}
-                                            <td class="positive">{{ d.close_minus_twenty_dma|floatformat:2 }}</td>
-                                        {% else %}
-                                            <td class="negative">{{ d.close_minus_twenty_dma|floatformat:2 }}</td>
-                                        {% endif %}
-                                    {% else %}
-                                        <td>-</td>
-                                    {% endif %}
-                                    
-                                    {% if d.close_vs_twenty_dma %}
-                                        {% if d.close_vs_twenty_dma > 0 %}
-                                            <td class="positive">{{ d.close_vs_twenty_dma|floatformat:2 }}</td>
-                                        {% else %}
-                                            <td class="negative">{{ d.close_vs_twenty_dma|floatformat:2 }}</td>
-                                        {% endif %}
-                                    {% else %}
-                                        <td>-</td>
-                                    {% endif %}
-                                </tr>
-                                {% endfor %}                     
-                            </tbody> {% endcomment %}
                     
                         </table>
                   </div>
