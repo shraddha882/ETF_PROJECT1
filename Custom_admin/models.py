@@ -1,5 +1,5 @@
 from django.db import models
-
+from registeredUser.models import RegisteredUser
 # # Base abstract model for ticker data
 class NIFTYBEES_NS(models.Model):
     date = models.DateField(primary_key=True, default = '-')
@@ -301,15 +301,37 @@ class INFRABEES_NS(models.Model):
 
 
 class AllETF(models.Model):
+    ASSET_TYPE_CHOICES = [
+        ('COMMODITIES', 'Commodities'),
+        ('STOCKS', 'Stocks'),
+      
+    ]
     Etfnames = models.CharField(max_length = 225, default = 'Name')
     # Date = models.DateField(null = True)
     Open = models.FloatField(null = True, default = '-')
     high = models.FloatField(null = True, default = '-')
     low = models.FloatField(null = True, default = '-')
     close = models.FloatField(null = True, default = '-')
+    asset_type = models.CharField(max_length =20,null = True,  choices=ASSET_TYPE_CHOICES)
 
 
     def __str__(self):
         
         return self.Etfnames
+    
+# class UserBuyetf(models.Model):
+#     Username = models.ForeignKey(RegisteredUser, on_delete=models.CASCADE,null = True)
+#     Date_time = models.DateTimeField("Date and Time", auto_now=False, auto_now_add=True,null = True)
+#     Etf_purchased = models.ForeignKey(AllETF, on_delete=models.CASCADE,null = True)
+#     Quantity = models.IntegerField(max_length = 20, null = True)
+#     Cost = models.IntegerField(max_length = 20, null = True)
+
+#     def __str__(self):
+        
+#         return self.Username
+
+
+    
+
+
     
