@@ -14,8 +14,8 @@ import uuid
 from django.conf import settings
 from django.db.models import Avg
 from datetime import timedelta, date
-
-
+ 
+ 
 # Create your views here.
 
 
@@ -484,6 +484,7 @@ def SILVERbees(request):
                    
                    
                    }
+        
         return render(request, 'usersilver.html', context)
 
 
@@ -492,6 +493,8 @@ def SILVERbees(request):
 def Egold(request):
         table_name = 'EGOLD'
         alldata = EGOLD_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -504,22 +507,24 @@ def Egold(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'useregold.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'useregold.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'useregold.html', context)
@@ -529,6 +534,9 @@ def Egold(request):
 def Abslnn50et(request):
         table_name = 'ABSLNN50ET'
         alldata = ABSLNN50ET_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -541,22 +549,24 @@ def Abslnn50et(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userabslnn50et.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userabslnn50et.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'userabslnn50et.html', context)
@@ -564,6 +574,8 @@ def Abslnn50et(request):
 def Commoietf(request):
         table_name = 'COMMOIETF'
         alldata = COMMOIETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -576,22 +588,24 @@ def Commoietf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usercommoietf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usercommoietf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'usercommoietf.html', context)
@@ -600,6 +614,8 @@ def Commoietf(request):
 def Cpseetf(request):
         table_name = 'CPSEETF'
         alldata = COMMOIETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -612,22 +628,24 @@ def Cpseetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usercpseetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usercpseetf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'usercpseetf.html', context)
@@ -636,6 +654,8 @@ def Cpseetf(request):
 def Dspitetf(request):
         table_name = 'DSPITETF'
         alldata = DSPITETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -648,22 +668,24 @@ def Dspitetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userdspitetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userdspitetf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'userdspitetf.html', context)
@@ -673,6 +695,8 @@ def Dspitetf(request):
 def Dspq50etf(request):
         table_name = 'DSPQ50ETF'
         alldata = DSPQ50ETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -685,22 +709,24 @@ def Dspq50etf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userdspq50.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userdspq50.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'userdspq50.html', context)
@@ -708,6 +734,8 @@ def Dspq50etf(request):
 def Axistec(request):
         table_name = 'AXISTEC'
         alldata = AXISTECETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -720,22 +748,24 @@ def Axistec(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'useraxistec.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'useraxistec.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'useraxistec.html', context)
@@ -744,6 +774,8 @@ def Axistec(request):
 def Icicib22(request):
         table_name = 'ICICIB22'
         alldata = ICICIB22_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -756,22 +788,24 @@ def Icicib22(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usericicib22.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usericicib22.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'usericicib22.html', context)
@@ -780,6 +814,8 @@ def Icicib22(request):
 def Infrabees(request):
         table_name = 'INFRABEES'
         alldata = INFRABEES_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -792,22 +828,24 @@ def Infrabees(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userinfrabees.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userinfrabees.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'userinfrabees.html', context)
@@ -816,6 +854,8 @@ def Infrabees(request):
 def Iti(request):
         table_name = 'ITI'
         alldata = ITIETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -828,22 +868,24 @@ def Iti(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'useriti.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'useriti.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'useriti.html', context)
@@ -852,6 +894,8 @@ def Iti(request):
 def Kotak(request):
         table_name = 'KOTAK'
         alldata = KOTAKPSUBK_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -864,22 +908,24 @@ def Kotak(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userkotak.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userkotak.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'userkotak.html', context)
@@ -887,6 +933,8 @@ def Kotak(request):
 def Mafang(request):
         table_name = 'MAFANG'
         alldata = MAFANG_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -899,22 +947,24 @@ def Mafang(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usermafang.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usermafang.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'usermafang.html', context)
@@ -923,6 +973,8 @@ def Mafang(request):
 def Movalue(request):
         table_name = 'MOVALUE'
         alldata = MOVALUE_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -935,22 +987,24 @@ def Movalue(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usermovalue.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usermovalue.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'usermovalue.html', context)
@@ -959,6 +1013,9 @@ def Movalue(request):
 def Nifitetf(request):
         table_name = 'NIFITETF'
         alldata = NIFITETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -971,22 +1028,24 @@ def Nifitetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usernifitetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usernifitetf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'usernifitetf.html', context)
@@ -994,6 +1053,8 @@ def Nifitetf(request):
 def Psubnk(request):
         table_name = 'PSUBNKIETF'
         alldata = PSUBNKIETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -1006,22 +1067,24 @@ def Psubnk(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userpsubnkietf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'userpsubnkietf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'userpsubnkietf.html', context)
@@ -1032,6 +1095,8 @@ def Psubnk(request):
 def Tech(request):
         table_name = 'TECH'
         alldata = TECH_NS.objects.all()
+        alldata = PSUBNKIETF_NS.objects.all()
+        data = list(alldata)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -1044,22 +1109,24 @@ def Tech(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usertechetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'usertechetf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data':data,
                    'table_name':table_name
                    }
         return render(request, 'usertechetf.html', context)
@@ -1131,6 +1198,8 @@ def userstocks(request):
     
 
     etf_data, etf_close_minus_20dma, etf_close_div_20dma = calculate_20dma(etf_name_list)
+    etf_data_50dma, etf_close_minus_50dma, etf_close_div_50dma = calculate_50dma(etf_name_list)
+    etf_data_100dma, etf_close_minus_100dma, etf_close_div_100dma = calculate_100dma(etf_name_list)
     
     # print(alldata)
     
@@ -1140,6 +1209,12 @@ def userstocks(request):
         'etf_data':etf_data,
         'etf_close_minus_20dma': etf_close_minus_20dma,
         'etf_close_div_20dma': etf_close_div_20dma,
+        'etf_data_50dma': etf_data_50dma,
+        'etf_close_minus_50dma': etf_close_minus_50dma,
+        'etf_close_div_50dma': etf_close_div_50dma,
+        'etf_data_100dma': etf_data_100dma,
+        'etf_close_minus_100dma': etf_close_minus_100dma,
+        'etf_close_div_100dma': etf_close_div_100dma,
         'nifty':stocks1,
         'it':stocks2,
         'sbi':stocks3,
@@ -1205,6 +1280,80 @@ def calculate_20dma(etf_name_list):
 
 
 
+from datetime import date, timedelta
+
+def calculate_50dma(etf_name_list):
+    # Get today's date
+    today = date.today()
+
+    # Initialize dictionaries to store 50DMA data for each ETF
+    etf_data_50dma = {}
+    etf_close_minus_50dma = {}
+    etf_close_div_50dma = {}
+    
+    # Calculate 50-day moving average for each ETF
+    for etf in etf_name_list:
+        etf_name = etf.upper()
+        # Get the model corresponding to the ETF name dynamically
+        etf_model = globals()[etf_name]
+        
+        # Get 50-day data
+        fifty_day_ago = today - timedelta(days=50)
+        fifty_day_data = etf_model.objects.filter(date__gte=fifty_day_ago)
+        
+        # Calculate 50DMA
+        fifty_day_sum = sum([price.close for price in fifty_day_data])
+        fifty_day_avg = fifty_day_sum / len(fifty_day_data) if len(fifty_day_data) > 0 else 0
+
+        close_minus_50dma = fifty_day_data.last().close - fifty_day_avg
+
+        # Calculate close / 50DMA
+        close_div_50dma = (fifty_day_avg / fifty_day_data.last().close) if fifty_day_avg != 0 else 0
+
+        # Store 50DMA, close - 50DMA, and close / 50DMA ratio in respective dictionaries
+        etf_data_50dma[etf] = fifty_day_avg
+        etf_close_minus_50dma[etf] = close_minus_50dma
+        etf_close_div_50dma[etf] = close_div_50dma
+        print(etf_close_div_50dma)
+
+    return etf_data_50dma, etf_close_minus_50dma, etf_close_div_50dma
+
+
+def calculate_100dma(etf_name_list):
+    # Get today's date
+    today = date.today()
+
+    # Initialize dictionaries to store 100DMA data for each ETF
+    etf_data_100dma = {}
+    etf_close_minus_100dma = {}
+    etf_close_div_100dma = {}
+    
+    # Calculate 100-day moving average for each ETF
+    for etf in etf_name_list:
+        etf_name = etf.upper()
+        # Get the model corresponding to the ETF name dynamically
+        etf_model = globals()[etf_name]
+        
+        # Get 100-day data
+        hundred_day_ago = today - timedelta(days=100)
+        hundred_day_data = etf_model.objects.filter(date__gte=hundred_day_ago)
+        
+        # Calculate 100DMA
+        hundred_day_sum = sum([price.close for price in hundred_day_data])
+        hundred_day_avg = hundred_day_sum / len(hundred_day_data) if len(hundred_day_data) > 0 else 0
+
+        close_minus_100dma = hundred_day_data.last().close - hundred_day_avg
+
+        # Calculate close / 100DMA
+        close_div_100dma = (hundred_day_avg / hundred_day_data.last().close) if hundred_day_avg != 0 else 0
+
+        # Store 100DMA, close - 100DMA, and close / 100DMA ratio in respective dictionaries
+        etf_data_100dma[etf] = hundred_day_avg
+        etf_close_minus_100dma[etf] = close_minus_100dma
+        etf_close_div_100dma[etf] = close_div_100dma
+
+    return etf_data_100dma, etf_close_minus_100dma, etf_close_div_100dma
+
 def calculate_percentage_diff(data):
     for i in range(1,len(data)):
             data[i].percent_diff = ((data[i].close - data[i-1].close) / data[i-1].close) * 100
@@ -1264,8 +1413,9 @@ def calculate_percentage_diff(data):
 #     else:
 #         return None
 
+ 
 
-
+ 
 
 
 
