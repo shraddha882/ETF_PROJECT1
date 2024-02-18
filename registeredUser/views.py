@@ -159,8 +159,29 @@ def faq(request):
     return render(request, 'faq.html')
 
 
-def blank(request):
-    return render(request, 'blank.html')
+def Userbuy(request):
+    data = AllETF.objects.all()
+    closevalue = None
+    cost = None
+    
+    if request.method == 'POST':
+        # Retrieve form data from request.POST
+        username = request.POST.get('username')
+        type = request.POST.get('type')
+        etf = request.POST.get('ETF')
+        quant = int(request.POST.get('quant'))
+        
+        closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
+        cost = closevalue * quant  # Calculate the cost
+        
+    context = {   
+        'data': data,
+        'closevalue': closevalue,
+        'cost': cost,
+    }
+    
+    return render(request, 'user_buy.html', context)
+
 
 
 def error_404(request):
@@ -1395,8 +1416,6 @@ def calculate_percentage_diff(data):
  
 
  
-
-
 
 
 
