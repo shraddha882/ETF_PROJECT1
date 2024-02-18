@@ -159,8 +159,27 @@ def faq(request):
     return render(request, 'faq.html')
 
 
-def blank(request):
-    return render(request, 'blank.html')
+def Userbuy(request):
+    if request.method == 'POST':
+        # Retrieve form data from request.POST
+        username  = request.POST.get('username')
+        type = request.POST.get('type')
+        etf = request.POST.get('ETF')
+        close = request.POST.get('close')
+        quant = request.POST.get('quant')
+        
+        
+        data = AllETF.objects.all()
+        asset = data.filter(assettype = type)
+        closevalue = AllETF.objects.get(Etfnames = etf)
+        
+        
+        context = {
+            'data':data,
+            'asset':asset,
+            'closevalue':closevalue,
+        }
+    return render(request, 'user_buy.html',context)
 
 
 def error_404(request):
@@ -1242,8 +1261,6 @@ def calculate_percentage_diff(data):
 #         }
 #     else:
 #         return None
-
-
 
 
 

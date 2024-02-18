@@ -1,0 +1,152 @@
+{% extends "userbase.html" %}
+{% block title %}User blank page{% endblock title %}
+{% load static %}
+{% block body %}
+
+<body>
+  
+
+    <main>
+      <div class="container ">
+  
+        <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-6 col-md-6 d-flex flex-column align-items-center justify-content-center">
+  
+                {% comment %} <div class="d-flex justify-content-center py-5">
+                  <a href="index.html" class="logo d-flex align-items-center w-auto">
+                    <img src="{% static 'img/logo.png' %}" alt="">
+                    <span class="d-none d-lg-block">Buy Page</span>
+                  </a>
+                </div><!-- End Logo -->
+                 {% endcomment %}
+                <form action="{% url 'register' %}" method="post">
+                  {% csrf_token %}
+                    {% if messages %}
+                      <div class="alert alert-info text-black bi-text-left" >
+                                <ul>
+                                  {% for message in messages %}
+                                      <li>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                      </div>
+                    {% endif %}
+                <div class="card mb-3 mt-5">
+  
+                  <div class="card-body">
+  
+                    <div class="pt-4 pb-2">
+                      <h5 class="card-title text-center pb-0 fs-4">Buy any assets</h5>
+                      <p class="text-center small">Enter required details to buy assets</p>
+                    </div>
+  
+                    <form class="row g-3 needs-validation" novalidate>
+                      <div class ="row">
+                        {% comment %} <div class="col-6">
+                          <label for="User" class="form-label">User</label>
+                          <input type="text" name="User" class="form-control" id="User" value={{request.user.username}} readonly>
+                          <div class="invalid-feedback">Please, enter your name!</div>
+                        </div> {% endcomment %}
+  
+                        <div class="col-6">
+                          <label for="username" class="form-label">Username</label>
+                          <div class="input-group has-validation">
+                            <span class="input-group-text" id="inputGroupPrepend">@</span>
+                            <input type="text" name="username" class="form-control" id="username" value= {{request.user.username}} readonly autofocus>
+                            <div class="invalid-feedback">Please choose a username.</div>
+                          </div>
+                        </div>
+                      </div>
+                      <br>
+                      <div class ="row">
+                        <div class="col-6">
+                          <label for="type" class="form-label">Select asset type</label>
+                          <br>
+                          <select id="type" name="type" class="form-control">
+                              <option value="">Select</option>
+                              {% for d in data %}
+                              <option value="{{ d.assettype }}">{{ d.assettype }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
+                        
+                        <div class="col-6">
+                          <label for="ETF" class="form-label">Select ETF</label>
+                          <br>
+                          <select id="ETF" name="ETF" class="form-control">
+                              <option value="">Select</option>
+                              {% for a in asset %}
+                              <option value="{{ a.Etfnames }}">{{ a.Etfnames }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <br>
+                      <div class ="row">
+
+                        <div class="col-6">
+                          <label for="close" class="form-label">Close Value</label>
+                          
+                          <input type="text" name="close" class="form-control" id="close" 
+                          {% for c in closevalue %}
+                          value = {{ c.close }}
+                          {% endfor %}
+                          readonly>
+                          
+                        </div>
+
+                        <div class="col-6">
+                          <label for="quant" class="form-label">Quantity</label>
+                          <input type="quant" name="quant" class="form-control" id="quant" required>
+                          <div class="invalid-feedback">Enter Quantity</div>
+                        </div>
+                      </div>
+  
+                      
+                      <br>
+                      {% comment %} <div class="col-12">
+                        <div class="form-check mt-2">
+                          <input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
+                          <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>
+                          <div class="invalid-feedback">You must agree before submitting.</div>
+                        </div>
+                      </div>
+                      <br> {% endcomment %}
+                      <div class="col-12">
+                        <button class="btn btn-primary w-100" type="submit">Buy</button>
+                      </div>
+                      <br>
+                    </form>
+                      {% comment %} <div class="col-12 text-center">
+                        <p class="small mb-0">Already have an account? <a href="{% url "Userlogin" %}">Log in</a></p>
+                      </div> {% endcomment %}
+                    
+                  </div>
+                </div>
+  
+                <div class="credits">
+                  <!-- All the links in the footer should remain intact. -->
+                  <!-- You can delete the links only if you purchased the pro version. -->
+                  <!-- Licensing information: https://bootstrapmade.com/license/ -->
+                  <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
+                  Designed by <a href="{% url "UserDashboard" %}">ETF-Analysis</a>
+                </div>
+  
+              </div>
+            </div>
+          </div>
+  
+        </section>
+  
+      </div>
+    </main><!-- End #main -->
+  
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  
+    
+  
+  </body>
+
+
+{% endblock body %}
