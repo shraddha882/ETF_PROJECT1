@@ -194,10 +194,11 @@ def itbeesns(request):
 
 def sbietfitns(request):
     table_name = 'SBIETFIT'
-    category = 'Stocks'
+    
     alldata = SBIETFIT_NS.objects.all()
     data = list(alldata)
     calculate_percentage_diff(data)
+    category = 'Stocks'
 
     if request.method == 'POST':
         start_date_str = request.POST.get('start_date')
@@ -307,7 +308,7 @@ def silverbeesns(request):
                 context = {
                     'data': queryset,
                     'table_name':table_name,
-                      'category':category
+                    'category':category
                 }
                 return render(request, 'adminSilver.html', context)
             else:
@@ -315,7 +316,7 @@ def silverbeesns(request):
                 context = {
                     'data': alldata,
                     'table_name':table_name,
-                      'category':category
+                    'category':category
                 }
                 return render(request, 'adminSilver.html', context)
 
@@ -328,7 +329,11 @@ def silverbeesns(request):
 
 def egoldns(request):
         table_name = 'EGOLD'
+        category= 'Commodities'
         alldata = EGOLD_NS.objects.all()
+        data = list(alldata) 
+        calculate_percentage_diff(data)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -341,23 +346,28 @@ def egoldns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'adminegold.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                     'category':category
                 }
                 return render(request, 'adminegold.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                    'category':category
                    }
         return render(request, 'adminegold.html', context)
 
@@ -366,6 +376,10 @@ def egoldns(request):
 def abslnn50etns(request):
         table_name = 'ABSLNN50ET'
         alldata = ABSLNN50ET_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
+        
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -378,29 +392,38 @@ def abslnn50etns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
+
                 }
                 return render(request, 'adminabslnn50et.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'adminabslnn50et.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                    'category':category
                    }
         return render(request, 'adminabslnn50et.html', context)
 
 def commoietfns(request):
         table_name = 'COMMOIETF'
         alldata = COMMOIETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -413,23 +436,28 @@ def commoietfns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                     'category':category
                 }
                 return render(request, 'admincommoietf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                     'category':category
                 }
                 return render(request, 'admincommoietf.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                    'category':category
                    }
         return render(request, 'admincommoietf.html', context)
 
@@ -437,6 +465,9 @@ def commoietfns(request):
 def cpseetfns(request):
         table_name = 'CPSEETF'
         alldata = COMMOIETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -449,23 +480,28 @@ def cpseetfns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'admincpseetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'admincpseetf.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
                    }
         return render(request, 'admincpseetf.html', context)
 
@@ -473,6 +509,9 @@ def cpseetfns(request):
 def dspitetfns(request):
         table_name = 'DSPITETF'
         alldata = DSPITETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -485,23 +524,28 @@ def dspitetfns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'admindspitetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'admindspitetf.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
                    }
         return render(request, 'admindspitetf.html', context)
 
@@ -510,6 +554,9 @@ def dspitetfns(request):
 def dspq50etfns(request):
         table_name = 'DSPQ50ETF'
         alldata = DSPQ50ETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -522,29 +569,37 @@ def dspq50etfns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'admindspq50.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'admindspq50.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
                    }
         return render(request, 'admindspq50.html', context)
 
 def axistecns(request):
         table_name = 'AXISTEC'
         alldata = AXISTECETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -557,23 +612,28 @@ def axistecns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'adminaxistec.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'adminaxistec.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
                    }
         return render(request, 'adminaxistec.html', context)
 
@@ -581,6 +641,9 @@ def axistecns(request):
 def icicib22ns(request):
         table_name = 'ICICIB22'
         alldata = ICICIB22_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -593,23 +656,28 @@ def icicib22ns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'adminicicib22.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'adminicicib22.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
                    }
         return render(request, 'adminicicib22.html', context)
 
@@ -617,6 +685,9 @@ def icicib22ns(request):
 def infrabeesns(request):
         table_name = 'INFRABEES'
         alldata = INFRABEES_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -629,23 +700,31 @@ def infrabeesns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'admininfrabees.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'admininfrabees.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
+
                    }
         return render(request, 'admininfrabees.html', context)
 
@@ -653,6 +732,9 @@ def infrabeesns(request):
 def itins(request):
         table_name = 'ITI'
         alldata = ITIETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -665,23 +747,28 @@ def itins(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'adminiti.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                    'category':category
                 }
                 return render(request, 'adminiti.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
                    }
         return render(request, 'adminiti.html', context)
 
@@ -689,6 +776,10 @@ def itins(request):
 def kotakns(request):
         table_name = 'KOTAK'
         alldata = KOTAKPSUBK_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -701,29 +792,40 @@ def kotakns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminkotak.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminkotak.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
+
                    }
         return render(request, 'adminkotak.html', context)
 
 def mafangns(request):
         table_name = 'MAFANG'
         alldata = MAFANG_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -736,23 +838,31 @@ def mafangns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminmafang.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminmafang.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
+
                    }
         return render(request, 'adminmafang.html', context)
 
@@ -760,7 +870,9 @@ def mafangns(request):
 def movaluens(request):
         table_name = 'MOVALUE'
         alldata = MOVALUE_NS.objects.all()
-
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
             end_date_str = request.POST.get('end_date')
@@ -772,23 +884,31 @@ def movaluens(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminmovalue.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminmovalue.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
+
                    }
         return render(request, 'adminmovalue.html', context)
 
@@ -796,6 +916,9 @@ def movaluens(request):
 def nifitetfns(request):
         table_name = 'NIFITETF'
         alldata = NIFITETF_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -808,30 +931,40 @@ def nifitetfns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminnifitetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminnifitetf.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
+
                    }
         return render(request, 'adminnifitetf.html', context)
 
 def psubnkns(request):
         table_name = 'PSUBNKIETF'
         alldata = PSUBNKIETF_NS.objects.all()
-
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
             end_date_str = request.POST.get('end_date')
@@ -843,23 +976,31 @@ def psubnkns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminpsubnkietf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'adminpsubnkietf.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
+
                    }
         return render(request, 'adminpsubnkietf.html', context)
 
@@ -869,6 +1010,9 @@ def psubnkns(request):
 def techns(request):
         table_name = 'TECH'
         alldata = TECH_NS.objects.all()
+        data = list(alldata)
+        calculate_percentage_diff(data)
+        category = 'Stocks'
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -881,23 +1025,31 @@ def techns(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = list(queryset)
+                calculate_percentage_diff(data)
                 print(start_date, end_date)
                 context = {
                     'data': queryset,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'admintechetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
                     'data': alldata,
-                    'table_name':table_name
+                    'table_name':table_name,
+                   'category':category
+
                 }
                 return render(request, 'admintechetf.html', context)
 
         # Default behavior: show all data
         context = {'data': alldata,
-                   'table_name':table_name
+                   'table_name':table_name,
+                   'category':category
+
                    }
         return render(request, 'admintechetf.html', context)
 

@@ -7,10 +7,10 @@
       <h1>Stocks details</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url "index"%}">Home</a></li>
-          <li class="breadcrumb-item"><a href="{% url "niftybees" %}">Niftybees</a></li>
-          <li class="breadcrumb-item"><a href="{% url "itbees" %}">Itbees</a></li>
-          <li class="breadcrumb-item"><a href="{% url "sbietfit" %}">Sbietfit</a></li>
+            <li class="breadcrumb-item"><a href="{% url "admindashboard"%}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url "silverbeesns" %}">SilverBees</a></li>
+            <li class="breadcrumb-item"><a href="{% url "goldbeesns" %}">GoldBees</a></li>
+            <li class="breadcrumb-item"><a href="{% url "egoldns" %}">Egold</a></li>
         </ol>
       </nav>
     </div>
@@ -50,12 +50,6 @@
                       
                   </form>   
                     <table class="table datatable table-hover"> 
-                       
-                   
-                   
-                    
-                      
-                      
                         <thead>                           
                             <tr>
                                 <th >Date</th>
@@ -63,7 +57,7 @@
                                 <th>High</th>
                                 <th>Low</th>
                                 <th>Close</th> 
-                                 
+                                <th>Close % change</th> 
                             </tr>
                         </thead>
                         <tbody>

@@ -1,4 +1,4 @@
-{% extends "guestBase.html" %}
+{% extends "base1.html" %}
 {% block title %}Stocks{% endblock title %}
 {% load static %}
 {% block body %}
@@ -8,9 +8,23 @@
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url "index"%}">Home</a></li>
-          <li class="breadcrumb-item"><a href="{% url "niftybees" %}">Niftybees</a></li>
-          <li class="breadcrumb-item"><a href="{% url "itbees" %}">Itbees</a></li>
-          <li class="breadcrumb-item"><a href="{% url "sbietfit" %}">Sbietfit</a></li>
+          <li class="breadcrumb-item"><a href="{% url "niftybeesns" %}">Niftybees</a></li>
+          <li class="breadcrumb-item"><a href="{% url "itbeesns" %}">Itbees</a></li>
+          <li class="breadcrumb-item"><a href="{% url "sbietfitns" %}">Sbietfit</a></li>
+          <li class="breadcrumb-item"><a href="{% url "abslnn50etns" %}">Abslnn50</a></li>
+          <li class="breadcrumb-item"><a href="{% url "axistecns" %}">Axistec</a></li>
+          <li class="breadcrumb-item"><a href="{% url "commoietfns" %}">Commoietf</a></li>
+          <li class="breadcrumb-item"><a href="{% url "cpseetfns" %}">Cpseetf</a></li>
+          <li class="breadcrumb-item"><a href="{% url "dspitetfns" %}">Dspitetf</a></li>
+          <li class="breadcrumb-item"><a href="{% url "dspq50etfns" %}">Dspq50</a></li>
+          <li class="breadcrumb-item"><a href="{% url "icicib22ns" %}">Icicib22</a></li>
+          <li class="breadcrumb-item"><a href="{% url "itins" %}">Iti</a></li>
+          <li class="breadcrumb-item"><a href="{% url "kotakns" %}">Kotak</a></li>
+          <li class="breadcrumb-item"><a href="{% url "mafangns" %}">Mafang</a></li>
+          <li class="breadcrumb-item"><a href="{% url "movaluens" %}">Movalue</a></li>
+          <li class="breadcrumb-item"><a href="{% url "nifitetfns" %}">Nifitetf</a></li>
+          <li class="breadcrumb-item"><a href="{% url "psubnkns" %}">Psubnketf</a></li>
+          <li class="breadcrumb-item"><a href="{% url "techns" %}">Tech</a></li>
         </ol>
       </nav>
     </div>
@@ -50,12 +64,6 @@
                       
                   </form>     
                     <table class="table datatable table-hover"> 
-                       
-                   
-                   
-                    
-                      
-                      
                         <thead>                           
                             <tr>
                                 <th >Date</th>
@@ -63,18 +71,20 @@
                                 <th>High</th>
                                 <th>Low</th>
                                 <th>Close</th> 
-                                 
+                                <th>Close % change</th>                                  
                             </tr>
                         </thead>
                         <tbody>
                             {% for d in data %}
                             <tr>
                                 <td>{{ d.date }}</td>
-                                <td>{{d.Open|floatformat:4}}</td>
-                                <td>{{d.high|floatformat:4}}</td>
-                                <td>{{d.low|floatformat:4}}</td>
-                                <td>{{d.close|floatformat:4}}</td>
-                               
+                                <td>{{d.Open|floatformat:2}}</td>
+                                <td>{{d.high|floatformat:2}}</td>
+                                <td>{{d.low|floatformat:2}}</td>
+                                <td>{{d.close|floatformat:2}}</td>
+                                <td style="color: {% if d.percent_diff > 0 %}green{% elif d.percent_diff < 0 %}red{% else %}black{% endif %}">
+                                    {% if d.percent_diff > 0 %}+{% endif %}{{ d.percent_diff|floatformat:2|default:"N/A" }}%
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -83,9 +93,6 @@
                 </div>
             </div>
         </div>
-        
-      
- 
     </section>
 </main>  
 {% endblock body %}
