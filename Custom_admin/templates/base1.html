@@ -93,7 +93,7 @@
           <ul class="list-group list-group">
             <li class="list-group-item d-flex justify-content-between align-items-start">
               <div class="ms-2 me-auto ">
-                <a href="{% url 'adminstocksdropdown' %}"><div class="fw-bold text-dark">Stocks</div></a>
+                <a href="{% url 'stocks' %}"><div class="fw-bold text-dark">Stocks</div></a>
                 
               </div>
               <span class="badge bg-info ms-4 rounded-pill">14</span>
@@ -143,6 +143,126 @@
               </div>
             
             </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'techns' %}"><div class="fw-bold text-dark">{{tech}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'psubnkns' %}"><div class="fw-bold text-dark">{{psubnk}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'nifitetfns' %}"><div class="fw-bold text-dark">{{nifit}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'movaluens' %}"><div class="fw-bold text-dark">{{movalue}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'mafangns' %}"><div class="fw-bold text-dark">{{mafang}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'kotakns' %}"><div class="fw-bold text-dark">{{kotakp}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'itins' %}"><div class="fw-bold text-dark">{{iti}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'infrabeesns' %}"><div class="fw-bold text-dark">{{infrabees}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'icicib22ns' %}"><div class="fw-bold text-dark">{{icicib22}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'dspq50etfns' %}"><div class="fw-bold text-dark">{{dspq50}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'dspitetfns' %}"><div class="fw-bold text-dark">{{dspit}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'cpseetfns' %}"><div class="fw-bold text-dark">{{cpse}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'commoietfns' %}"><div class="fw-bold text-dark">{{commoi}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'axistecns' %}"><div class="fw-bold text-dark">{{axistec}}</div></a> 
+               
+              </div>
+            
+            </li>
+  
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'abslnn50etns' %}"><div class="fw-bold text-dark">{{abslnn}}</div></a> 
+               
+              </div>
+            
+            </li>
             {% elif category == 'Commodities' %}
             <li class="list-group-item d-flex justify-content-between align-items-start">
               <div class="ms-2 me-auto">
@@ -155,6 +275,13 @@
             <li class="list-group-item d-flex justify-content-between align-items-start">
               <div class="ms-2 me-auto">
                <a href="{% url 'goldbeesns' %}"><div class="fw-bold text-dark">{{gold}}</div></a> 
+               
+              </div>
+            
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+               <a href="{% url 'egoldns' %}"><div class="fw-bold text-dark">{{egold}}</div></a> 
                
               </div>
             
@@ -388,7 +515,7 @@
         </a>
         <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{% url 'adminstocksdropdown' %}">
+            <a href="{% url 'stocks' %}">
               <i class="bi bi-circle"></i><span>Stocks</span>
             </a>
           </li>
