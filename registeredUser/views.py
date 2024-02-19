@@ -14,6 +14,8 @@ import uuid
 from django.conf import settings
 from django.db.models import Avg
 from datetime import timedelta, date
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
  
  
 # Create your views here.
@@ -263,6 +265,17 @@ def NIFTYbees(request):
     alldata = NIFTYBEES_NS.objects.all()
     data = list(alldata)
     calculate_percentage_diff(data)
+    paginator = Paginator(alldata, 10)  # Show 10 records per page
+    page = request.GET.get('page')
+            
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+        data = paginator.page(1)
+    except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+        data = paginator.page(paginator.num_pages)
 
     if request.method == 'POST':
         start_date_str = request.POST.get('start_date')
@@ -275,6 +288,7 @@ def NIFTYbees(request):
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
             queryset = alldata.filter(date__range=[start_date, end_date])
+            data = paginator.page(1) 
             data = list(queryset)
             calculate_percentage_diff(data)           
             print(start_date, end_date)
@@ -308,6 +322,18 @@ def GOLDbees(request):
         alldata = GOLDBEES_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+            
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
+    
         
 
 
@@ -322,6 +348,7 @@ def GOLDbees(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -356,6 +383,17 @@ def ITbees(request):
     alldata = ITBEES_NS.objects.all()
     data = list(alldata)
     calculate_percentage_diff(data)
+    paginator = Paginator(alldata, 10)  # Show 10 records per page
+    page = request.GET.get('page')
+        
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+        data = paginator.page(1)
+    except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+        data = paginator.page(paginator.num_pages)
     
 
 
@@ -370,6 +408,7 @@ def ITbees(request):
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
             queryset = alldata.filter(date__range=[start_date, end_date])
+            data = paginator.page(1) 
             data = list(queryset)
             calculate_percentage_diff(data)
             print(start_date, end_date)
@@ -402,6 +441,17 @@ def SBIetfit(request):
     alldata = SBIETFIT_NS.objects.all()
     data = list(alldata)
     calculate_percentage_diff(data)
+    paginator = Paginator(alldata, 10)  # Show 10 records per page
+    page = request.GET.get('page')
+        
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+        data = paginator.page(1)
+    except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+        data = paginator.page(paginator.num_pages)
     
 
 
@@ -416,6 +466,7 @@ def SBIetfit(request):
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
             queryset = alldata.filter(date__range=[start_date, end_date])
+            data = paginator.page(1) 
             data = list(queryset)
             calculate_percentage_diff(data)
 
@@ -447,6 +498,17 @@ def SILVERbees(request):
         alldata = SILVERBEES_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
         
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -459,6 +521,7 @@ def SILVERbees(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
 
@@ -495,6 +558,17 @@ def Egold(request):
         alldata = EGOLD_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -507,6 +581,7 @@ def Egold(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -536,6 +611,17 @@ def Abslnn50et(request):
         alldata = ABSLNN50ET_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
 
         if request.method == 'POST':
@@ -549,6 +635,7 @@ def Abslnn50et(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -576,6 +663,17 @@ def Commoietf(request):
         alldata = COMMOIETF_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -588,6 +686,7 @@ def Commoietf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -616,6 +715,17 @@ def Cpseetf(request):
         alldata = COMMOIETF_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -628,6 +738,7 @@ def Cpseetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -656,6 +767,17 @@ def Dspitetf(request):
         alldata = DSPITETF_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -668,6 +790,7 @@ def Dspitetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -697,6 +820,17 @@ def Dspq50etf(request):
         alldata = DSPQ50ETF_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -709,6 +843,7 @@ def Dspq50etf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -736,6 +871,17 @@ def Axistec(request):
         alldata = AXISTECETF_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -748,6 +894,7 @@ def Axistec(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -776,6 +923,17 @@ def Icicib22(request):
         alldata = ICICIB22_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -788,6 +946,7 @@ def Icicib22(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -816,6 +975,17 @@ def Infrabees(request):
         alldata = INFRABEES_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -828,6 +998,7 @@ def Infrabees(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -856,6 +1027,17 @@ def Iti(request):
         alldata = ITIETF_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -868,6 +1050,7 @@ def Iti(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -896,6 +1079,19 @@ def Kotak(request):
         alldata = KOTAKPSUBK_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+         
+
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -908,6 +1104,8 @@ def Kotak(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+
+                data = paginator.page(1)  # Reset to first page after filtering
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -935,6 +1133,18 @@ def Mafang(request):
         alldata = MAFANG_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
+        
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -947,6 +1157,7 @@ def Mafang(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -975,6 +1186,17 @@ def Movalue(request):
         alldata = MOVALUE_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -987,6 +1209,7 @@ def Movalue(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -1015,6 +1238,17 @@ def Nifitetf(request):
         alldata = NIFITETF_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
 
         if request.method == 'POST':
@@ -1028,6 +1262,7 @@ def Nifitetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1)
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -1055,6 +1290,17 @@ def Psubnk(request):
         alldata = PSUBNKIETF_NS.objects.all()
         data = list(alldata)
         calculate_percentage_diff(data)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -1067,6 +1313,7 @@ def Psubnk(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1)
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -1095,8 +1342,22 @@ def Psubnk(request):
 def Tech(request):
         table_name = 'TECH'
         alldata = TECH_NS.objects.all()
-        alldata = PSUBNKIETF_NS.objects.all()
+        
         data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+        
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
+
+
+            
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -1109,6 +1370,7 @@ def Tech(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1)
                 data = list(queryset)
                 calculate_percentage_diff(data)
                 print(start_date, end_date)
@@ -1130,6 +1392,45 @@ def Tech(request):
                    'table_name':table_name
                    }
         return render(request, 'usertechetf.html', context)
+# def Tech(request):
+#     table_name = 'TECH'
+#     alldata = TECH_NS.objects.all()
+#     data = list(alldata)
+     
+
+#     # Paginate your data
+#     paginator = Paginator(alldata, 10)  # Show 10 records per page
+#     page = request.GET.get('page')
+    
+#     try:
+#         data = paginator.page(page)
+#     except PageNotAnInteger:
+#         # If page is not an integer, deliver first page.
+#         data = paginator.page(1)
+#     except EmptyPage:
+#         # If page is out of range (e.g. 9999), deliver last page of results.
+#         data = paginator.page(paginator.num_pages)
+
+#     if request.method == 'POST':
+#         start_date_str = request.POST.get('start_date')
+#         end_date_str = request.POST.get('end_date')
+
+#         if start_date_str and end_date_str:
+#             # Convert string dates to datetime objects
+#             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+#             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+#             queryset = alldata.filter(date__range=[start_date, end_date])
+#             data = paginator.page(1)  # Reset to first page after filtering
+#             data = list(queryset)
+#             calculate_percentage_diff(data)
+#             return render(request, 'usertechetf.html', {'data': data, 'table_name': table_name})
+#         else:
+#             # If start_date or end_date is not provided, show all data
+#             return render(request, 'usertechetf.html', {'data': data, 'table_name': table_name})
+
+#     # Default behavior: show all data
+#     return render(request, 'usertechetf.html', {'data': data, 'table_name': table_name})
 
 
 def Logout(request):
