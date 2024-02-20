@@ -16,7 +16,8 @@
                 <form action="{% url 'UserBuy' %}" method="post">
                   {% csrf_token %}
                     {% if messages %}
-                      <div class="alert alert-info text-black bi-text-left" >
+                      <div class="alert alert-info text-black bi-text-left mt-5" >
+                         
                                 <ul>
                                   {% for message in messages %}
                                       <li>{{ message }}</li>
@@ -34,6 +35,7 @@
                     </div>
   
                     <form class="row g-3 needs-validation" novalidate>
+                      {% csrf_token %}
                       <div class ="row">
   
                         <div class="col-6">
@@ -150,7 +152,8 @@
       });
     });
   </script>
-  
+   
+   
   
 {% endblock body %}
 
