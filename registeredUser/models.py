@@ -20,3 +20,6 @@ class RegisteredUser(models.Model):
 
     def __str__(self):
         return self.name
+class Wallet(models.Model):
+    user = models.OneToOneField(RegisteredUser, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=1000000.00)  # Initial balance of 10 lakhs

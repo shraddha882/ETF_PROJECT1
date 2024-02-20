@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import RegisteredUser
+from .models import RegisteredUser,Wallet
 from django.contrib import messages
 from django.contrib.auth.models import User
 from Custom_admin.models import *
@@ -15,7 +15,7 @@ from django.conf import settings
 from django.db.models import Avg
 from datetime import timedelta, date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from decimal import Decimal
  
  
 # Create your views here.
@@ -119,8 +119,15 @@ def register(request):
             data = RegisteredUser.objects.create(username  = username,name=name, email=email, password=password, date_of_birth=date_of_birth, phone_number=phone_number, token=email_token)
             data.login_status = False
             data.save()
+            
+            # Create Wallet instance for the user
+            wallet = Wallet.objects.create(user=data)
+            wallet.save()
+            
+
             user = User.objects.create_user(username=username,password=password)
             user.save() 
+             
             print()
             
             # data = userdata.objects.create(user=user, username=username, Fname=name, email=email, password=password, email_token = email_token)
@@ -138,6 +145,10 @@ def register(request):
         'min_birth_date': min_birth_date
      }
      return render(request, 'Registration.html', context)
+    
+
+ 
+
 
 def accout_verify(request,token):
     pf = RegisteredUser.objects.filter(token=token).first()
@@ -147,34 +158,106 @@ def accout_verify(request,token):
     return render (request, 'login.html')
 
 
+# def user_profile(request):
+#     if request.user.is_authenticated:
+#         user = request.user.username
+         
+#         data = RegisteredUser.objects.get(username = user)
+#         context = {
+#             'data':data,
+            
+#         }
+#     return render(request, 'user_profile.html', context)
+ 
+ 
 def user_profile(request):
+    context = {}
     if request.user.is_authenticated:
         user = request.user.username
-        data = RegisteredUser.objects.get(username = user)
+         
+        data = RegisteredUser.objects.get(username=user)
+        
+        try:
+            wallet = Wallet.objects.get(user=data)
+        except Wallet.DoesNotExist:
+            wallet = None
+        
         context = {
-            'data':data
+            'data': data,
+            'wallet': wallet
         }
     return render(request, 'user_profile.html', context)
+
 
 
 def faq(request):
     return render(request, 'faq.html')
 
 
+# def Userbuy(request):
+#     data = AllETF.objects.all()
+#     closevalue = None
+#     cost = None
+    
+#     if request.method == 'POST':
+#         # Retrieve form data from request.POST
+#         username = request.POST.get('username')
+#         type = request.POST.get('type')
+#         etf = request.POST.get('ETF')
+#         quant = int(request.POST.get('quant'))
+        
+#         closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
+#         cost = closevalue * quant  # Calculate the cost
+        
+#     context = {   
+#         'data': data,
+#         'closevalue': closevalue,
+#         'cost': cost,
+#     }
+    
+#     return render(request, 'user_buy.html', context)
+
+ 
 def Userbuy(request):
     data = AllETF.objects.all()
     closevalue = None
     cost = None
     
     if request.method == 'POST':
-        # Retrieve form data from request.POST
-        username = request.POST.get('username')
-        type = request.POST.get('type')
+        username = request.user.username  # Assuming you're using Django's built-in authentication
         etf = request.POST.get('ETF')
-        quant = int(request.POST.get('quant'))
+        # quant = int(request.POST.get('quant'))
+        
+        # closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
+        # cost = closevalue * Decimal(quant)  # Calculate the cost
+
+
+        quant = Decimal(request.POST.get('quant'))  # Convert to Decimal
         
         closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
-        cost = closevalue * quant  # Calculate the cost
+        closevalue = Decimal(closevalue)  # Convert to Decimal
+        
+        cost = closevalue * quant  # Calculate the cost as Decimal
+        
+        # Retrieve the wallet associated with the user
+        user_wallet = Wallet.objects.get(user__username=username)
+        
+        # Check if the user has enough balance to make the purchase
+        if user_wallet.balance >= cost:
+            # Deduct the cost from the user's wallet balance
+            user_wallet.balance -= cost
+            user_wallet.save()  # Save the updated wallet balance
+            
+            # Perform other actions related to buying the ETF
+            
+            # Redirect to a success page or display a success message
+            messages.success(request,"amount deducted successfully")
+            
+            return redirect('UserBuy')  # Redirect to a success page
+            
+        else:
+            # If the user doesn't have enough balance, display an error message
+            return render(request, 'insufficient_balance.html')
         
     context = {   
         'data': data,
@@ -183,7 +266,6 @@ def Userbuy(request):
     }
     
     return render(request, 'user_buy.html', context)
-
 
 
 def error_404(request):
