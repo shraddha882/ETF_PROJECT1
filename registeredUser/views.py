@@ -224,7 +224,7 @@ def Userbuy(request):
     cost = None
     
     if request.method == 'POST':
-        username = request.user.username  # Assuming you're using Django's built-in authentication
+        username = request.user.username  
         etf = request.POST.get('ETF')
         # quant = int(request.POST.get('quant'))
         
@@ -249,6 +249,13 @@ def Userbuy(request):
             user_wallet.save()  # Save the updated wallet balance
             
             # Perform other actions related to buying the ETF
+            purchase = UserBuyetf.objects.create(
+                Username=user_wallet.user,  # Assign the user to the ForeignKey field
+                Etf_purchased=AllETF.objects.get(Etfnames=etf),  # Assign the purchased ETF
+                Quantity=quant,
+                Cost=cost
+            )
+            purchase.save()
             
             # Redirect to a success page or display a success message
             messages.success(request,"amount deducted successfully")
