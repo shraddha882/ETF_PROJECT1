@@ -319,16 +319,16 @@ class AllETF(models.Model):
         
         return self.Etfnames
     
-# class UserBuyetf(models.Model):
-#     Username = models.ForeignKey(RegisteredUser, on_delete=models.CASCADE,null = True)
-#     Date_time = models.DateTimeField("Date and Time", auto_now=False, auto_now_add=True,null = True)
-#     Etf_purchased = models.ForeignKey(AllETF, on_delete=models.CASCADE,null = True)
-#     Quantity = models.IntegerField(max_length = 20, null = True)
-#     Cost = models.IntegerField(max_length = 20, null = True)
+class UserBuyetf(models.Model):
+    Username = models.ForeignKey(RegisteredUser, on_delete=models.CASCADE,null = True)
+    Date_time = models.DateTimeField("Date and Time", auto_now=False, auto_now_add=True,null = True)
+    Etf_purchased = models.ForeignKey(AllETF, on_delete=models.CASCADE,null = True)
+    Quantity = models.IntegerField(max_length = 20, null = True)
+    Cost = models.IntegerField(max_length = 20, null = True)
 
-#     def __str__(self):
+    def __str__(self):
         
-#         return self.Username
+        return self.Username
 
 
     
