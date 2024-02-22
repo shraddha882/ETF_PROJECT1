@@ -2,6 +2,7 @@ from django.shortcuts import render,HttpResponseRedirect,redirect
 from Custom_admin.models import *
 from datetime import datetime,date
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 def home(request):
@@ -78,6 +79,18 @@ def commoditiesIndex(request):
 def niftybees(request):
     table_name = 'NIFTYBEES'
     alldata = NIFTYBEES_NS.objects.all()
+    data = list(alldata)
+    paginator = Paginator(alldata, 10)  # Show 10 records per page
+    page = request.GET.get('page')
+            
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+        data = paginator.page(1)
+    except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+        data = paginator.page(paginator.num_pages)
 
     if request.method == 'POST':
         start_date_str = request.POST.get('start_date')
@@ -90,9 +103,11 @@ def niftybees(request):
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
             queryset = alldata.filter(date__range=[start_date, end_date])
+            data = paginator.page(1) 
+            data = list(queryset)
             print(start_date, end_date)
             context = {
-                'data': queryset,
+                'data': data,
                   'table_name':table_name
                 
             }
@@ -100,14 +115,14 @@ def niftybees(request):
         else:
             # If start_date or end_date is not provided, show all data
             context = {
-                'data': alldata,
+                'data': data,
                   'table_name':table_name
             }
             return render(request, 'nifty.html', context)
 
     # Default behavior: show all data
     context = {
-                'data': alldata,
+                'data': data,
                'table_name':table_name
                
                }
@@ -118,6 +133,18 @@ def goldbees(request):
         table_name = 'GOLDBEES'
 
         alldata = GOLDBEES_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+                    # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+                    # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -130,22 +157,24 @@ def goldbees(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                      'table_name':table_name
                 }
                 return render(request, 'gold.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                      'table_name':table_name
                 }
                 return render(request, 'gold.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    
                    'table_name':table_name
                    }
@@ -156,6 +185,18 @@ def goldbees(request):
 def itbees(request):
     table_name = 'ITBEES'
     alldata = ITBEES_NS.objects.all()
+    data = list(alldata)
+    paginator = Paginator(alldata, 10)  # Show 10 records per page
+    page = request.GET.get('page')
+                
+    try:
+            data = paginator.page(page)
+    except PageNotAnInteger:
+                    # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+    except EmptyPage:
+                    # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
     if request.method == 'POST':
         start_date_str = request.POST.get('start_date')
@@ -168,23 +209,25 @@ def itbees(request):
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
             queryset = alldata.filter(date__range=[start_date, end_date])
+            data = paginator.page(1) 
+            data = list(queryset)
             print(start_date, end_date)
             context = {
-                'data': queryset,
+                'data': data,
                   'table_name':table_name
             }
             return render(request, 'it.html', context)
         else:
             # If start_date or end_date is not provided, show all data
             context = {
-                'data': alldata,
+                'data': data,
                 'table_name':table_name
             }
             return render(request, 'it.html', context)
 
     # Default behavior: show all data
     context = {
-        'data': alldata,
+        'data': data,
         'table_name':table_name
                }
     return render(request, 'it.html', context)
@@ -193,6 +236,18 @@ def itbees(request):
 def sbietfit(request):
     table_name = 'SBIETFIT'
     alldata = SBIETFIT_NS.objects.all()
+    data = list(alldata)
+    paginator = Paginator(alldata, 10)  # Show 10 records per page
+    page = request.GET.get('page')
+                
+    try:
+            data = paginator.page(page)
+    except PageNotAnInteger:
+                    # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+    except EmptyPage:
+                    # If page is out of range (e.g. 9999), deliver last page of results.
+            data = paginator.page(paginator.num_pages)
 
     if request.method == 'POST':
         start_date_str = request.POST.get('start_date')
@@ -205,22 +260,24 @@ def sbietfit(request):
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
             queryset = alldata.filter(date__range=[start_date, end_date])
+            data = paginator.page(1) 
+            data = list(queryset)
             print(start_date, end_date)
             context = {
-                'data': queryset,
+                'data': data,
                  'table_name':table_name
             }
             return render(request, 'sbi.html', context)
         else:
             # If start_date or end_date is not provided, show all data
             context = {
-                'data': alldata,
+                'data': data,
                  'table_name':table_name
             }
             return render(request, 'sbi.html', context)
 
     # Default behavior: show all data
-    context = {'data': alldata,
+    context = {'data': data,
                'table_name':table_name
                }
     return render(request, 'sbi.html', context)
@@ -229,6 +286,18 @@ def sbietfit(request):
 def silverbees(request):
         table_name = 'SILVERBEES'
         alldata = SILVERBEES_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -241,22 +310,24 @@ def silverbees(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'silver.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'silver.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'silver.html', context)
@@ -266,6 +337,19 @@ def silverbees(request):
 def egold(request):
         table_name = 'EGOLD'
         alldata = EGOLD_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -278,22 +362,24 @@ def egold(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'egold.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'egold.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'egold.html', context)
@@ -303,6 +389,18 @@ def egold(request):
 def abslnn50et(request):
         table_name = 'ABSLNN50ET'
         alldata = ABSLNN50ET_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -315,22 +413,24 @@ def abslnn50et(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'abslnn50et.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'abslnn50et.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'abslnn50et.html', context)
@@ -338,6 +438,19 @@ def abslnn50et(request):
 def commoietf(request):
         table_name = 'COMMOIETF'
         alldata = COMMOIETF_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -350,22 +463,24 @@ def commoietf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'commoietf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'commoietf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'commoietf.html', context)
@@ -374,6 +489,18 @@ def commoietf(request):
 def cpseetf(request):
         table_name = 'CPSEETF'
         alldata = COMMOIETF_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -386,22 +513,24 @@ def cpseetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'cpseetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'cpseetf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'cpseetf.html', context)
@@ -410,6 +539,18 @@ def cpseetf(request):
 def dspitetf(request):
         table_name = 'DSPITETF'
         alldata = DSPITETF_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -422,22 +563,24 @@ def dspitetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'dspitetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'dspitetf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'dspitetf.html', context)
@@ -447,6 +590,19 @@ def dspitetf(request):
 def dspq50etf(request):
         table_name = 'DSPQ50ETF'
         alldata = DSPQ50ETF_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -459,22 +615,24 @@ def dspq50etf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'dspq50.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'dspq50.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'dspq50.html', context)
@@ -482,6 +640,18 @@ def dspq50etf(request):
 def axistec(request):
         table_name = 'AXISTEC'
         alldata = AXISTECETF_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -494,22 +664,24 @@ def axistec(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'axistec.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'axistec.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'axistec.html', context)
@@ -518,6 +690,19 @@ def axistec(request):
 def icicib22(request):
         table_name = 'ICICIB22'
         alldata = ICICIB22_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -530,22 +715,24 @@ def icicib22(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'icicib22.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'icicib22.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'icicib22.html', context)
@@ -554,6 +741,19 @@ def icicib22(request):
 def infrabees(request):
         table_name = 'INFRABEES'
         alldata = INFRABEES_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -566,22 +766,24 @@ def infrabees(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'infrabees.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'infrabees.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'infrabees.html', context)
@@ -590,6 +792,19 @@ def infrabees(request):
 def iti(request):
         table_name = 'ITI'
         alldata = ITIETF_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -602,22 +817,24 @@ def iti(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'iti.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'iti.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'iti.html', context)
@@ -626,6 +843,18 @@ def iti(request):
 def kotak(request):
         table_name = 'KOTAK'
         alldata = KOTAKPSUBK_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -638,22 +867,24 @@ def kotak(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'kotak.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'kotak.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'kotak.html', context)
@@ -661,6 +892,18 @@ def kotak(request):
 def mafang(request):
         table_name = 'MAFANG'
         alldata = MAFANG_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -673,22 +916,24 @@ def mafang(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'mafang.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'mafang.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'mafang.html', context)
@@ -697,6 +942,18 @@ def mafang(request):
 def movalue(request):
         table_name = 'MOVALUE'
         alldata = MOVALUE_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -709,22 +966,24 @@ def movalue(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'movalue.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'movalue.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'movalue.html', context)
@@ -733,6 +992,18 @@ def movalue(request):
 def nifitetf(request):
         table_name = 'NIFITETF'
         alldata = NIFITETF_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -745,22 +1016,24 @@ def nifitetf(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'nifitetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'nifitetf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'nifitetf.html', context)
@@ -768,6 +1041,18 @@ def nifitetf(request):
 def psubnk(request):
         table_name = 'PSUBNKIETF'
         alldata = PSUBNKIETF_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -780,22 +1065,24 @@ def psubnk(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'psubnkietf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'psubnkietf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'psubnkietf.html', context)
@@ -806,6 +1093,19 @@ def psubnk(request):
 def tech(request):
         table_name = 'TECH'
         alldata = TECH_NS.objects.all()
+        data = list(alldata)
+        paginator = Paginator(alldata, 10)  # Show 10 records per page
+        page = request.GET.get('page')
+                    
+        try:
+                data = paginator.page(page)
+        except PageNotAnInteger:
+                        # If page is not an integer, deliver first page.
+                data = paginator.page(1)
+        except EmptyPage:
+                        # If page is out of range (e.g. 9999), deliver last page of results.
+                data = paginator.page(paginator.num_pages)
+
 
         if request.method == 'POST':
             start_date_str = request.POST.get('start_date')
@@ -818,22 +1118,24 @@ def tech(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
                 queryset = alldata.filter(date__range=[start_date, end_date])
+                data = paginator.page(1) 
+                data = list(queryset)
                 print(start_date, end_date)
                 context = {
-                    'data': queryset,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'techetf.html', context)
             else:
                 # If start_date or end_date is not provided, show all data
                 context = {
-                    'data': alldata,
+                    'data': data,
                     'table_name':table_name
                 }
                 return render(request, 'techetf.html', context)
 
         # Default behavior: show all data
-        context = {'data': alldata,
+        context = {'data': data,
                    'table_name':table_name
                    }
         return render(request, 'techetf.html', context)
