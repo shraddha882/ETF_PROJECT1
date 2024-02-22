@@ -70,15 +70,44 @@
                             {% for d in data %}
                             <tr>
                                 <td>{{ d.date }}</td>
-                                <td>{{d.Open|floatformat:4}}</td>
-                                <td>{{d.high|floatformat:4}}</td>
-                                <td>{{d.low|floatformat:4}}</td>
-                                <td>{{d.close|floatformat:4}}</td>
+                                <td>{{d.Open|floatformat:2}}</td>
+                                <td>{{d.high|floatformat:2}}</td>
+                                <td>{{d.low|floatformat:2}}</td>
+                                <td>{{d.close|floatformat:2}}</td>
                                
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+
+                       <!-- pagination added -->
+                       <div class="pagination mt-3" style="text-align: center;">
+                        <span class="step-links">
+                            {% if data.has_previous %}
+                            <!-- <a href="?page=1" class="pagination-link" style="display: inline-block; padding: 5px 10px; margin-right: 5px; background-color: #f2f2f2; border: 1px solid #ddd; color: #333; text-decoration: none;">&laquo; first</a> -->
+                            <a href="?page={{ data.previous_page_number }}" class="pagination-link" style="display: inline-block; padding: 5px 10px; margin-right: 5px; background-color: #f2f2f2; border: 1px solid #ddd; color: #333; text-decoration: none;">previous</a>
+                        {% endif %}
+                        
+                            
+                            <div class="pagination-box" style="display: inline-block;">
+                                {% for i in data.paginator.page_range %}
+                                    {% if i <= 5 %}
+                                        {% if data.number == i %}
+                                            <span class="current" style="padding: 5px 10px; margin-right: 5px; background-color: #007bff; color: #fff; border: 1px solid #007bff;">{{ i }}</span>
+                                        {% else %}
+                                            <a href="?page={{ i }}" class="pagination-link" style="display: inline-block; padding: 5px 10px; margin-right: 5px; background-color: #f2f2f2; border: 1px solid #ddd; color: #333; text-decoration: none;">{{ i }}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            {% if data.paginator.num_pages > 5 %}
+                                <a href="?page={{ data.number|add:1 }}" class="pagination-link" style="display: inline-block; padding: 5px 10px; margin-right: 5px; background-color: #f2f2f2; border: 1px solid #ddd; color: #333; text-decoration: none;">next</a>
+                            {% endif %}
+                        </span>
+                    </div>
+
+
                     </div>
                 </div>
             </div>
