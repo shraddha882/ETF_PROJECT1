@@ -17,7 +17,7 @@ urlpatterns = [
     path('silverbees/', views.SILVERbees,name="SILVERbees"),
     path('itbees/', views.ITbees,name="ITbees"),
     path('sbietfit/', views.SBIetfit,name="SBIetfit"),
-      path('tech/', views.Tech,name="Tech"),
+    path('tech/', views.Tech,name="Tech"),
       path('psubnk/', views.Psubnk,name="Psubnk"),
        path('nifit/', views.Nifitetf,name="Nifit"),
         path('movalue/', views.Movalue,name="Movalue"),
@@ -37,6 +37,8 @@ urlpatterns = [
     # path('account-verify/<token>',views.accout_verify, name='account-verify'),
     # path('userstocksdd/',views.userstocksdd, name="userstocksdropdown"),
     path('usercommoditiesdd/',views.usercommoditiesdd, name="usercommoditiesdropdown"),
+    path('usertransactions/',views.Usertrans, name="usertrans"),
+    path('userbuyhistory/', views.userbuyhistory, name='user_buy_history'),
     
     
 ]

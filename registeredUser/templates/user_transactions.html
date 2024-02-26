@@ -1,0 +1,177 @@
+{% extends "userbase.html" %}
+{% block title %}Transactions{% endblock title %}
+{% load static %}
+{% block body %}
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">        
+                <div class="card">
+                    <div class="card-body" style="overflow-x: auto;">
+                        <div id="user_buy_history_url" data-url="{% url 'user_buy_history' %}"></div>
+                        <h5 class="card-title fw-bold">ETF Transactions</h5>     
+                        <table class="table table-hover"> 
+                            <thead>                           
+                                <tr>
+                                    <th style="white-space: nowrap;">S. no. </th>
+                                    <th style="white-space: nowrap;">ETF Name</th>
+                                    <th style="white-space: nowrap;">Last Purchased</th>
+                                    <th style="white-space: nowrap;">Total Quantity</th>
+                                    <th style="white-space: nowrap;">Average Cost</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in data %}
+                                <tr class="expandable-row">
+                                    
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{b.Etf_purchased__Etfnames}}</td>
+                                    <td>{{b.latest_date}}</td>
+                                    <td>{{b.total_quantity}}</td>
+                                    <td>₹ {{b.avg_cost}}</td>
+                                    
+                                </tr>
+                                
+                                <tr class="details-row" style="display: none;">
+                                    <td colspan="5">
+                                        <table class="table table-light" >
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Quantity</th>
+                                                    <th>Cost</th>
+                                                    <th>CP</th>
+                                                    <th>Current CP</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    {% for d in detailed_data %}
+                                                    <td>{{d.Date_time}}</td>
+                                                    <td>{{d.Quantity}}</td>
+                                                    <td>{{d.Cost}}</td>
+                                                    <td>{{d.CP}}</td>
+                                                    <td>{{d.current}}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                {%endfor%}
+                            </tbody> 
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    
+    
+  </main>  
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const expandableRows = document.querySelectorAll('.expandable-row');
+    
+        expandableRows.forEach(row => {
+            row.addEventListener('click', function () {
+                console.log("Row clicked!");
+                const detailsRow = this.nextElementSibling;
+                const ETFName = this.querySelector('td:nth-child(2)').textContent; // Assuming ETF name is in the second column
+                if (detailsRow.style.display === "none") {
+                    detailsRow.style.display = "";
+                    this.classList.add('table-info'); // Add table-active class when expanding
+                    fetchDetailsData(ETFName, detailsRow);
+                } else {
+                    detailsRow.style.display = "none";
+                    this.classList.remove('table-info'); // Remove table-active class when collapsing
+                }
+            });
+        });
+    
+        function fetchDetailsData(ETFName, detailsRow) {
+            const userBuyHistoryUrl = document.getElementById('user_buy_history_url').dataset.url;
+            const csrftoken = getCookie('csrftoken');
+            const requestBody = {
+                ETFName: ETFName
+            };
+            fetch(userBuyHistoryUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.detailed_data) {
+                    updateDetailedData(data.detailed_data, detailsRow);
+                } else {
+                    console.error('Invalid or missing detailed data:', data);
+                }
+            })
+            .catch(error => console.error('Error fetching details:', error));
+        }
+            
+        function updateDetailedData(data, detailsRow) {
+            const tableBody = detailsRow.querySelector('tbody');
+            tableBody.innerHTML = '';
+            data.forEach(entry => {
+                const formattedDateTime = formatDateTime(entry.Date_time); // Format the date-time
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formattedDateTime}</td>
+                    <td>${entry.Quantity}</td>
+                    <td>₹ ${entry.Cost}</td>
+                    <td>${entry.CP}</td> <!-- Assuming CP is the field name for CP at Purchase -->
+                    <td>${entry.current}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            detailsRow.style.display = "";
+        }
+        
+        // Function to format date-time
+        function formatDateTime(dateTimeString) {
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: '2-digit', 
+                hour12: true, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            };
+            const dateTime = new Date(dateTimeString);
+            return dateTime.toLocaleString('en-US', options);
+        }
+        
+    
+        // Function to get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+    
+
+</script>
+
+  {% endblock body %}
+
+

@@ -10,13 +10,17 @@ from datetime import datetime, timedelta
 from django.db.models import Q
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
-import uuid
+import uuid, pytz
+import json, datetime
 from django.conf import settings
 from django.db.models import Avg
+from django.db.models import Sum, Avg, Max
 from datetime import timedelta, date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from decimal import Decimal
- 
+from django.http import JsonResponse
+from django.core.serializers import serialize
+from django.utils import timezone
  
 # Create your views here.
 
@@ -190,9 +194,76 @@ def user_profile(request):
 
 
 
-def faq(request):
-    return render(request, 'faq.html')
+def Usertrans(request):
+    user = request.user.username
+    user_instance = RegisteredUser.objects.get(username=user)
+    
+    # Aggregate data for each distinct ETF name
+    aggregated_data = (
+        UserBuyetf.objects.filter(Username=user_instance)
+        .values('Etf_purchased__Etfnames')
+        .annotate(latest_date=Max('Date_time'), total_quantity=Sum('Quantity'), avg_cost=Avg('Cost'))
+    )
+    
+    # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
+    modified_data = []
+    for entry in aggregated_data:
+        entry['latest_date'] = timezone.localtime(entry['latest_date'], timezone=pytz.timezone('Asia/Kolkata'))
+        modified_data.append(entry)  # Add the modified entry to the new list
 
+    context = {
+        'data': modified_data  # Pass the modified data to the template context
+    }
+    return render(request, 'user_transactions.html', context)
+
+
+
+def userbuyhistory(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        etf_name = data.get('ETFName')
+        etfname = etf_name.upper()
+        
+        try:
+            etf_model = globals()[etfname]
+            print('model:',etf_model)
+        except KeyError:
+            return JsonResponse({'error': 'Invalid ETF name'})
+
+        detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost')
+        
+        for entry in detailed_data:
+            entry['Date'] = entry['Date_time'].date()
+            
+            # Assuming 'date' is the field name in etf_model that matches the Date_time
+            cp_entry = etf_model.objects.filter(date=entry['Date']).first()
+            current = etf_model.objects.all().last()
+           
+            if cp_entry:
+                entry['CP'] = cp_entry.close  # Assuming 'close' is the field name in etf_model for CP at Purchase
+                entry['current'] = current.close
+            
+            else:
+                # Fetch data for previous dates until a CP entry is found or a maximum number of iterations is reached
+                max_iterations = 10  # Specify the maximum number of iterations
+                current_date = entry['Date']
+                iterations = 0
+                while iterations < max_iterations:
+                    previous_date = current_date - timedelta(days=1)
+                    cp_entry = etf_model.objects.filter(date=previous_date).first()
+                    if cp_entry:
+                        entry['CP'] = cp_entry.close
+                        entry['current'] = current.close
+                        break
+                    else:
+                        current_date = previous_date
+                        iterations += 1
+                else:
+                    entry['CP'] = None  # Handle the case when CP entry is not found after reaching the maximum number of iterations
+                    entry['current'] = None
+        return JsonResponse({'detailed_data': list(detailed_data)})
+    else:
+        return JsonResponse({'error': 'Invalid request method'})
 
 # def Userbuy(request):
 #     data = AllETF.objects.all()

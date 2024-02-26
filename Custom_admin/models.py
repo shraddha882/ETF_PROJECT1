@@ -306,7 +306,7 @@ class AllETF(models.Model):
         ('STOCKS', 'Stocks'),
       
     ]
-    Etfnames = models.CharField(max_length = 225, default = 'Name')
+    Etfnames = models.CharField(primary_key=True, max_length = 225)
     # Date = models.DateField(null = True)
     Open = models.FloatField(null = True, default = '-')
     high = models.FloatField(null = True, default = '-')
