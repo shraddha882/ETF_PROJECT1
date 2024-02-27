@@ -21,6 +21,7 @@ from decimal import Decimal
 from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
  
 # Create your views here.
 
@@ -289,6 +290,64 @@ def userbuyhistory(request):
 #     return render(request, 'user_buy.html', context)
 
  
+# def Userbuy(request):
+#     data = AllETF.objects.all()
+#     closevalue = None
+#     cost = None
+    
+#     if request.method == 'POST':
+#         username = request.user.username  
+#         etf = request.POST.get('ETF')
+#         # quant = int(request.POST.get('quant'))
+        
+#         # closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
+#         # cost = closevalue * Decimal(quant)  # Calculate the cost
+
+
+#         quant = Decimal(request.POST.get('quant'))  # Convert to Decimal
+        
+#         closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
+#         closevalue = Decimal(closevalue)  # Convert to Decimal
+
+
+        
+#         cost = closevalue * quant  # Calculate the cost as Decimal
+        
+#         # Retrieve the wallet associated with the user
+#         user_wallet = Wallet.objects.get(user__username=username)
+        
+#         # Check if the user has enough balance to make the purchase
+#         if user_wallet.balance >= cost:
+#             # Deduct the cost from the user's wallet balance
+#             user_wallet.balance -= cost
+#             user_wallet.save()  # Save the updated wallet balance
+            
+#             # Perform other actions related to buying the ETF
+#             purchase = UserBuyetf.objects.create(
+#                 Username=user_wallet.user,  # Assign the user to the ForeignKey field
+#                 Etf_purchased=AllETF.objects.get(Etfnames=etf),  # Assign the purchased ETF
+#                 Quantity=quant,
+#                 Cost=cost
+#             )
+#             purchase.save()
+            
+#             # Redirect to a success page or display a success message
+#             messages.success(request,"amount deducted successfully")
+            
+#             return redirect('UserBuy')  # Redirect to a success page
+            
+#         else:
+#             # If the user doesn't have enough balance, display an error message
+#             return render(request, 'insufficient_balance.html')
+        
+#     context = {   
+#         'data': data,
+#         'closevalue': closevalue,
+#         'cost': cost,
+#     }
+    
+#     return render(request, 'user_buy.html', context)
+
 def Userbuy(request):
     data = AllETF.objects.all()
     closevalue = None
@@ -297,17 +356,12 @@ def Userbuy(request):
     if request.method == 'POST':
         username = request.user.username  
         etf = request.POST.get('ETF')
-        # quant = int(request.POST.get('quant'))
         
-        # closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
-        # cost = closevalue * Decimal(quant)  # Calculate the cost
-
-
+        # Retrieve the selected ETF object and its close value in one query
+        selected_etf = get_object_or_404(AllETF, Etfnames=etf)
+        closevalue = Decimal(selected_etf.close)
+        
         quant = Decimal(request.POST.get('quant'))  # Convert to Decimal
-        
-        closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
-        closevalue = Decimal(closevalue)  # Convert to Decimal
-        
         cost = closevalue * quant  # Calculate the cost as Decimal
         
         # Retrieve the wallet associated with the user
@@ -322,15 +376,14 @@ def Userbuy(request):
             # Perform other actions related to buying the ETF
             purchase = UserBuyetf.objects.create(
                 Username=user_wallet.user,  # Assign the user to the ForeignKey field
-                Etf_purchased=AllETF.objects.get(Etfnames=etf),  # Assign the purchased ETF
+                Etf_purchased=selected_etf,  # Assign the purchased ETF
                 Quantity=quant,
-                Cost=cost
+                Cost=cost,
+                Purchase_close_value=closevalue  # Assign the purchase close value
             )
-            purchase.save()
             
             # Redirect to a success page or display a success message
-            messages.success(request,"amount deducted successfully")
-            
+            messages.success(request, "Amount deducted successfully")
             return redirect('UserBuy')  # Redirect to a success page
             
         else:
@@ -344,6 +397,59 @@ def Userbuy(request):
     }
     
     return render(request, 'user_buy.html', context)
+
+def usersell(request):
+    username = request.user.username
+    
+    # Retrieve the user's purchased ETFs
+    user_etfs = UserBuyetf.objects.filter(Username__username=username)
+    
+    if request.method == 'POST':
+        etf_id = request.POST.get('etf_id')
+        quantity = Decimal(request.POST.get('quant'))
+        
+        # Retrieve the ETF object
+        etf = get_object_or_404(UserBuyetf, id=etf_id)
+        
+        # Get the current close value of the ETF
+        current_close_value = Decimal(etf.Etf_purchased.close)
+        print(current_close_value)
+        
+        # Get the purchase close value
+        purchase_close_value = etf.Purchase_close_value
+        print(purchase_close_value)
+        
+        # Calculate the selling amount
+        selling_amount = etf.Cost * quantity
+        
+        # Check if the user will make a profit by selling
+        if current_close_value >= purchase_close_value:
+            # Update user's wallet balance
+            user_wallet = Wallet.objects.get(user__username=username)
+            user_wallet.balance += selling_amount
+            user_wallet.save()
+            
+            # Update the quantity of the ETF after selling
+            etf.Quantity -= quantity
+            etf.save()
+            
+            # If the quantity becomes zero after selling, delete the entry
+            if etf.Quantity == 0:
+                etf.delete()
+            
+            # Redirect to a success page or display a success message
+            messages.success(request, "ETFs sold successfully")
+            return redirect('sell_etf')  # Redirect to a success page
+        else:
+            # If the user won't make a profit, display an error message
+            messages.error(request, "You won't make a profit by selling this ETF.")
+            return redirect('sell_etf')  # Redirect to the selling page again
+    
+    context = {   
+        'user_etfs': user_etfs,
+    }
+    return render(request, 'sell_etf.html', context)
+     
 
 
 def error_404(request):
@@ -1826,55 +1932,6 @@ def calculate_percentage_diff(data):
 #     # Get today's date
 #     today = date.today()
     
-
-#     # Calculate 20-day moving average
-#     twenty_day_ago = today - timedelta(days=20)
-#     twenty_day_data = None
-#     if etf_name == 'GOLDBEES_NS':
-#         twenty_day_data = GOLDBEES_NS.objects.filter(date__gte=twenty_day_ago)
-#     elif etf_name == 'NIFTYBEES_NS':
-#         twenty_day_data = NIFTYBEES_NS.objects.filter(date__gte=twenty_day_ago)
-#     elif etf_name == 'SILVERBEES_NS':
-#         twenty_day_data = SILVERBEES_NS.objects.filter(date__gte=twenty_day_ago)
-#     elif etf_name == 'ITBEES_NS':
-#         twenty_day_data = ITBEES_NS.objects.filter(date__gte=twenty_day_ago)
-#     elif etf_name == 'SBIETFIT_NS':
-#         twenty_day_data = SBIETFIT_NS.objects.filter(date__gte=twenty_day_ago)
-    
-#     twenty_day_sum = sum(price.close for price in twenty_day_data)
-#     twenty_day_avg = twenty_day_sum / len(twenty_day_data) if len(twenty_day_data) > 0 else 0
-
-#     # Get today's close price
-#     today_data = None
-#     if etf_name == 'GOLDBEES_NS':
-#         today_data = GOLDBEES_NS.objects.filter(date=today)
-#     elif etf_name == 'NIFTYBEES_NS':
-#         today_data = NIFTYBEES_NS.objects.filter(date=today)
-#     elif etf_name == 'SILVERBEES_NS':
-#         today_data = SILVERBEES_NS.objects.filter(date=today)
-#     elif etf_name == 'ITBEES_NS':
-#         today_data = ITBEES_NS.objects.filter(date=today)
-#     elif etf_name == 'SBIETFIT_NS':
-#         today_data = SBIETFIT_NS.objects.filter(date=today)
-
-#     if today_data.exists():
-#         today_close = today_data.first().close
-#         cmp_vs_20dma = today_close - twenty_day_avg
-#         if today_close > twenty_day_avg:
-#             cmp_result = 'Above'
-#         elif today_close < twenty_day_avg:
-#             cmp_result = 'Below'
-#         else:
-#             cmp_result = 'Equal'
-#         return {
-#             '20dma': twenty_day_avg,
-#             'close_vs_20dma': cmp_vs_20dma,
-#             'cmp_vs_20dma': cmp_result
-#         }
-#     else:
-#         return None
-
- 
 
  
 

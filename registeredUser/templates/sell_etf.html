@@ -1,0 +1,105 @@
+{% extends "userbase.html" %}
+{% block title %}User Sell ETF{% endblock title %}
+{% load static %}
+
+{% block body %}
+<body>
+
+  <main>
+    <div class="container">
+
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-6 d-flex flex-column align-items-center justify-content-center">
+              <form action="{% url 'sell_etf' %}" method="post">
+                {% csrf_token %}
+                {% if messages %}
+                  <div class="alert alert-info text-black bi-text-left mt-5">
+                    <ul>
+                      {% for message in messages %}
+                        <li>{{ message }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endif %}
+                <div class="card mb-3 mt-5">
+
+                  <div class="card-body">
+
+                    <div class="pt-4 pb-2">
+                      <h5 class="card-title text-center pb-0 fs-4">Sell ETF</h5>
+                      <p class="text-center small">Select ETF to sell</p>
+                    </div>
+
+                    <div class="row g-3 needs-validation" novalidate>
+
+                      <div class="col-12">
+                        <label for="etf_id" class="form-label">Select ETF to Sell</label>
+                        <select id="etf_id" name="etf_id" class="form-control">
+                          <option value="">Select</option>
+                          {% for etf in user_etfs %}
+                            <option value="{{ etf.id }}" data-cost="{{ etf.Cost }}">{{ etf.Etf_purchased }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+
+                      <div class="col-6">
+                        <label for="quant" class="form-label">Quantity</label>
+                        <input type="number" name="quant" class="form-control" id="quant" min="1" required>
+                        <div class="invalid-feedback">Enter Quantity</div>
+                      </div>
+
+                      <div class="col-6">
+                        <label for="cost" class="form-label">Cost</label>
+                        <input type="text" name="cost" class="form-control" id="cost" readonly>
+                      </div>
+
+                    </div>
+
+                    <div class="col-12 mt-3">
+                      <button class="btn btn-primary w-100" type="submit">Sell</button>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="credits">
+                  Designed by <a href="{% url "UserDashboard" %}">ETF-Analysis</a>
+                </div>
+
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+</body>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#etf_id').change(function() {
+      var selectedETF = $(this).find(':selected');
+      var cost = selectedETF.data('cost');
+      $('#cost').val(cost);  // Update cost
+    });
+
+    // Update cost when quantity changes
+    $('#quant').on('input', function() {
+      var selectedETF = $('#etf_id').find(':selected');
+      var cost = selectedETF.data('cost');
+      var quant = $(this).val();
+      $('#cost').val(cost * quant);
+    });
+  });
+</script>
+
+{% endblock %}
