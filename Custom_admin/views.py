@@ -1085,6 +1085,7 @@ def stocks(request):
 
     etf_data, etf_close_minus_20dma, etf_close_div_20dma = calculate_20dma(etf_name_list)
     etf_data_50dma, etf_close_minus_50dma, etf_close_div_50dma  = calculate_50dma(etf_name_list)
+    etf_data_100dma, etf_close_minus_100dma, etf_close_div_100dma = calculate_100dma(etf_name_list)
 
     
     # print(alldata)
@@ -1095,9 +1096,12 @@ def stocks(request):
         'etf_data':etf_data,
         'etf_close_minus_20dma': etf_close_minus_20dma,
         'etf_close_div_20dma': etf_close_div_20dma,
-         'etf_data_50dma':etf_data_50dma,
+        'etf_data_50dma':etf_data_50dma,
         'etf_close_minus_50dma': etf_close_minus_50dma,
         'etf_close_div_50dma': etf_close_div_50dma,
+        'etf_data_100dma': etf_data_100dma,
+        'etf_close_minus_100dma': etf_close_minus_100dma,
+        'etf_close_div_100dma': etf_close_div_100dma,
         'nifty':stocks1,
         'it':stocks2,
         'sbi':stocks3,
@@ -1228,6 +1232,42 @@ def calculate_50dma(etf_name_list):
         # print(etf_close_div_50dma)
 
     return etf_data_50dma, etf_close_minus_50dma, etf_close_div_50dma
+
+def calculate_100dma(etf_name_list):
+    # Get today's date
+    today = date.today()
+
+    # Initialize dictionaries to store 100DMA data for each ETF
+    etf_data_100dma = {}
+    etf_close_minus_100dma = {}
+    etf_close_div_100dma = {}
+    
+    # Calculate 100-day moving average for each ETF
+    for etf in etf_name_list:
+        etf_name = etf.upper()
+        # Get the model corresponding to the ETF name dynamically
+        etf_model = globals()[etf_name]
+        
+        # Get 100-day data
+        hundred_day_ago = today - timedelta(days=100)
+        hundred_day_data = etf_model.objects.filter(date__gte=hundred_day_ago)
+        
+        # Calculate 100DMA
+        hundred_day_sum = sum([price.close for price in hundred_day_data])
+        hundred_day_avg = hundred_day_sum / len(hundred_day_data) if len(hundred_day_data) > 0 else 0
+
+        close_minus_100dma = hundred_day_data.last().close - hundred_day_avg
+
+        # Calculate close / 100DMA
+        close_div_100dma = (hundred_day_avg / hundred_day_data.last().close) if hundred_day_avg != 0 else 0
+
+        # Store 100DMA, close - 100DMA, and close / 100DMA ratio in respective dictionaries
+        etf_data_100dma[etf] = hundred_day_avg
+        etf_close_minus_100dma[etf] = close_minus_100dma
+        etf_close_div_100dma[etf] = close_div_100dma
+
+    return etf_data_100dma, etf_close_minus_100dma, etf_close_div_100dma
+
 
 
 def calculate_percentage_diff(data):
