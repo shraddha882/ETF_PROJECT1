@@ -325,6 +325,7 @@ class UserBuyetf(models.Model):
     Etf_purchased = models.ForeignKey(AllETF, on_delete=models.CASCADE,null = True)
     Quantity = models.IntegerField(max_length = 20, null = True)
     Cost = models.IntegerField(max_length = 20, null = True)
+    Purchase_close_value = models.FloatField(null=True)
 
     def __str__(self):
         

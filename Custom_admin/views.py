@@ -1084,6 +1084,8 @@ def stocks(request):
     
 
     etf_data, etf_close_minus_20dma, etf_close_div_20dma = calculate_20dma(etf_name_list)
+    etf_data_50dma, etf_close_minus_50dma, etf_close_div_50dma  = calculate_50dma(etf_name_list)
+
     
     # print(alldata)
     
@@ -1093,6 +1095,9 @@ def stocks(request):
         'etf_data':etf_data,
         'etf_close_minus_20dma': etf_close_minus_20dma,
         'etf_close_div_20dma': etf_close_div_20dma,
+         'etf_data_50dma':etf_data_50dma,
+        'etf_close_minus_50dma': etf_close_minus_50dma,
+        'etf_close_div_50dma': etf_close_div_50dma,
         'nifty':stocks1,
         'it':stocks2,
         'sbi':stocks3,
@@ -1187,6 +1192,42 @@ def calculate_20dma(etf_name_list):
 
     return etf_data, etf_close_minus_20dma, etf_close_div_20dma
 
+
+def calculate_50dma(etf_name_list):
+    # Get today's date
+    today = date.today()
+
+    # Initialize dictionaries to store 50DMA data for each ETF
+    etf_data_50dma = {}
+    etf_close_minus_50dma = {}
+    etf_close_div_50dma = {}
+    
+    # Calculate 50-day moving average for each ETF
+    for etf in etf_name_list:
+        etf_name = etf.upper()
+        # Get the model corresponding to the ETF name dynamically
+        etf_model = globals()[etf_name]
+        
+        # Get 50-day data
+        fifty_day_ago = today - timedelta(days=50)
+        fifty_day_data = etf_model.objects.filter(date__gte=fifty_day_ago)
+        
+        # Calculate 50DMA
+        fifty_day_sum = sum([price.close for price in fifty_day_data])
+        fifty_day_avg = fifty_day_sum / len(fifty_day_data) if len(fifty_day_data) > 0 else 0
+
+        close_minus_50dma = fifty_day_data.last().close - fifty_day_avg
+
+        # Calculate close / 50DMA
+        close_div_50dma = (fifty_day_avg / fifty_day_data.last().close) if fifty_day_avg != 0 else 0
+
+        # Store 50DMA, close - 50DMA, and close / 50DMA ratio in respective dictionaries
+        etf_data_50dma[etf] = fifty_day_avg
+        etf_close_minus_50dma[etf] = close_minus_50dma
+        etf_close_div_50dma[etf] = close_div_50dma
+        # print(etf_close_div_50dma)
+
+    return etf_data_50dma, etf_close_minus_50dma, etf_close_div_50dma
 
 
 def calculate_percentage_diff(data):

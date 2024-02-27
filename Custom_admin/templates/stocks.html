@@ -46,6 +46,9 @@
                                       <th>20 DMA</th> 
                                       <th>CMP - 20 DMA</th> 
                                       <th>20 DMA vs CMP</th> 
+                                      <th>50 DMA</th> 
+                                      <th>CMP - 50 DMA</th> 
+                                      <th>50 DMA vs CMP</th> 
                                   </tr>
                               </thead>
                               <tbody>
@@ -86,6 +89,36 @@
                                           {% endif %}
                                       {% endif %}
                                   {% endfor %}
+
+                                  {% for key, value in etf_data_50dma.items %}
+                                  {% if key == d.Etfnames %}
+                                      <td>{{ value|floatformat:2 }}</td>
+                                  {% endif %}
+                              {% endfor %}
+                              <!-- Close - 50DMA -->
+                              {% for key, value in etf_close_minus_50dma.items %}
+                                  {% if key == d.Etfnames %}
+                                      {% if value < 0 %}
+                                          <td style="color: red">{{ value|floatformat:2 }}</td>
+                                      {% elif value > 0 %}
+                                          <td style="color: green">{{ value|floatformat:2 }}</td>
+                                      {% else %}
+                                          <td>{{ value|floatformat:2 }}</td>
+                                      {% endif %}
+                                  {% endif %}
+                              {% endfor %}
+                              <!-- Close / 50DMA -->
+                              {% for key, value in etf_close_div_50dma.items %}
+                                  {% if key == d.Etfnames %}
+                                      {% if value < 0 %}
+                                          <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                      {% elif value > 0 %}
+                                          <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                      {% else %}
+                                          <td>{{ value|floatformat:2 }}%</td>
+                                      {% endif %}
+                                  {% endif %}
+                              {% endfor %}
   
                                       {% comment %} {% if etf_data.key == d.Etfnames %}<td>{{etf_data.value}}</td>{% endif %} {% endcomment %}
                                   </tr>

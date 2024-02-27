@@ -39,6 +39,7 @@ urlpatterns = [
     path('usercommoditiesdd/',views.usercommoditiesdd, name="usercommoditiesdropdown"),
     path('usertransactions/',views.Usertrans, name="usertrans"),
     path('userbuyhistory/', views.userbuyhistory, name='user_buy_history'),
+    path('selletf/', views.usersell, name = 'sell_etf'),
     
     
 ]
