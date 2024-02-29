@@ -408,6 +408,69 @@ def Userbuy(request):
     return render(request, 'user_buy.html', context)
 
 
+def usersell(request):
+    username = request.user.username
+    
+    # Retrieve the user's purchased ETFs
+    try:
+        user_etfs = UserBuyetf.objects.filter(Username__username=username)
+    except ObjectDoesNotExist:
+        user_etfs = None
+    
+    if request.method == 'POST':
+        etf_id = request.POST.get('etf_id')
+        quantity = Decimal(request.POST.get('quant'))
+        
+        try:
+            # Retrieve the ETF object
+            etf = AllETF.objects.get(Etfnames=etf_id)
+            
+            # Get the current close value of the ETF
+            current_close_value = Decimal(etf.close)
+            
+            # Get the purchase close value
+            buyetf = user_etfs.get(Etf_purchased__Etfnames=etf_id)
+            purchase_close_value = buyetf.Purchase_close_value
+            
+            # Calculate the selling amount
+            selling_amount = current_close_value * quantity
+            
+            # Check if the user will make a profit by selling
+            if current_close_value >= purchase_close_value:
+                # Update user's wallet balance
+                user_wallet = Wallet.objects.get(user__username=username)
+                user_wallet.balance += selling_amount
+                user_wallet.save()
+                
+                # Add a new record for selling ETF to UserBuyetf table
+                UserBuyetf.objects.create(
+                    Username=user_wallet.user,
+                    Etf_purchased=etf,
+                    Quantity=quantity,
+                    Cost=selling_amount,
+                    Purchase_close_value=purchase_close_value,
+                    trans_type='SELL'
+                )
+                
+                # Redirect to a success page or display a success message
+                messages.success(request, "ETFs sold successfully")
+                return redirect('sell_etf')  # Redirect to a success page
+            else:
+                return redirect('sell_etf')  # Redirect to the selling page again without an error message
+        
+        except ObjectDoesNotExist:
+            messages.error(request, "Error: ETF data not found.")
+            return redirect('sell_etf')
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+            return redirect('sell_etf')
+    
+    context = {   
+        'user_etfs': user_etfs,
+    }
+    return render(request, 'sell_etf.html', context)
+     
+
  
 
 
