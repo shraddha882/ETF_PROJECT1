@@ -22,7 +22,7 @@ from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
- 
+from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 
 
@@ -203,13 +203,36 @@ def Usertrans(request):
     aggregated_data = (
         UserBuyetf.objects.filter(Username=user_instance)
         .values('Etf_purchased__Etfnames')
-        .annotate(latest_date=Max('Date_time'), total_quantity=Sum('Quantity'), avg_cost=Avg('Cost'))
+        .annotate(
+            latest_date=Max('Date_time'), 
+            total_quantity=Sum('Quantity'), 
+            total_cost=Sum('Cost'),
+        )
     )
+    
+    # Fetch current price for each ETF
+    current_prices = {
+        entry['Etf_purchased__Etfnames']: AllETF.objects.get(Etfnames=entry['Etf_purchased__Etfnames']).close 
+        for entry in aggregated_data
+    }
     
     # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
     modified_data = []
     for entry in aggregated_data:
-        entry['latest_date'] = timezone.localtime(entry['latest_date'], timezone=pytz.timezone('Asia/Kolkata'))
+        entry['mod_date'] = entry['latest_date'].date()
+        
+        # Calculate average cost
+        if entry['total_quantity'] != 0:
+            entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
+        else:
+            entry['mod_avg'] = 0.00
+        
+        entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
+        
+        # Calculate percent difference without rounding off
+        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
+        entry['percent_diff'] = percent_diff
+        
         modified_data.append(entry)  # Add the modified entry to the new list
 
     context = {
@@ -217,55 +240,40 @@ def Usertrans(request):
     }
     return render(request, 'user_transactions.html', context)
 
-
-
 def userbuyhistory(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        etf_name = data.get('ETFName')
-        etfname = etf_name.upper()
-        
         try:
-            etf_model = globals()[etfname]
-            print('model:',etf_model)
-        except KeyError:
-            return JsonResponse({'error': 'Invalid ETF name'})
+            data = json.loads(request.body)
+            etf_name = data.get('ETFName')
+            etfname = etf_name.upper()
+            
+            try:
+                etf_model = globals()[etfname]
+            except KeyError:
+                return JsonResponse({'error': 'Invalid ETF name'}, status=400)
 
-        detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost')
-        
-        for entry in detailed_data:
-            entry['Date'] = entry['Date_time'].date()
+            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value')
             
-            # Assuming 'date' is the field name in etf_model that matches the Date_time
-            cp_entry = etf_model.objects.filter(date=entry['Date']).first()
-            current = etf_model.objects.all().last()
-           
-            if cp_entry:
-                entry['CP'] = cp_entry.close  # Assuming 'close' is the field name in etf_model for CP at Purchase
-                entry['current'] = current.close
-            
-            else:
-                # Fetch data for previous dates until a CP entry is found or a maximum number of iterations is reached
-                max_iterations = 10  # Specify the maximum number of iterations
-                current_date = entry['Date']
-                iterations = 0
-                while iterations < max_iterations:
-                    previous_date = current_date - timedelta(days=1)
-                    cp_entry = etf_model.objects.filter(date=previous_date).first()
-                    if cp_entry:
-                        entry['CP'] = cp_entry.close
-                        entry['current'] = current.close
-                        break
-                    else:
-                        current_date = previous_date
-                        iterations += 1
-                else:
-                    entry['CP'] = None  # Handle the case when CP entry is not found after reaching the maximum number of iterations
-                    entry['current'] = None
-        return JsonResponse({'detailed_data': list(detailed_data)})
+            for entry in detailed_data:
+                entry['Date'] = entry['Date_time'].date()
+                
+                try:
+                    # Fetch current price of the ETF
+                    curr_price = AllETF.objects.get(Etfnames=etf_name).close
+                except ObjectDoesNotExist:
+                    return JsonResponse({'error': 'ETF data not found'}, status=400)
+                
+                # Calculate current cost and percentage difference
+                curr_cost = curr_price * entry['Quantity']
+                entry['CurrPrice'] = curr_price
+                entry['CurrCost'] = curr_cost
+                entry['PercentDiff'] = ((curr_cost - entry['Cost']) / entry['Cost']) * 100
+                
+            return JsonResponse({'detailed_data': list(detailed_data)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
     else:
-        return JsonResponse({'error': 'Invalid request method'})
-
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 # def Userbuy(request):
 #     data = AllETF.objects.all()
 #     closevalue = None
@@ -379,7 +387,8 @@ def Userbuy(request):
                 Etf_purchased=selected_etf,  # Assign the purchased ETF
                 Quantity=quant,
                 Cost=cost,
-                Purchase_close_value=closevalue  # Assign the purchase close value
+                Purchase_close_value=closevalue,  # Assign the purchase close value
+                trans_type='BUY'
             )
             
             # Redirect to a success page or display a success message

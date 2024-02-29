@@ -9,8 +9,15 @@
                 <div class="card">
                     <div class="card-body" style="overflow-x: auto;">
                         <div id="user_buy_history_url" data-url="{% url 'user_buy_history' %}"></div>
-                        <h5 class="card-title fw-bold">ETF Transactions</h5>     
-                        <table class="table table-hover"> 
+                        <h5 class="card-header fw-bolder text-center ">ETF Transactions</h5>
+                        <!-- Buy/Sell Toggle Button -->
+                        <div class="toggle-container">
+                            <input id="toggle" type="checkbox" checked onchange="toggleTable()">
+                            <label class="toggle-label" for="toggle"></label>
+                            <div class="toggle-button"></div>
+                        </div>
+                        <!-- Buy Transactions Table -->
+                        <table id="buyTable" class="table table-hover"> 
                             <thead>                           
                                 <tr>
                                     <th style="white-space: nowrap;">S. no. </th>
@@ -18,61 +25,178 @@
                                     <th style="white-space: nowrap;">Last Purchased</th>
                                     <th style="white-space: nowrap;">Total Quantity</th>
                                     <th style="white-space: nowrap;">Average Cost</th>
-                                    
+                                    <th style="white-space: nowrap;">Currrent Cost</th>
+                                    <th style="white-space: nowrap;">Percentage diff</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for b in data %}
                                 <tr class="expandable-row">
-                                    
-                                    <td>{{forloop.counter}}</td>
-                                    <td>{{b.Etf_purchased__Etfnames}}</td>
-                                    <td>{{b.latest_date}}</td>
-                                    <td>{{b.total_quantity}}</td>
-                                    <td>₹ {{b.avg_cost}}</td>
-                                    
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ b.Etf_purchased__Etfnames }}</td>
+                                    <td>{{ b.mod_date }}</td>
+                                    <td>{{ b.total_quantity }}</td>
+                                    <td>₹ {{ b.mod_avg }}</td>
+                                    <td>₹ {{ b.current_price }}</td>
+                                    <td style="color: 
+                                        {% if b.percent_diff > 0 %}
+                                            green
+                                        {% elif b.percent_diff < 0 %}
+                                            red
+                                        {% else %}
+                                            black
+                                        {% endif %}
+                                        ;"
+                                    >{{ b.percent_diff }}%</td>
                                 </tr>
-                                
                                 <tr class="details-row" style="display: none;">
-                                    <td colspan="5">
-                                        <table class="table table-light" >
+                                    <td colspan="7">
+                                        <table class="table table-light">
                                             <thead>
                                                 <tr>
                                                     <th>Date</th>
                                                     <th>Quantity</th>
-                                                    <th>Cost</th>
-                                                    <th>Close Price</th>
-                                                    <th>Current CP</th>
+                                                    <th>Buy Cost</th>
+                                                    <th>Buy Price</th>
+                                                    <th>Current Cost</th>
+                                                    <th>Current Price</th>
+                                                    <th>% Difference</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    {% for d in detailed_data %}
-                                                    <td>{{d.Date_time}}</td>
-                                                    <td>{{d.Quantity}}</td>
-                                                    <td>{{d.Cost}}</td>
-                                                    <td>{{d.CP}}</td>
-                                                    <td>{{d.current}}</td>
-                                                    {% endfor %}
-                                                </tr>
+                                                <!-- Add details rows here -->
                                             </tbody>
                                         </table>
                                     </td>
                                 </tr>
-                                {%endfor%}
-                            </tbody> 
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <!-- Sell Transactions Table (Initially hidden) -->
+                        <table id="sellTable" class="table table-hover" style="display: none;"> 
+                            <thead>                           
+                                <tr>
+                                    <th style="white-space: nowrap;">S. no. </th>
+                                    <th style="white-space: nowrap;">ETF Name</th>
+                                    <th style="white-space: nowrap;">Last Sold</th>
+                                    <th style="white-space: nowrap;">Total Quantity Sold</th>
+                                    <th style="white-space: nowrap;">Average Sell Price</th>
+                                    <th style="white-space: nowrap;">Currrent Sell Price</th>
+                                    <th style="white-space: nowrap;">Percentage diff</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Add sell table body content here -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+</main>
+
+<style>
+    /* Custom Toggle Switch Button Styles */
+    .toggle-container {
+        position: relative;
+        display: inline-block;
+        width: 85px; /* Adjust width as needed */
+        height: 34px;
+    }
+
+    .toggle-container input[type=checkbox] {
+        display: none; /* Hide the default checkbox */
+    }
+
+    .toggle-label {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #4CAF50; /* Green color for "Buy" background by default */
+        border-radius: 34px; /* Rounded corners */
+        transition: background-color 0.3s; /* Smooth transition */
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Aligns items with space in between */
+        padding: 0 10px; /* Add padding to space out the labels */
+    }
+
+    .toggle-container input[type=checkbox]:checked + .toggle-label {
+        background-color: #4CAF50; /* Green color for "Buy" background when checked */
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label {
+        background-color: #f44336; /* Red color for "Sell" background when unchecked */
+    }
+
+    .toggle-label::before {
+        content: "Buy";
+        color: white;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        margin-right: auto; /* Pushes "Buy" to the left */
+        
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label::before {
+        content: "Sell";
+        margin-left: 55% ; /* Pushes "Sell" to the left */
+        
+    }
+
+    .toggle-button {
+        position: absolute;
+        top: 2px;
+        right: 2px; /* Position the button on the right by default */
+        width: 30px; /* Width of the small grey button */
+        height: 30px; /* Height of the small grey button */
+        background-color: #fff; /* White color for the button */
+        border-radius: 50%; /* Rounded button */
+        transition: transform 0.3s, right 0.3s, left 0.3s; /* Smooth transition for transform and right properties */
+    }
+
+    .toggle-container input[type=checkbox]:checked + .toggle-label .toggle-button {
+        right: 2px; /* Position the button on the right when checked */
+        left: auto; /* Reset left when checked */
+        transform: translateX(0); /* Reset transform when checked */
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label .toggle-button {
+        left: 2px; /* Position the button on the left when unchecked */
+        transform: translateX(0); /* Reset transform when unchecked */
+    }
+</style>
+
+
+
+
+<script>
+
+    function toggleTable() {
+        var switchButton = document.getElementById('toggle');
+        var buyTable = document.getElementById('buyTable');
+        var sellTable = document.getElementById('sellTable');
+        var toggleButton = document.querySelector('.toggle-button');
+    
+        if (switchButton.checked) {
+            buyTable.style.display = 'table';
+            sellTable.style.display = 'none';
+            toggleButton.style.left = 'calc(100% - 32px)'; // Move the button to the right
+            
+        } else {
+            buyTable.style.display = 'none';
+            sellTable.style.display = 'table';
+            toggleButton.style.left = '2px'; // Move the button to the left
+            
+        }
+    }
     
     
-    
-    
-  </main>  
-  <script>
+
     document.addEventListener("DOMContentLoaded", function () {
         const expandableRows = document.querySelectorAll('.expandable-row');
     
@@ -122,18 +246,49 @@
             tableBody.innerHTML = '';
             data.forEach(entry => {
                 const formattedDateTime = formatDateTime(entry.Date_time); // Format the date-time
+        
+                // Format Cost
+                const costString = entry.Cost.toString(); // Convert cost to string
+                const costParts = costString.split('.'); // Split the string into parts before and after the decimal point
+                const costFormattedDecimal = costParts.length > 1 ? costParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCost = `₹ ${costParts[0]}.${costFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format Purchase Close Value
+                const purchaseCloseString = entry.Purchase_close_value.toString(); // Convert purchase close value to string
+                const purchaseCloseParts = purchaseCloseString.split('.'); // Split the string into parts before and after the decimal point
+                const purchaseCloseFormattedDecimal = purchaseCloseParts.length > 1 ? purchaseCloseParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedPurchaseClose = ` ${purchaseCloseParts[0]}.${purchaseCloseFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format CurrCost
+                const currCostString = entry.CurrCost.toString(); // Convert CurrCost to string
+                const currCostParts = currCostString.split('.'); // Split the string into parts before and after the decimal point
+                const currCostFormattedDecimal = currCostParts.length > 1 ? currCostParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCurrCost = `₹ ${currCostParts[0]}.${currCostFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format CurrPrice
+                const currPriceString = entry.CurrPrice.toString(); // Convert CurrPrice to string
+                const currPriceParts = currPriceString.split('.'); // Split the string into parts before and after the decimal point
+                const currPriceFormattedDecimal = currPriceParts.length > 1 ? currPriceParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCurrPrice = ` ${currPriceParts[0]}.${currPriceFormattedDecimal.padEnd(2, '0')}`;
+        
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${formattedDateTime}</td>
                     <td>${entry.Quantity}</td>
-                    <td>₹ ${entry.Cost}</td>
-                    <td>${entry.CP}</td> <!-- Assuming CP is the field name for CP at Purchase -->
-                    <td>${entry.current}</td>
-                `;
+                    <td>${formattedCost}</td> <!-- Display Cost with exactly 2 digits after the decimal point -->
+                    <td>${formattedPurchaseClose}</td> <!-- Display Purchase Close Value with exactly 2 digits after the decimal point -->
+                    <td>${formattedCurrCost}</td> <!-- Display CurrCost with exactly 2 digits after the decimal point -->
+                    <td>${formattedCurrPrice}</td> <!-- Display CurrPrice with exactly 2 digits after the decimal point -->
+                    <td style="color: 
+                    ${entry.PercentDiff > 0 ? 'green' : entry.PercentDiff < 0 ? 'red' : 'black'};">${entry.PercentDiff}%</td> <!-- Percentage Difference between Current cost and Buy Cost -->
+            `;
+        
                 tableBody.appendChild(row);
             });
             detailsRow.style.display = "";
         }
+        
+        
         
         // Function to format date-time
         function formatDateTime(dateTimeString) {
@@ -141,10 +296,7 @@
                 year: 'numeric', 
                 month: 'short', 
                 day: '2-digit', 
-                hour12: true, 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit' 
+                
             };
             const dateTime = new Date(dateTimeString);
             return dateTime.toLocaleString('en-US', options);
