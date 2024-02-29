@@ -11,6 +11,7 @@ urlpatterns = [
     path('Approve/<str:username>/',Approve,name='approve'),
     path('Decline/<str:username>/',Decline,name='decline'),
     path('active_user/', active_user, name='active_user'),
+    path('deactivate_user/', deactivate_user, name='deactivate_user'),
     path('faq/', faq, name='faq'),
     path('error_404/', error_404, name='error_404'),
     path('contact/', contact, name='contact'),

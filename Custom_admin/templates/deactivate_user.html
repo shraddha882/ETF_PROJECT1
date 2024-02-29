@@ -1,0 +1,57 @@
+<!-- active_user.html -->
+{% extends "base1.html" %}
+{% block title %}Deactivate User details{% endblock title %}
+{% load static %}
+{% block body %}
+<main id="main" class="main">
+    <div class="pagetitle">
+      <h1>User details</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item active">User Data</li>
+        </ol>
+      </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">        
+                <div class="card">
+                    <div class="card-body">
+                    <h5 class="card-title">Deactivate Users</h5>        
+                    <table class="table table-hover">   
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Dob</th>
+                                <th>Phone</th>
+                                <th>IS verified</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                           <!-- <th>Update</th>   -->
+                            </tr>
+                        </thead>
+                        <tbody>     
+
+                            {% for user in data %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.date_of_birth }}</td>
+                                <td>{{ user.phone_number}}</td>
+                                <td>{{ user.is_verified }}</td>
+                                <td>{{ user.login_status }}</td>
+                                <td><!-- Action buttons here --></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock body %}
+

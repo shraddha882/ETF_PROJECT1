@@ -1,126 +1,87 @@
+<!-- active_user.html -->
 {% extends "base1.html" %}
 {% block title %}Active User details{% endblock title %}
 {% load static %}
 {% block body %}
 <main id="main" class="main">
     <div class="pagetitle">
-      <h1>User details</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-          <li class="breadcrumb-item active">User Data</li>
-        </ol>
-      </nav>
+        <h1>User details</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item active">User Data</li>
+            </ol>
+        </nav>
     </div>
     <section class="section">
         <div class="row">
-            <div class="col-lg-12">        
+            <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                    <h5 class="card-title">User active</h5>        
-                    <table class="table datatable table-hover">   
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Domain</th>
-                                <th>Bio</th>
-                                <th>Photo</th>
-                                 <th>Actions</th>
-                           <!-- <th>Update</th>   -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in profiles %}
-                            <tr>
-                                <td>{{ p.name }}</td>
-                                <td>{{ p.domain }}</td>
-                                <td>{{ p.email }}</td>
-                                <td>{{p.bio}}</td>
-                              <td>{{p.profile}}</td>
-                                 <!-- <td><a href="/delete/{{task.id}}" class="btn btn-danger btn-sm">Delete</a> -->
-                                    
-                                <!-- </td> -->
-                                <td>
-                                    <a href="#editProfile-{{forloop.counter}}" class="edit btn btn-warning btn-sm" data-toggle="modal">
-                                        <i class="material-icons" data-toggle="tooltip" title="Edit"></i>Update</a>
-                                    <a href="#deleteProfile-{{forloop.counter}}" class="delete btn btn-danger btn-sm" data-toggle="modal">
-                                        <i class="material-icons" data-toggle="tooltip" title="Delete"></i>Delete
-                                    </a>
-                                </td>
-
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    </div>
-                    
-        <!-- update task -->
-                    {% for p in profiles%}
-                    <div id="editProfile-{{forloop.counter}}" class="modal fade">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form action="/update/{{p.id}}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="profile_id" value="{{ p.id }}">
-                                    <div class="modal-header">						
-                                        <h4 class="modal-title">Edit user</h4>
-                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                    </div>
-                                    <div class="modal-body">					
-                                        <div class="form-group">
-                                            <label>Name</label>
-                                            <input name = "name" value="{{p.name}}" type="text" class="form-control" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Domain</label>
-                                            <input name="domain" value="{{p.domain}}" type="text" class="form-control" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Email</label>
-                                            <input name="domain" value="{{p.email}}" type="text" class="form-control" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Bio</label>
-                                            <textarea  name="bio" class="form-control" required>{{p.bio}}</textarea>
-                                        </div>
-                                                        
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-                                        <input type="submit" class="btn btn-info" value="update">
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- delete task -->
-                    <div id="deleteProfile-{{forloop.counter}}" class="modal fade">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form action="{% url 'delete' p.id %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="profile_id" value="{{ p.id }}">
-                                    <div class="modal-header">						
-                                        <h4 class="modal-title">Delete Profile</h4>
-                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Are you sure you want to delete this profile?</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-                                        <input type="submit" class="btn btn-danger" value="Delete">
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        {%endfor%}
-                        </div>
+                        <h5 class="card-title">Active Users</h5>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Dob</th>
+                                    <th>Phone</th>
+                                    <th>IS verified</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in data %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.date_of_birth }}</td>
+                                    <td>{{ user.phone_number }}</td>
+                                    <td>{{ user.is_verified }}</td>
+                                    <td>{{ user.login_status }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
+                                           Transaction
+                                          </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
+
     </section>
+
+    <!-- Button to trigger the modal -->
+    
+    
+      <div class="modal fade" id="ExtralargeModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Transaction details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Non omnis incidunt qui sed occaecati magni asperiores est mollitia. Soluta at et reprehenderit. Placeat autem numquam et fuga numquam. Tempora in facere consequatur sit dolor ipsum. Consequatur nemo amet incidunt est facilis. Dolorem neque recusandae quo sit molestias sint dignissimos.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              
+            </div>
+          </div>
+        </div>
+      </div><!-- End Extra Large Modal-->
+    
+ <!-- Extra Large Modal -->
+ 
+
 </main>
+
+
+
 {% endblock body %}
