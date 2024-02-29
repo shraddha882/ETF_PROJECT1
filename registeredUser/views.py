@@ -411,48 +411,58 @@ def usersell(request):
     username = request.user.username
     
     # Retrieve the user's purchased ETFs
-    user_etfs = UserBuyetf.objects.filter(Username__username=username)
+    try:
+        user_etfs = UserBuyetf.objects.filter(Username__username=username)
+    except ObjectDoesNotExist:
+        user_etfs = None
     
     if request.method == 'POST':
         etf_id = request.POST.get('etf_id')
         quantity = Decimal(request.POST.get('quant'))
         
-        # Retrieve the ETF object
-        etf = get_object_or_404(UserBuyetf, id=etf_id)
-        
-        # Get the current close value of the ETF
-        current_close_value = Decimal(etf.Etf_purchased.close)
-        print(current_close_value)
-        
-        # Get the purchase close value
-        purchase_close_value = etf.Purchase_close_value
-        print(purchase_close_value)
-        
-        # Calculate the selling amount
-        selling_amount = etf.Cost * quantity
-        
-        # Check if the user will make a profit by selling
-        if current_close_value >= purchase_close_value:
-            # Update user's wallet balance
-            user_wallet = Wallet.objects.get(user__username=username)
-            user_wallet.balance += selling_amount
-            user_wallet.save()
+        try:
+            # Retrieve the ETF object
+            etf = AllETF.objects.get(Etfnames=etf_id)
             
-            # Update the quantity of the ETF after selling
-            etf.Quantity -= quantity
-            etf.save()
+            # Get the current close value of the ETF
+            current_close_value = Decimal(etf.close)
             
-            # If the quantity becomes zero after selling, delete the entry
-            if etf.Quantity == 0:
-                etf.delete()
+            # Get the purchase close value
+            buyetf = user_etfs.get(Etf_purchased__Etfnames=etf_id)
+            purchase_close_value = buyetf.Purchase_close_value
             
-            # Redirect to a success page or display a success message
-            messages.success(request, "ETFs sold successfully")
-            return redirect('sell_etf')  # Redirect to a success page
-        else:
-            # If the user won't make a profit, display an error message
-            messages.error(request, "You won't make a profit by selling this ETF.")
-            return redirect('sell_etf')  # Redirect to the selling page again
+            # Calculate the selling amount
+            selling_amount = current_close_value * quantity
+            
+            # Check if the user will make a profit by selling
+            if current_close_value >= purchase_close_value:
+                # Update user's wallet balance
+                user_wallet = Wallet.objects.get(user__username=username)
+                user_wallet.balance += selling_amount
+                user_wallet.save()
+                
+                # Add a new record for selling ETF to UserBuyetf table
+                UserBuyetf.objects.create(
+                    Username=user_wallet.user,
+                    Etf_purchased=etf,
+                    Quantity=quantity,
+                    Cost=selling_amount,
+                    Purchase_close_value=purchase_close_value,
+                    trans_type='SELL'
+                )
+                
+                # Redirect to a success page or display a success message
+                messages.success(request, "ETFs sold successfully")
+                return redirect('sell_etf')  # Redirect to a success page
+            else:
+                return redirect('sell_etf')  # Redirect to the selling page again without an error message
+        
+        except ObjectDoesNotExist:
+            messages.error(request, "Error: ETF data not found.")
+            return redirect('sell_etf')
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+            return redirect('sell_etf')
     
     context = {   
         'user_etfs': user_etfs,

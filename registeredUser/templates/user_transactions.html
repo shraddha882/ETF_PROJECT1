@@ -36,8 +36,8 @@
                                     <td>{{ b.Etf_purchased__Etfnames }}</td>
                                     <td>{{ b.mod_date }}</td>
                                     <td>{{ b.total_quantity }}</td>
-                                    <td>₹ {{ b.mod_avg }}</td>
-                                    <td>₹ {{ b.current_price }}</td>
+                                    <td>₹ {{ b.mod_avg|floatformat:2  }}</td>
+                                    <td>₹ {{ b.current_price|floatformat:2  }}</td>
                                     <td style="color: 
                                         {% if b.percent_diff > 0 %}
                                             green
@@ -47,7 +47,7 @@
                                             black
                                         {% endif %}
                                         ;"
-                                    >{{ b.percent_diff }}%</td>
+                                    >{{ b.percent_diff|floatformat:2 }}%</td>
                                 </tr>
                                 <tr class="details-row" style="display: none;">
                                     <td colspan="7">
