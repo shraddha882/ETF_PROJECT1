@@ -30,6 +30,7 @@
   <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
   <link href="{% static 'vendor/simple-datatables/style.css' %}" rel="stylesheet">
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+ 
 
   <!-- Template Main CSS File -->
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
@@ -549,6 +550,11 @@
               <i class="bi bi-circle"></i><span>Active User details</span>
             </a>
           </li>
+          <li>
+            <a href="{% url "deactivate_user" %}">
+              <i class="bi bi-circle"></i><span>Deactivate User details</span>
+            </a>
+          </li>
         </ul>
       </li>
       <li class="nav-heading">Pages</li>
@@ -639,8 +645,7 @@
 
   <!-- Template Main JS File -->
   <script src="{% static 'js/main.js' %}"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  
   {% endblock myscript %}
 </body>
 

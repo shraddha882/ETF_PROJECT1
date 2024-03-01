@@ -14,6 +14,17 @@ from datetime import datetime,date
 from django.db.models import Q
 from django.db.models import Avg
 from datetime import timedelta, date
+from django.db.models import Sum, Avg, Max
+from datetime import timedelta, date
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from decimal import Decimal
+from django.http import JsonResponse
+from django.core.serializers import serialize
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
+import json, datetime
+
 
 
 def admindashboard(request):
@@ -73,8 +84,101 @@ def Decline(request,username):
         update.delete()
     return redirect('users_data')
 
+def active_user(request):
+    active_registered_users = RegisteredUser.objects.filter(login_status=True,is_verified=True)
+    context ={
+         'data': active_registered_users
+    }
+    return render(request, 'active_user.html', context)
+
+def deactivate_user(request):
+    deactivate_registered_users = RegisteredUser.objects.filter(login_status=False)
+    context ={
+         'data': deactivate_registered_users
+    }
+    return render(request, 'deactivate_user.html', context)
 
 
+
+def Usertrans(request):
+    user = request.user.username
+    user_instance = RegisteredUser.objects.get(username=user)
+    
+    # Aggregate data for each distinct ETF name
+    aggregated_data = (
+        UserBuyetf.objects.filter(Username=user_instance)
+        .values('Etf_purchased__Etfnames')
+        .annotate(
+            latest_date=Max('Date_time'), 
+            total_quantity=Sum('Quantity'), 
+            total_cost=Sum('Cost'),
+        )
+    )
+    
+    # Fetch current price for each ETF
+    current_prices = {
+        entry['Etf_purchased__Etfnames']: AllETF.objects.get(Etfnames=entry['Etf_purchased__Etfnames']).close 
+        for entry in aggregated_data
+    }
+    
+    # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
+    modified_data = []
+    for entry in aggregated_data:
+        entry['mod_date'] = entry['latest_date'].date()
+        
+        # Calculate average cost
+        if entry['total_quantity'] != 0:
+            entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
+        else:
+            entry['mod_avg'] = 0.00
+        
+        entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
+        
+        # Calculate percent difference without rounding off
+        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
+        entry['percent_diff'] = percent_diff
+        
+        modified_data.append(entry)  # Add the modified entry to the new list
+
+    context = {
+        'data': modified_data  # Pass the modified data to the template context
+    }
+    return render(request, 'user_transactions.html', context)
+
+def userbuyhistory(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            etf_name = data.get('ETFName')
+            etfname = etf_name.upper()
+            
+            try:
+                etf_model = globals()[etfname]
+            except KeyError:
+                return JsonResponse({'error': 'Invalid ETF name'}, status=400)
+
+            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value')
+            
+            for entry in detailed_data:
+                entry['Date'] = entry['Date_time'].date()
+                
+                try:
+                    # Fetch current price of the ETF
+                    curr_price = AllETF.objects.get(Etfnames=etf_name).close
+                except ObjectDoesNotExist:
+                    return JsonResponse({'error': 'ETF data not found'}, status=400)
+                
+                # Calculate current cost and percentage difference
+                curr_cost = curr_price * entry['Quantity']
+                entry['CurrPrice'] = curr_price
+                entry['CurrCost'] = curr_cost
+                entry['PercentDiff'] = ((curr_cost - entry['Cost']) / entry['Cost']) * 100
+                
+            return JsonResponse({'detailed_data': list(detailed_data)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 # def commodities(request):
 #     return render(request, 'commodities.html')
@@ -83,8 +187,8 @@ def admin_profile(request):
     return render(request, 'admin_profile.html')
 
 
-def active_user(request):
-    return render(request, 'active_user.html')
+# def active_user(request):
+#     return render(request, 'active_user.html')
 
 
 def faq(request):

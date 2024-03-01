@@ -320,12 +320,18 @@ class AllETF(models.Model):
         return self.Etfnames
     
 class UserBuyetf(models.Model):
+    TRANSACTION_TYPE_CHOICES = [
+        ('BUY', 'BUY'),
+        ('SELL', 'SELL'),
+      
+    ]
     Username = models.ForeignKey(RegisteredUser, on_delete=models.CASCADE,null = True)
     Date_time = models.DateTimeField("Date and Time", auto_now=False, auto_now_add=True,null = True)
     Etf_purchased = models.ForeignKey(AllETF, on_delete=models.CASCADE,null = True)
-    Quantity = models.IntegerField(max_length = 20, null = True)
-    Cost = models.IntegerField(max_length = 20, null = True)
+    Quantity = models.FloatField(max_length = 20, null = True)
+    Cost = models.FloatField(max_length = 20, null = True)
     Purchase_close_value = models.FloatField(null=True)
+    trans_type = models.CharField(max_length =20,null = True,  choices=TRANSACTION_TYPE_CHOICES)
 
     def __str__(self):
         

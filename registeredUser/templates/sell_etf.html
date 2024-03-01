@@ -32,18 +32,34 @@
                       <p class="text-center small">Select ETF to sell</p>
                     </div>
 
-                    <div class="row g-3 needs-validation" novalidate>
+                    <div class ="row">
+                      <div class="col-6">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group has-validation">
+                          <input type="text" name="username" class="form-control" id="username" value="{{ request.user.username }}" readonly autofocus>
+                          <div class="invalid-feedback">Please choose a username.</div>
+                        </div>
+                      </div>
+                    </div>
 
-                      <div class="col-12">
+                    <div class="row g-3 needs-validation" novalidate>
+                      <div class="col-6">
                         <label for="etf_id" class="form-label">Select ETF to Sell</label>
                         <select id="etf_id" name="etf_id" class="form-control">
                           <option value="">Select</option>
                           {% for etf in user_etfs %}
-                            <option value="{{ etf.id }}" data-cost="{{ etf.Cost }}">{{ etf.Etf_purchased }}</option>
+                            <option value="{{ etf.id }}" data-close-value="{{ etf.close }}">{{ etf.Etf_purchased }}</option>
                           {% endfor %}
                         </select>
                       </div>
 
+                      <div class="col-6">
+                        <label for="close" class="form-label">Close Value</label>
+                        <input type="text" name="close" class="form-control" id="close" value="{{ closevalue }}" readonly>
+                      </div>
+                    </div>
+
+                    <div class="row">
                       <div class="col-6">
                         <label for="quant" class="form-label">Quantity</label>
                         <input type="number" name="quant" class="form-control" id="quant" min="1" required>
@@ -52,29 +68,27 @@
 
                       <div class="col-6">
                         <label for="cost" class="form-label">Cost</label>
-                        <input type="text" name="cost" class="form-control" id="cost" readonly>
+                        <div class = "input-group">
+                          <span class="input-group-text" id="inputGroupPrepend">₹</span> 
+                          <input type="text" name="cost" class="form-control" id="cost" readonly>
+                        </div>
                       </div>
-
                     </div>
 
                     <div class="col-12 mt-3">
                       <button class="btn btn-primary w-100" type="submit">Sell</button>
                     </div>
-
                   </div>
                 </div>
 
                 <div class="credits">
                   Designed by <a href="{% url "UserDashboard" %}">ETF-Analysis</a>
                 </div>
-
               </form>
             </div>
           </div>
         </div>
-
       </section>
-
     </div>
   </main>
 
@@ -88,17 +102,23 @@
   $(document).ready(function() {
     $('#etf_id').change(function() {
       var selectedETF = $(this).find(':selected');
-      var cost = selectedETF.data('cost');
-      $('#cost').val(cost);  // Update cost
+      var closeValue = selectedETF.data('close-value');
+      $('#close').val(closeValue);  // Update close value
+      
+      // Calculate cost dynamically
+      var quant = $('#quant').val();
+      var cost = closeValue * quant;
+      $('#cost').val(cost);
     });
-
+    
     // Update cost when quantity changes
-    $('#quant').on('input', function() {
-      var selectedETF = $('#etf_id').find(':selected');
-      var cost = selectedETF.data('cost');
+    $('#quant').keyup(function() {
+      var closeValue = $('#etf_id option:selected').data('close-value');
       var quant = $(this).val();
-      $('#cost').val(cost * quant);
+      var cost = closeValue * quant;
+      $('#cost').val(cost);
     });
+  
   });
 </script>
 
