@@ -7,22 +7,28 @@
         <div class="row">
             <div class="col-lg-12">        
                 <div class="card">
-                    <div class="card-body" style="overflow-x: auto;">
+                    <div class="card-body" style="overflow-x: auto; overflow:visible;">
                         <div id="user_buy_history_url" data-url="{% url 'user_buy_history' %}"></div>
                         <h5 class="card-header fw-bolder text-center ">ETF Transactions</h5>
-                        <!-- Buy/Sell Toggle Button -->
-                        <div class="toggle-container">
-                            <input id="toggle" type="checkbox" checked onchange="toggleTable()">
-                            <label class="toggle-label" for="toggle"></label>
-                            <div class="toggle-button"></div>
+                        <!-- Buy/Sell Dropdown -->
+                        <div class="dropdown" >
+                            <button class="btn btn-md dropdown-toggle bg-transparent" type="button" style="font-size:20px; z-index: 1000;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="selectedOption">All</span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="transactionTypeDropdown">
+                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('All')">All</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Buy')">Buy</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Sell')">Sell</a></li>
+                            </ul>
                         </div>
+
                         <!-- Buy Transactions Table -->
-                        <table id="buyTable" class="table table-hover"> 
+                        <table id="allTable" class="table table-hover"> 
                             <thead>                           
                                 <tr>
                                     <th style="white-space: nowrap;">S. no. </th>
                                     <th style="white-space: nowrap;">ETF Name</th>
-                                    <th style="white-space: nowrap;">Last Purchased</th>
+                                    <th style="white-space: nowrap;">Last Transaction</th>
                                     <th style="white-space: nowrap;">Total Quantity</th>
                                     <th style="white-space: nowrap;">Average Cost</th>
                                     <th style="white-space: nowrap;">Currrent Cost</th>
@@ -61,6 +67,7 @@
                                                     <th>Current Cost</th>
                                                     <th>Current Price</th>
                                                     <th>% Difference</th>
+                                                    <th>Trans type</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -72,7 +79,7 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <!-- Sell Transactions Table (Initially hidden) -->
+
                         <table id="sellTable" class="table table-hover" style="display: none;"> 
                             <thead>                           
                                 <tr>
@@ -89,6 +96,24 @@
                                 <!-- Add sell table body content here -->
                             </tbody>
                         </table>
+
+                           <!-- Buy Transactions Table (Initially hidden) -->
+                           <table id="buyTable" class="table table-hover" style="display: none;"> 
+                            <thead>                           
+                                <tr>
+                                    <th style="white-space: nowrap;">S. no. </th>
+                                    <th style="white-space: nowrap;">ETF Name</th>
+                                    <th style="white-space: nowrap;">Last Purchased</th>
+                                    <th style="white-space: nowrap;">Total Quantity purchased</th>
+                                    <th style="white-space: nowrap;">Average Cost</th>
+                                    <th style="white-space: nowrap;">Currrent Price</th>
+                                    <th style="white-space: nowrap;">Percentage diff</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Add sell table body content here -->
+                            </tbody>
+                        </table
                     </div>
                 </div>
             </div>
@@ -96,104 +121,42 @@
     </section>
 </main>
 
-<style>
-    /* Custom Toggle Switch Button Styles */
-    .toggle-container {
-        position: relative;
-        display: inline-block;
-        width: 85px; /* Adjust width as needed */
-        height: 34px;
-    }
-
-    .toggle-container input[type=checkbox] {
-        display: none; /* Hide the default checkbox */
-    }
-
-    .toggle-label {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #4CAF50; /* Green color for "Buy" background by default */
-        border-radius: 34px; /* Rounded corners */
-        transition: background-color 0.3s; /* Smooth transition */
-        display: flex;
-        align-items: center;
-        justify-content: space-between; /* Aligns items with space in between */
-        padding: 0 10px; /* Add padding to space out the labels */
-    }
-
-    .toggle-container input[type=checkbox]:checked + .toggle-label {
-        background-color: #4CAF50; /* Green color for "Buy" background when checked */
-    }
-
-    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label {
-        background-color: #f44336; /* Red color for "Sell" background when unchecked */
-    }
-
-    .toggle-label::before {
-        content: "Buy";
-        color: white;
-        font-weight: bold;
-        font-family: Arial, sans-serif;
-        margin-right: auto; /* Pushes "Buy" to the left */
-        
-    }
-
-    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label::before {
-        content: "Sell";
-        margin-left: 55% ; /* Pushes "Sell" to the left */
-        
-    }
-
-    .toggle-button {
-        position: absolute;
-        top: 2px;
-        right: 2px; /* Position the button on the right by default */
-        width: 30px; /* Width of the small grey button */
-        height: 30px; /* Height of the small grey button */
-        background-color: #fff; /* White color for the button */
-        border-radius: 50%; /* Rounded button */
-        transition: transform 0.3s, right 0.3s, left 0.3s; /* Smooth transition for transform and right properties */
-    }
-
-    .toggle-container input[type=checkbox]:checked + .toggle-label .toggle-button {
-        right: 2px; /* Position the button on the right when checked */
-        left: auto; /* Reset left when checked */
-        transform: translateX(0); /* Reset transform when checked */
-    }
-
-    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label .toggle-button {
-        left: 2px; /* Position the button on the left when unchecked */
-        transform: translateX(0); /* Reset transform when unchecked */
-    }
-</style>
-
-
 
 
 <script>
 
-    function toggleTable() {
-        var switchButton = document.getElementById('toggle');
-        var buyTable = document.getElementById('buyTable');
+    function selectTransactionType(transactionType) {
+        console.log('Transaction type selected:', transactionType); // Debug statement
+        var allTable = document.getElementById('allTable');
+        var buyTable = document.getElementById('buyTable'); // Added buyTable variable
         var sellTable = document.getElementById('sellTable');
-        var toggleButton = document.querySelector('.toggle-button');
-    
-        if (switchButton.checked) {
+        var dropdownToggle = document.getElementById('transactionTypeDropdown');
+        var selectedOption = document.getElementById('selectedOption'); // Added selectedOption variable
+        
+        if (transactionType === 'All') {
+            console.log('Displaying All transactions table.'); // Debug statement
+            allTable.style.display = 'table';
+            buyTable.style.display = 'none';
+            sellTable.style.display = 'none';
+            dropdownToggle.innerText = 'All';
+        } else if (transactionType === 'Buy') {
+            console.log('Displaying Buy transactions table.'); // Debug statement
+            allTable.style.display = 'none';
             buyTable.style.display = 'table';
             sellTable.style.display = 'none';
-            toggleButton.style.left = 'calc(100% - 32px)'; // Move the button to the right
-            
-        } else {
+            dropdownToggle.innerText = 'Buy';
+        } else if (transactionType === 'Sell') {
+            console.log('Displaying Sell transactions table.'); // Debug statement
+            allTable.style.display = 'none';
             buyTable.style.display = 'none';
             sellTable.style.display = 'table';
-            toggleButton.style.left = '2px'; // Move the button to the left
-            
+            dropdownToggle.innerText = 'Sell';
         }
+
+        // Set font size for the selected option
+        selectedOption.style.fontSize = '100px';
     }
+    
     
     
 
@@ -208,19 +171,20 @@
                 if (detailsRow.style.display === "none") {
                     detailsRow.style.display = "";
                     this.classList.add('table-info'); // Add table-active class when expanding
-                    fetchDetailsData(ETFName, detailsRow);
+                    fetchDetailsData(ETFName, detailsRow); // Pass ETFName and transType to fetchDetailsData
                 } else {
                     detailsRow.style.display = "none";
                     this.classList.remove('table-info'); // Remove table-active class when collapsing
                 }
             });
         });
+        
     
         function fetchDetailsData(ETFName, detailsRow) {
             const userBuyHistoryUrl = document.getElementById('user_buy_history_url').dataset.url;
             const csrftoken = getCookie('csrftoken');
             const requestBody = {
-                ETFName: ETFName
+                ETFName: ETFName,
             };
             fetch(userBuyHistoryUrl, {
                 method: 'POST',
@@ -281,7 +245,8 @@
                     <td>${formattedCurrPrice}</td> <!-- Display CurrPrice with exactly 2 digits after the decimal point -->
                     <td style="color: 
                     ${entry.PercentDiff > 0 ? 'green' : entry.PercentDiff < 0 ? 'red' : 'black'};">${entry.PercentDiff}%</td> <!-- Percentage Difference between Current cost and Buy Cost -->
-            `;
+                    <td style="color: ${entry.trans_type === 'BUY' ? 'green' : 'red'};"><strong>${entry.trans_type}</strong></td>
+                    `;
         
                 tableBody.appendChild(row);
             });

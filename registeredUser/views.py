@@ -14,7 +14,8 @@ import uuid, pytz
 import json, datetime
 from django.conf import settings
 from django.db.models import Avg
-from django.db.models import Sum, Avg, Max
+from django.db.models import Sum, Avg, Max, Case, When, F,FloatField, Value
+from django.db.models.functions import Coalesce, Cast
 from datetime import timedelta, date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from decimal import Decimal
@@ -201,20 +202,41 @@ def Usertrans(request):
     
     # Aggregate data for each distinct ETF name
     aggregated_data = (
-        UserBuyetf.objects.filter(Username=user_instance)
-        .values('Etf_purchased__Etfnames')
-        .annotate(
-            latest_date=Max('Date_time'), 
-            total_quantity=Sum('Quantity'), 
-            total_cost=Sum('Cost'),
+    UserBuyetf.objects.filter(Username=user_instance)
+    .values('Etf_purchased__Etfnames')
+    .annotate(
+        latest_date=Max('Date_time'),
+        total_quantity=Sum(
+            Case(
+                When(trans_type='BUY', then=F('Quantity')),
+                When(trans_type='SELL', then=F('Quantity') * -1),  # Negate quantity for sells
+                default=0,
+                output_field=FloatField()
+            )
+        ),
+        total_cost=Sum(
+            Case(
+                When(trans_type='BUY', then=F('Cost')),
+                When(trans_type='SELL', then=F('Cost') * -1),  # Negate total amount for sells
+                default=0,
+                output_field=FloatField()
+            )
         )
     )
-    
+)
+
+    print(aggregated_data)
     # Fetch current price for each ETF
-    current_prices = {
-        entry['Etf_purchased__Etfnames']: AllETF.objects.get(Etfnames=entry['Etf_purchased__Etfnames']).close 
-        for entry in aggregated_data
-    }
+    current_prices = {}
+    for entry in aggregated_data:
+        etfname = entry['Etf_purchased__Etfnames']
+        try:
+            current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
+        except AllETF.DoesNotExist:
+            # Handle the case where the object is not found
+            # For example, set the price to 0 or handle it according to your logic
+            current_prices[etfname] = 0.0  # Set the price to 0
+
     
     # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
     modified_data = []
@@ -230,11 +252,16 @@ def Usertrans(request):
         entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
         
         # Calculate percent difference without rounding off
-        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
+        if entry['mod_avg'] != 0:  # Ensure no division by zero
+            percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
+        else:
+            percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
         entry['percent_diff'] = percent_diff
         
+        
+        
         modified_data.append(entry)  # Add the modified entry to the new list
-
+    #     print(modified_data)
     context = {
         'data': modified_data  # Pass the modified data to the template context
     }
@@ -245,14 +272,16 @@ def userbuyhistory(request):
         try:
             data = json.loads(request.body)
             etf_name = data.get('ETFName')
+
             etfname = etf_name.upper()
-            
+            print(data)
             try:
                 etf_model = globals()[etfname]
             except KeyError:
                 return JsonResponse({'error': 'Invalid ETF name'}, status=400)
-
-            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value')
+            
+            
+            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value','trans_type')
             
             for entry in detailed_data:
                 entry['Date'] = entry['Date_time'].date()
@@ -360,53 +389,130 @@ def Userbuy(request):
     data = AllETF.objects.all()
     closevalue = None
     cost = None
+    username = request.user.username 
+    
+     # Retrieve distinct ETFs for the current user
+    user_etfs = UserBuyetf.objects.filter(Username__username=username).select_related('Etf_purchased').values('Etf_purchased__Etfnames', 'Etf_purchased__close').distinct()
+    print(user_etfs)
+    
     
     if request.method == 'POST':
-        username = request.user.username  
-        etf = request.POST.get('ETF')
+        form_type = request.POST.get('form_type')  # Add a hidden input field in each form to indicate its type
         
-        # Retrieve the selected ETF object and its close value in one query
-        selected_etf = get_object_or_404(AllETF, Etfnames=etf)
-        closevalue = Decimal(selected_etf.close)
-        
-        quant = Decimal(request.POST.get('quant'))  # Convert to Decimal
-        cost = closevalue * quant  # Calculate the cost as Decimal
-        
-        # Retrieve the wallet associated with the user
-        user_wallet = Wallet.objects.get(user__username=username)
-        
-        # Check if the user has enough balance to make the purchase
-        if user_wallet.balance >= cost:
-            # Deduct the cost from the user's wallet balance
-            user_wallet.balance -= cost
-            user_wallet.save()  # Save the updated wallet balance
+        if form_type == 'buy':  # Handle buy form submission
+            etf = request.POST.get('ETF')
             
-            # Perform other actions related to buying the ETF
-            purchase = UserBuyetf.objects.create(
-                Username=user_wallet.user,  # Assign the user to the ForeignKey field
-                Etf_purchased=selected_etf,  # Assign the purchased ETF
-                Quantity=quant,
-                Cost=cost,
-                Purchase_close_value=closevalue,  # Assign the purchase close value
-                trans_type='BUY'
-            )
+            # Retrieve the selected ETF object and its close value in one query
+            selected_etf = get_object_or_404(AllETF, Etfnames=etf)
+            closevalue = Decimal(selected_etf.close)
             
-            # Redirect to a success page or display a success message
-            messages.success(request, "Amount deducted successfully")
-            return redirect('UserBuy')  # Redirect to a success page
+            quant = Decimal(request.POST.get('quant'))  # Convert to Decimal
+            cost = closevalue * quant  # Calculate the cost as Decimal
             
-        else:
-            # If the user doesn't have enough balance, display an error message
-            return render(request, 'insufficient_balance.html')
+            # Retrieve the wallet associated with the user
+            user_wallet = Wallet.objects.get(user__username=username)
+            
+            # Check if the user has enough balance to make the purchase
+            if user_wallet.balance >= cost:
+                # Deduct the cost from the user's wallet balance
+                user_wallet.balance -= cost
+                user_wallet.save()  # Save the updated wallet balance
+                
+                # Perform other actions related to buying the ETF
+                purchase = UserBuyetf.objects.create(
+                    Username=user_wallet.user,  # Assign the user to the ForeignKey field
+                    Etf_purchased=selected_etf,  # Assign the purchased ETF
+                    Quantity=quant,
+                    Cost=cost,
+                    Purchase_close_value=closevalue,  # Assign the purchase close value
+                    trans_type='BUY'
+                )
+                
+                # Redirect to a success page or display a success message
+                messages.success(request, "Amount deducted successfully")
+                return redirect('UserBuy')  # Redirect to a success page
+                
+            else:
+                # If the user doesn't have enough balance, display an error message
+                return render(request, 'insufficient_balance.html')
+        
+        elif form_type == 'sell':  # Handle sell form submission
+            if request.method == 'POST':
+                etf_id = request.POST.get('ETF')
+                quantity = Decimal(request.POST.get('quant'))
+                
+                try:
+                    # Retrieve the ETF object
+                    etf = AllETF.objects.get(Etfnames=etf_id)
+                    print("ETF object retrieved successfully:", etf)
+                    
+                    # Get the current close value of the ETF
+                    current_close_value = Decimal(etf.close)
+                    print("Current close value:", current_close_value)
+                    
+                    # Calculate total quantity of that ETF
+                    buyetf = user_etfs.filter(Etf_purchased__Etfnames=etf_id)
+                    total_cost = buyetf.aggregate(tquantity=Sum('Quantity'))['tquantity']
+                    tquantity = total_cost if total_cost is not None else 0
+                    print("Total quantity:", tquantity)
+                    
+                    # Get the purchase close value
+                    purchase_close_value = etf.close
+                    print("Purchase close value:", purchase_close_value)
+                    
+                    # Calculate the selling amount
+                    selling_amount = current_close_value * quantity
+                    print("Selling amount:", selling_amount)
+                    
+                    if quantity <= tquantity:
+                        # Check if the user will make a profit by selling
+                        if current_close_value >= purchase_close_value:
+                            # Update user's wallet balance
+                            user_wallet = Wallet.objects.get(user__username=username)
+                            user_wallet.balance += selling_amount
+                            user_wallet.save()
+                            print("User's wallet balance updated successfully")
+                            
+                            # Add a new record for selling ETF to UserBuyetf table
+                            UserBuyetf.objects.create(
+                                Username=user_wallet.user,
+                                Etf_purchased=etf,
+                                Quantity=quantity,
+                                Cost=selling_amount,
+                                Purchase_close_value=purchase_close_value,
+                                trans_type='SELL'
+                            )
+                            print("Record added to UserBuyetf table")
+                            
+                            # Redirect to a success page or display a success message
+                            messages.success(request, "ETFs sold successfully")
+                            return redirect('UserBuy')  # Redirect to a success page
+                        else:
+                            print("Current close value is lower than purchase close value. User will not make a profit.")
+                            return render(request, 'user_buy.html', context)  # Render the user_buy.html template again with the current context
+                    else:
+                        messages.error(request, "Selected quantity exceeds the amount of ETFs you have.")
+                        return redirect('UserBuy')
+                except ObjectDoesNotExist:
+                    messages.error(request, "Error: ETF data not found.")
+                    return render(request, 'user_buy.html', context)  # Render the user_buy.html template again with the current context
+
+                except Exception as e:
+                    messages.error(request, f"Error: {str(e)}")
+                    return render(request, 'user_buy.html', context)  # Render the user_buy.html template again with the current context
+
+         # Clear messages from session
+    storage = messages.get_messages(request)
+    storage.used = True
         
     context = {   
         'data': data,
         'closevalue': closevalue,
         'cost': cost,
+        'user_etfs': user_etfs,
     }
     
     return render(request, 'user_buy.html', context)
-
 
 def usersell(request):
     username = request.user.username
