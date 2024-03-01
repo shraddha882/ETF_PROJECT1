@@ -13,106 +13,155 @@
           <div class="container">
             <div class="row justify-content-center">
               <div class="col-lg-6 col-md-6 d-flex flex-column align-items-center justify-content-center">
-                <form action="{% url 'UserBuy' %}" method="post">
-                  {% csrf_token %}
-                    {% if messages %}
-                      <div class="alert alert-info text-black bi-text-left mt-5" >
-                         
-                                <ul>
-                                  {% for message in messages %}
-                                      <li>{{ message }}</li>
-                                    {% endfor %}
-                                </ul>
-                      </div>
-                    {% endif %}
-                <div class="card mb-3 mt-5">
-  
-                  <div class="card-body">
-  
-                    <div class="pt-4 pb-2">
-                      <h5 class="card-title text-center pb-0 fs-4">Buy any assets</h5>
-                      <p class="text-center small">Enter required details to buy assets</p>
-                    </div>
-  
-                    <form class="row g-3 needs-validation" novalidate>
-                      {% csrf_token %}
-                      <div class ="row">
-  
-                        <div class="col-6">
-                          <label for="username" class="form-label">Username</label>
-                          <div class="input-group has-validation">
-                            {% comment %} <span class="input-group-text" id="inputGroupPrepend">@</span> {% endcomment %}
-                            <input type="text" name="username" class="form-control" id="username" value= {{request.user.username}} readonly autofocus>
-                            <div class="invalid-feedback">Please choose a username.</div>
-                          </div>
-                        </div>
-                      </div>
-                      <br>
-                      <div class ="row">
-                        
-                        <div class="col-6">
-                          <label for="ETF" class="form-label">Select ETF</label>
-                          <br>
-                          <select id="ETF" name="ETF" class="form-control">
-                              <option value="">Select</option>
-                                {% for s in data %}
-                                <option value="{{ s.Etfnames }}" data-close-value="{{ s.close|floatformat:2 }}">{{ s.Etfnames }}</option>
-                                {% endfor %}
-                          </select>
-                        </div>
-
-                        <div class="col-6">
-                          <label for="close" class="form-label">Close Value</label>
-                          
-                          <input type="text" name="close" class="form-control" id="close" readonly>
-
-                          {% comment %} {% for c in closevalue %}
-                          value = {{ c.close }}
-                          {% endfor %}> {% endcomment %}
-                          
-                          
-                        </div>
-                      </div>
-                      <br>
-                      <div class ="row">
-                        <div class="col-6">
-                          <label for="quant" class="form-label">Quantity</label>
-                          <input type="quant" name="quant" class="form-control" id="quant" required>
-                          <div class="invalid-feedback">Enter Quantity</div>
-                        </div>
-                        <div class="col-6">
-                          <label for="cost" class="form-label">Cost</label>
-                          <div class="input-group">
-                            <span class="input-group-text" id="inputGroupPrepend">₹</span> <!-- Assuming you're using Bootstrap icons -->
-                              <input type="text" name="cost" class="form-control" id="cost" readonly>
-                          </div>
-                          <div class="invalid-feedback">Enter Quantity</div>
-                      </div>
-                      
-                      </div>
-  
-                      
-                      <br>
-                      <div class="col-12">
-                        <button class="btn btn-primary w-100" type="submit">Buy</button>
-                      </div>
-                      <br>
-                    </form>
-                      {% comment %} <div class="col-12 text-center">
-                        <p class="small mb-0">Already have an account? <a href="{% url "Userlogin" %}">Log in</a></p>
-                      </div> {% endcomment %}
-                    
+                <div class="toggle-card">
+                  <div class="toggle-container ">
+                    <input id="toggle" type="checkbox" checked onchange="toggleTable()">
+                    <label class="toggle-label" for="toggle"></label>
+                    <div class="toggle-button"></div>
                   </div>
                 </div>
-  
-                <div class="credits">
-                  <!-- All the links in the footer should remain intact. -->
-                  <!-- You can delete the links only if you purchased the pro version. -->
-                  <!-- Licensing information: https://bootstrapmade.com/license/ -->
-                  <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-                  Designed by <a href="{% url "UserDashboard" %}">ETF-Analysis</a>
-                </div>
-  
+                <form action="{% url 'UserBuy' %}" method="post" id="buyfrom" >
+                  {% csrf_token %}
+                  <input type="hidden" name="form_type" value="buy">
+                  {% if messages %}
+                    <div class="alert alert-info text-black bi-text-left mt-5" >
+                      <ul>
+                        {% for message in messages %}
+                          <li>{{ message }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% endif %}
+                  <div class="card mb-3 mt-5" id='buyCard' >
+                    <div class="card-body">
+                      <div class="pt-4 pb-2">
+                        <h5 class="card-title text-center pb-0 fs-4">Buy any assets</h5>
+                        <p class="text-center small">Enter required details to buy assets</p>
+                      </div>
+                      <form class="row g-3 needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class ="row">
+                          <div class="col-6">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group has-validation">
+                              <input type="text" name="username" class="form-control" id="username" value="{{ request.user.username }}" readonly autofocus>
+                              <div class="invalid-feedback">Please choose a username.</div>
+                            </div>
+                          </div>
+                        </div>
+                        <br>
+                        <div class ="row">
+                          <div class="col-6">
+                            <label for="ETF_buy" class="form-label">Select ETF</label>
+                            <select id="ETF" name="ETF" class="form-control">
+                              <option value="">Select</option>
+                              {% for s in data %}
+                                <option value="{{ s.Etfnames }}" data-close-value="{{ s.close|floatformat:2 }}">{{ s.Etfnames }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <div class="col-6">
+                            <label for="close" class="form-label">Close Value</label>
+                            <input type="text" name="close" class="form-control" id="close" readonly>
+                          </div>
+                        </div>
+                        <br>
+                        <div class ="row">
+                          <div class="col-6">
+                            <label for="quant" class="form-label">Quantity</label>
+                            <input type="number" name="quant" class="form-control" id="quant" required>
+                            <div class="invalid-feedback">Enter Quantity</div>
+                          </div>
+                          <div class="col-6">
+                            <label for="cost" class="form-label">Cost</label>
+                            <div class="input-group">
+                              <span class="input-group-text" id="inputGroupPrepend">₹</span>
+                              <input type="text" name="cost" class="form-control" id="cost" readonly>
+                            </div>
+                          </div>
+                        </div>      
+                        <br>
+                        <div class="col-12 mt-3">
+                          <button class="btn btn-success w-100" type="submit">Buy</button>
+                        </div>
+                        <br>
+                      </form>
+                    </div>
+                  </div>
+                </form>
+                <form action="{% url 'UserBuy' %}" method="post" id="sellform" style="display: none;">
+                  {% csrf_token %}
+                  <input type="hidden" name="form_type" value="sell">
+                  {% if messages %}
+                    <div class="alert alert-info text-black bi-text-left mt-5">
+                      <ul>
+                        {% for message in messages %}
+                          <li>{{ message }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% endif %}
+                  <div class="card mb-3 mt-5" id="sellCard" >
+                    <div class="card-body">
+                      <div class="pt-4 pb-2">
+                        <h5 class="card-title text-center pb-0 fs-4">Sell ETF</h5>
+                        <p class="text-center small">Select ETF to sell</p>
+                      </div>
+                      <form class="row g-3 needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class ="row">
+                          <div class="col-6">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group has-validation">
+                              <input type="text" name="username" class="form-control" id="username" value="{{ request.user.username }}" readonly autofocus>
+                              <div class="invalid-feedback">Please choose a username.</div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <br>
+                        <div class="row">
+                          <div class="col-6">
+                            <label for="ETF" class="form-label">Select ETF to Sell</label>
+                            <select id="ETF_sell" name="ETF" class="form-control">
+                              <option value="">Select</option>
+                              {% for etf in user_etfs %}
+                                <option value="{{ etf.Etf_purchased__Etfnames }}" data-close-value="{{ etf.Etf_purchased__close|floatformat:2 }}">{{ etf.Etf_purchased__Etfnames }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <div class="col-6">
+                            <label for="close" class="form-label">Close Value</label>
+                            <input type="text" name="close" class="form-control" id="close_sell" readonly>
+                          </div>
+                        </div>
+                        
+                        <br>
+                        <div class="row">
+                          <div class="col-6">
+                            <label for="quant" class="form-label">Quantity</label>
+                            <input type="number" name="quant" class="form-control" id="quant_sell" required>
+                            <div class="invalid-feedback">Enter Quantity</div>
+                          </div>
+                          <div class="col-6">
+                            <label for="cost" class="form-label">Cost</label>
+                            <div class="input-group">
+                              <span class="input-group-text" id="inputGroupPrepend">₹</span> 
+                              <input type="text" name="cost" class="form-control" id="cost_sell" readonly>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <br>
+                        <div class="col-12 mt-3">
+                          <button class="btn btn-danger w-100" type="submit">Sell</button>
+                        </div>
+                        <br>
+                        
+                      </form>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -123,39 +172,164 @@
     </main><!-- End #main -->
   
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-  
     
-  
   </body>
+
+  <style>
+    /* Custom Toggle Switch Button Styles */
+    .toggle-card {
+      display: flex;
+      flex-direction: column; /* Align items vertically */
+      {% comment %} justify-content: center; /* Center items horizontally */ {% endcomment %}
+      align-items: center; /* Center items vertically */
+      margin-top: 60px;
+      
+    }
+    .toggle-container {
+        position: absolute;
+        display: inline-block;
+        width: 85px; /* Adjust width as needed */
+        height: 34px;
+        align-items: center;
+    }
+
+    .toggle-container input[type=checkbox] {
+        display: none; /* Hide the default checkbox */
+    }
+
+    .toggle-label {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #4CAF50; /* Green color for "Buy" background by default */
+        border-radius: 34px; /* Rounded corners */
+        transition: background-color 0.3s; /* Smooth transition */
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Aligns items with space in between */
+        padding: 0 10px; /* Add padding to space out the labels */
+    }
+
+    .toggle-container input[type=checkbox]:checked + .toggle-label {
+        background-color: #4CAF50; /* Green color for "Buy" background when checked */
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label {
+        background-color: #f44336; /* Red color for "Sell" background when unchecked */
+    }
+
+    .toggle-label::before {
+        content: "Buy";
+        color: white;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        margin-right: auto; /* Pushes "Buy" to the left */
+        
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label::before {
+        content: "Sell";
+        margin-left: 55%; /* Pushes "Sell" to the left */
+        
+    }
+
+    .toggle-button {
+        position: absolute;
+        top: 2px;
+        right: 2px; /* Position the button on the right by default */
+        width: 30px; /* Width of the small grey button */
+        height: 30px; /* Height of the small grey button */
+        background-color: #fff; /* White color for the button */
+        border-radius: 50%; /* Rounded button */
+        transition: transform 0.3s, right 0.3s, left 0.3s; /* Smooth transition for transform and right properties */
+    }
+
+    .toggle-container input[type=checkbox]:checked + .toggle-label .toggle-button {
+        right: 2px; /* Position the button on the right when checked */
+        transform: translateX(0); /* Reset transform when checked */
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label .toggle-button {
+        left: 2px; /* Position the button on the left when unchecked */
+        transform: translateX(0); /* Reset transform when unchecked */
+    }
+  </style>
+
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
   <script>
+    function toggleTable() {
+        var switchButton = document.getElementById('toggle');
+        var buyForm = document.getElementById('buyfrom');
+        var sellForm = document.getElementById('sellform');
+        var toggleButton = document.querySelector('.toggle-button');
+
+        if (switchButton.checked) {
+            buyForm.style.display = '';
+            sellForm.style.display = 'none';
+            toggleButton.style.left = 'calc(100% - 32px)'; // Move the button to the right
+        } else {
+            buyForm.style.display = 'none';
+            sellForm.style.display = '';
+            toggleButton.style.left = '2px'; // Move the button to the left
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggleButton = document.querySelector('.toggle-button');
+
+        toggleButton.addEventListener('click', function() {
+            var switchButton = document.getElementById('toggle');
+            switchButton.checked = !switchButton.checked;
+            toggleTable();
+        });
+    });
+
     $(document).ready(function() {
       $('#ETF').change(function() {
-        var selectedETF = $(this).val();
-        var closeValue = $('#ETF option:selected').data('close-value');
-        $('#close').val(closeValue);  // Update close value
-        
-        // Calculate cost dynamically
-        var quant = $('#quant').val();
-        var cost = closeValue * quant;
-        $('#cost').val(cost);
+          var selectedETF = $(this).val();
+          var closeValue = $('#ETF option:selected').data('close-value');
+          $('#close').val(closeValue);  // Update close value
+  
+          // Calculate cost dynamically
+          var quant = $('#quant').val();
+          var cost = closeValue * quant;
+          $('#cost').val(cost);
       });
-      
-      // Update cost when quantity changes
+  
+      // Update cost when quantity changes for buy form
       $('#quant').keyup(function() {
-        var closeValue = $('#ETF option:selected').data('close-value');
+          var closeValue = $('#ETF option:selected').data('close-value');
+          var quant = $(this).val();
+          var cost = closeValue * quant;
+          $('#cost').val(cost);
+      });
+  
+      $('#ETF_sell').change(function() {
+        var selectedETF = $(this).val();
+        var closeValue = $(this).find('option:selected').data('close-value');
+        $('#close_sell').val(closeValue);  // Update close value for sell form
+        console.log("ETF selection changed for sell form. Close value: " + closeValue );
+    });
+
+    $('#quant_sell').keyup(function() {
+        var closeValue = $('#ETF_sell option:selected').data('close-value');
         var quant = $(this).val();
         var cost = closeValue * quant;
-        $('#cost').val(cost);
-      });
+        $('#cost_sell').val(cost);
     });
-  </script>
+
+  });
+
+   
+  
+</script>
+
    
    
   
 {% endblock body %}
-
-
-
