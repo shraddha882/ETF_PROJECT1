@@ -388,7 +388,8 @@ def Userbuy(request):
             
         else:
             # If the user doesn't have enough balance, display an error message
-            return render(request, 'insufficient_balance.html')
+            messages.error(request, "You dont have enough balance")
+            return redirect('UserBuy')
         
     context = {   
         'data': data,
