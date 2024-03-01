@@ -24,7 +24,7 @@
                   {% csrf_token %}
                   <input type="hidden" name="form_type" value="buy">
                   {% if messages %}
-                    <div class="alert alert-info text-black bi-text-left mt-5" >
+                    <div id="message-container" class="alert alert-info text-black bi-text-left mt-5" >
                       <ul>
                         {% for message in messages %}
                           <li>{{ message }}</li>
@@ -180,7 +180,7 @@
     .toggle-card {
       display: flex;
       flex-direction: column; /* Align items vertically */
-      {% comment %} justify-content: center; /* Center items horizontally */ {% endcomment %}
+       justify-content: center; /* Center items horizontally */  
       align-items: center; /* Center items vertically */
       margin-top: 60px;
       
@@ -330,6 +330,15 @@
 </script>
 
    
-   
+<script>
+  // Function to hide messages after a delay
+  function hideMessages() {
+      $('#message-container').fadeOut(2000); // Fade out the message container in 1 second
+  }
+
+  // Call hideMessages function after 2-3 seconds (2000-3000 milliseconds)
+  setTimeout(hideMessages, 3000); // Change the timeout delay as needed
+</script>
+
   
 {% endblock body %}
