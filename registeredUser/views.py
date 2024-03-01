@@ -409,6 +409,12 @@ def Userbuy(request):
             quant = Decimal(request.POST.get('quant'))  # Convert to Decimal
             cost = closevalue * quant  # Calculate the cost as Decimal
             
+<<<<<<< HEAD
+        else:
+            # If the user doesn't have enough balance, display an error message
+            messages.error(request, "You dont have enough balance")
+            return redirect('UserBuy')
+=======
             # Retrieve the wallet associated with the user
             user_wallet = Wallet.objects.get(user__username=username)
             
@@ -504,6 +510,7 @@ def Userbuy(request):
          # Clear messages from session
     storage = messages.get_messages(request)
     storage.used = True
+>>>>>>> 25fb3881c73e04cfcf064a1023001768603eab92
         
     context = {   
         'data': data,
