@@ -1886,9 +1886,21 @@ def userstocks(request):
     stocks17 = 'DSPQ50ETF'
     stocks18 = 'INFRABEES'
     alldata = AllETF.objects.all()
+    data = list(alldata)
     # etf_names = AllETF.objects.all().values('Etfnames' ,flat=True)
     # etf_name_list = list(etf_names.values())
     # print(etf_name_list)
+    paginator = Paginator(alldata, 10)  # Show 10 records per page
+    page = request.GET.get('page')
+        
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+        data = paginator.page(1)
+    except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+        data = paginator.page(paginator.num_pages)
     etf_names = AllETF.objects.all().values_list('Etfnames', flat=True)
     etf_name_list = list(etf_names)
     
@@ -1901,7 +1913,7 @@ def userstocks(request):
     
 
     context = {
-        'data':alldata,
+        'data':data,
         'etf_data':etf_data,
         'etf_close_minus_20dma': etf_close_minus_20dma,
         'etf_close_div_20dma': etf_close_div_20dma,
