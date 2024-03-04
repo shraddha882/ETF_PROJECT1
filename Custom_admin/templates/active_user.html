@@ -67,8 +67,236 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              Non omnis incidunt qui sed occaecati magni asperiores est mollitia. Soluta at et reprehenderit. Placeat autem numquam et fuga numquam. Tempora in facere consequatur sit dolor ipsum. Consequatur nemo amet incidunt est facilis. Dolorem neque recusandae quo sit molestias sint dignissimos.
-            </div>
+
+                <div class="row">
+                    <div class="col-lg-12">        
+                        <div class="card">
+                            <div class="card-body" style="overflow-x: auto !important;">
+                                <div id="user_buy_history_url" data-url="{% url 'adminbuyhistory' %}"></div>
+                                <h5 class="card-header fw-bolder text-center ">ETF Transactions</h5>
+                                <div class="container-fluid">    
+                                    <!-- Buy/Sell Dropdown -->
+                                    <div class="row">
+                                        <div class="dropdown col-md-4" >
+                                            <button class="btn btn-outline-info dropdown-toggle bg-transparent" type="button" style="font-size:20px; z-index: 1005;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span id="selectedOption">All</span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="transactionTypeDropdown" style="z-index: 1005;">
+                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('All')">All</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Buy')">Buy</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Sell')">Sell</a></li>
+                                            </ul>
+                                        </div>
+                                        <!--Search Bar-->
+                                        <div class="form-group has-search col-md-4">
+                                            
+                                            <input id="search" type="text" class="form-control" placeholder="Search">
+                                            
+                                        </div>
+                                       
+                                    </div>
+                                </div>
+                                
+                                <!-- All Transactions Table -->
+                                <table id="allTable" class="table table-hover"> 
+                                    <thead>                           
+                                        <tr>
+                                            <th style="white-space: nowrap;">S. no. </th>
+                                            <th style="white-space: nowrap;">Expand</th>
+                                            <th style="white-space: nowrap;">ETF Name</th>
+                                            <th style="white-space: nowrap;">Last Transaction</th>
+                                            <th style="white-space: nowrap;">Total Quantity</th>
+                                            <th style="white-space: nowrap;">Average Cost</th>
+                                            <th style="white-space: nowrap;">Currrent Cost</th>
+                                            <th style="white-space: nowrap;">Percentage diff</th>
+                                            <th style="white-space: nowrap;">20 DMA</th> 
+                                            <th style="white-space: nowrap;">CMP - 20 DMA</th> 
+                                            <th style="white-space: nowrap;">20 DMA vs CMP</th> 
+                                            <th style="white-space: nowrap;">50 DMA</th> 
+                                            <th style="white-space: nowrap;">CMP - 50 DMA</th> 
+                                            <th style="white-space: nowrap;">50 DMA vs CMP</th> 
+                                            <th style="white-space: nowrap;">100 DMA</th> 
+                                            <th style="white-space: nowrap;">CMP - 100 DMA</th> 
+                                            <th style="white-space: nowrap;">100 DMA vs CMP</th> 
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for b in data1 %}
+                                            <tr class="expandable-row">
+                                                <td>{{ forloop.counter }}</td>
+                                                <td><button class="expand-btn"><span class="expand-sign">+</span></button></td>
+                                                <td>{{ b.Etfnames }}</td>
+                                                <td>{{ b.mod_date }}</td>
+                                                <td>{{ b.total_quantity }}</td>
+                                                <td>₹ {{ b.mod_avg|floatformat:2  }}</td>
+                                                <td>₹ {{ b.current_price|floatformat:2  }}</td>
+                                                <td style="color: 
+                                                    {% if b.percent_diff > 0 %}
+                                                        green
+                                                    {% elif b.percent_diff < 0 %}
+                                                        red
+                                                    {% else %}
+                                                        black
+                                                    {% endif %}
+                                                    ;"
+                                                >{{ b.percent_diff|floatformat:2 }}%</td>
+                                                {% for key, value in b.20dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        <td>{{ value|floatformat:2  }}</td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% for key, value in b.etf_close_minus_20dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        {% if value < 0 %}
+                                                            <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                        {% elif value > 0 %}
+                                                            <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                        {% else %}
+                                                            <td>{{ value|floatformat:2 }}</td>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                    
+                                                {% for key, value in b.etf_close_div_20dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        {% if value < 0 %}
+                                                            <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                                        {% elif value > 0 %}
+                                                            <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                                        {% else %}
+                                                            <td>{{ value|floatformat:2 }}%</td>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+        
+        
+                                                {% for key, value in b.etf_data_50dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <!-- Close - 50DMA -->
+                                                {% for key, value in b.etf_close_minus_50dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        {% if value < 0 %}
+                                                            <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                        {% elif value > 0 %}
+                                                            <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                        {% else %}
+                                                            <td>{{ value|floatformat:2 }}</td>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <!-- Close / 50DMA -->
+                                                {% for key, value in b.etf_close_div_50dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        {% if value < 0 %}
+                                                            <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                                        {% elif value > 0 %}
+                                                            <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                                        {% else %}
+                                                            <td>{{ value|floatformat:2 }}%</td>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+        
+        
+                                                {% for key, value in b.etf_data_100dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <!-- Close - 50DMA -->
+                                                {% for key, value in b.etf_close_minus_100dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        {% if value < 0 %}
+                                                            <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                        {% elif value > 0 %}
+                                                            <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                        {% else %}
+                                                            <td>{{ value|floatformat:2 }}</td>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <!-- Close / 50DMA -->
+                                                {% for key, value in b.etf_close_div_100dma.items %}
+                                                    {% if key == b.Etfnames %}
+                                                        {% if value < 0 %}
+                                                            <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                                        {% elif value > 0 %}
+                                                            <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                                        {% else %}
+                                                            <td>{{ value|floatformat:2 }}%</td>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                        
+                                            </tr>
+                                        <tr class="details-row" style="display: none;">
+                                            <td colspan="10">
+                                                <table class="table table-light nested-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th>Quantity</th>
+                                                            <th>Buy Cost</th>
+                                                            <th>Buy Price</th>
+                                                            <th>Current Cost</th>
+                                                            <th>Current Price</th>
+                                                            <th>% Difference</th>
+                                                            <th>Trans type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- Add details rows here -->
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <!-- Sell Transactions Table (Initially hidden) -->
+                                <table id="sellTable" class="table table-hover" style="display: none;"> 
+                                    <thead>                           
+                                        <tr>
+                                            <th style="white-space: nowrap;">S. no. </th>
+                                            <th style="white-space: nowrap;">ETF Name</th>
+                                            <th style="white-space: nowrap;">Last Sold</th>
+                                            <th style="white-space: nowrap;">Total Quantity Sold</th>
+                                            <th style="white-space: nowrap;">Average Sell Price</th>
+                                            <th style="white-space: nowrap;">Currrent Sell Price</th>
+                                            <th style="white-space: nowrap;">Percentage diff</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Add sell table body content here -->
+                                    </tbody>
+                                </table>
+        
+                                   <!-- Buy Transactions Table (Initially hidden) -->
+                                   <table id="buyTable" class="table table-hover" style="display: none;"> 
+                                    <thead>                           
+                                        <tr>
+                                            <th style="white-space: nowrap;">S. no. </th>
+                                            <th style="white-space: nowrap;">S. no. </th>
+                                            <th style="white-space: nowrap;">ETF Name</th>
+                                            <th style="white-space: nowrap;">Last Purchased</th>
+                                            <th style="white-space: nowrap;">Total Quantity purchased</th>
+                                            <th style="white-space: nowrap;">Average Cost</th>
+                                            <th style="white-space: nowrap;">Currrent Price</th>
+                                            <th style="white-space: nowrap;">Percentage diff</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Add sell table body content here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               
@@ -81,6 +309,689 @@
  
 
 </main>
+<div class="modal fade" id="messageContainer" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info text-black bi-text-left" style="z-index: 1000;">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Override default Bootstrap styles */
+
+    .card-body {
+        position: relative; /* Ensure relative positioning for absolute positioning of button and dropdown */
+    }
+    
+    .container-fluid {
+        padding-right: 0;
+        padding-left: 0;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+
+    .row {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .modal-dialog {
+        max-width: 900px !important; /* Adjust the width as needed */
+        padding-top: 0px !important; /* Adjust the top padding as needed */
+        padding-bottom: 0px !important; /* Adjust the bottom padding as needed */
+        flex-direction: column !important; /* Align items vertically */
+        justify-content: center !important; /* Center items horizontally */  
+    }
+    
+    .justify-content-end {
+        margin-left: auto !important; /* Override Bootstrap's margin-left */
+    }
+
+    .expand-btn {
+        background-color: transparent; /* Set background color to black */
+        color: black; /* Set text color to white */
+        border: none; /* Remove border */
+        padding: 5px 10px; /* Adjust padding */
+        font-size: 14px; /* Adjust font size */
+        cursor: pointer; /* Set cursor to pointer */
+    }
+    /* Custom Toggle Switch Button Styles */
+    .toggle-card {
+        display: flex;
+        flex-direction: column; /* Align items vertically */
+        justify-content: center; /* Center items horizontally */  
+        align-items: center; /* Center items vertically */
+        margin-top: 0px !important;
+        
+    }
+    .toggle-container {
+        position: relative;
+        display: inline-block;
+        width: 85px; /* Adjust width as needed */
+        height: 34px;
+        align-items: center;
+    }
+
+    .toggle-container input[type=checkbox] {
+        display: none; /* Hide the default checkbox */
+    }
+
+    .toggle-label {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #4CAF50; /* Green color for "Buy" background by default */
+        border-radius: 34px; /* Rounded corners */
+        transition: background-color 0.3s; /* Smooth transition */
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Aligns items with space in between */
+        padding: 0 10px; /* Add padding to space out the labels */
+    }
+
+    .toggle-container input[type=checkbox]:checked + .toggle-label {
+        background-color: #4CAF50; /* Green color for "Buy" background when checked */
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label {
+        background-color: #f44336; /* Red color for "Sell" background when unchecked */
+    }
+
+    .toggle-label::before {
+        content: "Buy";
+        color: white;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        margin-right: auto; /* Pushes "Buy" to the left */
+        
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label::before {
+        content: "Sell";
+        margin-left: 55%; /* Pushes "Sell" to the left */
+        
+    }
+
+    .toggle-button {
+        position: absolute;
+        top: 2px;
+        right: 2px; /* Position the button on the right by default */
+        width: 30px; /* Width of the small grey button */
+        height: 30px; /* Height of the small grey button */
+        background-color: #fff; /* White color for the button */
+        border-radius: 50%; /* Rounded button */
+        transition: transform 0.3s, right 0.3s, left 0.3s; /* Smooth transition for transform and right properties */
+    }
+
+    .toggle-container input[type=checkbox]:checked + .toggle-label .toggle-button {
+        right: 2px; /* Position the button on the right when checked */
+        transform: translateX(0); /* Reset transform when checked */
+    }
+
+    .toggle-container input[type=checkbox]:not(:checked) + .toggle-label .toggle-button {
+        left: 2px; /* Position the button on the left when unchecked */
+        transform: translateX(0); /* Reset transform when unchecked */
+    }
+    .expand-sign {
+        font-weight: bold;
+        font-size: 1.6em; /* Adjust font size as needed */
+    }
+      
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+<script>
+    // JavaScript function to trigger the modal
+    $(document).ready(function() {
+        {% if messages %}
+            $('#messageContainer').modal('show');
+        {% endif %}
+    });
+
+    // JavaScript function for selecting transaction type
+    function selectTransactionType(type) {
+        document.getElementById("selectedOption").innerText = type;
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function filterRows() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("search");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("allTable");
+            tr = table.getElementsByTagName("tr");
+        
+            // Loop through all table rows
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[2]; // Change index to match the column of ETF names
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (filter === "" || txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = ""; // Show row if it matches search or if search is empty
+                    } else {
+                        tr[i].style.display = "none"; // Hide row if it doesn't match search
+                        // Hide details row when search is cleared
+                        const detailsRow = tr[i].nextElementSibling;
+                        if (detailsRow && detailsRow.classList.contains('details-row')) {
+                            detailsRow.style.display = "none";
+                        }
+                    }
+                }
+            }
+        }
+        
+
+    
+        // Attach filter function to input field
+        document.getElementById("search").addEventListener("keyup", filterRows);
+    });
+ </script>
+    
+
+
+<script>
+      
+    
+
+    function selectTransactionType(transactionType) {
+        console.log('Transaction type selected:', transactionType); // Debug statement
+        var allTable = document.getElementById('allTable');
+        var buyTable = document.getElementById('buyTable'); // Added buyTable variable
+        var sellTable = document.getElementById('sellTable');
+        var dropdownToggle = document.getElementById('transactionTypeDropdown');
+        var selectedOption = document.getElementById('selectedOption'); // Added selectedOption variable
+        
+        if (transactionType === 'All') {
+            console.log('Displaying All transactions table.'); // Debug statement
+            allTable.style.display = 'table';
+            buyTable.style.display = 'none';
+            sellTable.style.display = 'none';
+            dropdownToggle.innerText = 'All';
+            fetchUserData(transactionType);
+        } else if (transactionType === 'Buy') {
+            console.log('Displaying Buy transactions table.'); // Debug statement
+            allTable.style.display = 'none';
+            buyTable.style.display = 'table';
+            sellTable.style.display = 'none';
+            dropdownToggle.innerText = 'Buy';
+            fetchUserData(transactionType);
+        } else if (transactionType === 'Sell') {
+            console.log('Displaying Sell transactions table.'); // Debug statement
+            allTable.style.display = 'none';
+            buyTable.style.display = 'none';
+            sellTable.style.display = 'table';
+            dropdownToggle.innerText = 'Sell';
+            fetchUserData(transactionType);
+        }
+
+        // Set font size for the selected option
+        selectedOption.style.fontSize = '100px';
+    }
+
+
+    function TransactionType(transactionType) {
+        console.log('Transaction type is:', transactionType); // Debug statement
+        var dropdownToggle = document.getElementById('transactionTypeDropdown');
+        dropdownToggle.innerText = transactionType;
+    
+        // Set the default transaction type to 'All' if no specific type is selected
+        var transactionTypeToSend = transactionType === 'All' ? 'All' : transactionType;
+    
+        // Make an AJAX request to fetch data based on the selected transaction type
+        fetchUserData(transactionTypeToSend);
+    }
+
+    function fetchUserData(transactionType) {
+        // Construct the request body
+        
+        var data = {
+            'transactionType': transactionType
+        };
+    
+        // Make a POST request to the backend
+        fetch('/registereduser/usertransactions/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // Include CSRF token if required
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Handle the received data and update the table
+            //console.log(data);
+            updateAllTable(data);
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+    }
+
+    function updateAllTable(data) {
+        var tableBody = document.querySelector('#allTable tbody');
+        tableBody.innerHTML = ''; // Clear existing table content
+        
+        if (Array.isArray(data)) {
+            // Iterate over the array and populate the table
+            data.forEach(function(item, index) {
+                console.log(item); // Log the item object to inspect its structure
+                var row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><button class="expand-btn"><span class="expand-sign">+</span></button></td>
+                    <td>${item.Etf_purchased__Etfnames || ''}</td>
+                    <td>${item.moddate || ''}</td>
+                    <td>${item.totalquantity || ''}</td>
+                    <td>₹ ${(item.modavg || 0).toFixed(2)}</td>
+                    <td>₹ ${(item.currentprice || 0).toFixed(2)}</td>
+                    <td style="color: ${getColor(item.percentdiff)};">${item.percentdiff || 0}%</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        } else {
+            console.error('Data is not an array.');
+        }
+    }
+
+    
+      
+    
+    
+    // Function to determine color based on percentage difference
+    function getColor(percentDiff) {
+        if (percentDiff > 0) {
+            return 'green';
+        } else if (percentDiff < 0) {
+            return 'red';
+        } else {
+            return 'black';
+        }
+    }
+    
+    
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+     
+    
+    
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const expandButtons = document.querySelectorAll('.expand-btn');
+
+        expandButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const row = this.closest('.expandable-row');
+                const detailsRow = row.nextElementSibling;
+                const ETFName = row.querySelector('td:nth-child(3)').textContent.trim(); // Assuming ETF name is in the third column
+
+                if (detailsRow.style.display === "none" || detailsRow.style.display === "") {
+                    detailsRow.style.display = "table-row";
+                    row.classList.add('table-info');
+                    button.innerHTML = '<span class="expand-sign">-</span>'; // Change button content to minus sign when expanding
+                    fetchDetailsData(ETFName, detailsRow.querySelector('.nested-table')); // Pass ETFName and nested table to fetchDetailsData
+                } else {
+                    detailsRow.style.display = "none";
+                    row.classList.remove('table-info');
+                    button.innerHTML = '<span class="expand-sign">+</span>'; // Change button content to plus sign when collapsing
+                }
+
+                // Reapply the styles to the expand sign
+                const expandSign = button.querySelector('.expand-sign');
+                expandSign.style.fontWeight = 'bold';
+                expandSign.style.fontSize = '1.6em'; // Adjust font size as needed
+            });
+        });
+    
+        
+    
+        function fetchDetailsData(ETFName, detailsRow) {
+            const userBuyHistoryUrl = document.getElementById('user_buy_history_url').dataset.url;
+            const csrftoken = getCookie('csrftoken');
+            const requestBody = {
+                ETFName: ETFName,
+            };
+            fetch(userBuyHistoryUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.detailed_data) {
+                    updateDetailedData(data.detailed_data, detailsRow);
+                } else {
+                    console.error('Invalid or missing detailed data:', data);
+                }
+            })
+            .catch(error => console.error('Error fetching details:', error));
+        }
+            
+        function updateDetailedData(data, detailsRow) {
+            const tableBody = detailsRow.querySelector('tbody');
+            tableBody.innerHTML = '';
+            data.forEach(entry => {
+                const formattedDateTime = formatDateTime(entry.Date_time); // Format the date-time
+        
+                // Format Cost
+                const costString = entry.Cost.toString(); // Convert cost to string
+                const costParts = costString.split('.'); // Split the string into parts before and after the decimal point
+                const costFormattedDecimal = costParts.length > 1 ? costParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCost = ` ₹ ${costParts[0]}.${costFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format Purchase Close Value
+                const purchaseCloseString = entry.Purchase_close_value.toString(); // Convert purchase close value to string
+                const purchaseCloseParts = purchaseCloseString.split('.'); // Split the string into parts before and after the decimal point
+                const purchaseCloseFormattedDecimal = purchaseCloseParts.length > 1 ? purchaseCloseParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedPurchaseClose = ` ${purchaseCloseParts[0]}.${purchaseCloseFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format CurrCost
+                const currCostString = entry.CurrCost.toString(); // Convert CurrCost to string
+                const currCostParts = currCostString.split('.'); // Split the string into parts before and after the decimal point
+                const currCostFormattedDecimal = currCostParts.length > 1 ? currCostParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCurrCost = ` ₹ ${currCostParts[0]}.${currCostFormattedDecimal.padEnd(2, '0')} `;
+        
+                // Format CurrPrice
+                const currPriceString = entry.CurrPrice.toString(); // Convert CurrPrice to string
+                const currPriceParts = currPriceString.split('.'); // Split the string into parts before and after the decimal point
+                const currPriceFormattedDecimal = currPriceParts.length > 1 ? currPriceParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCurrPrice = ` ${currPriceParts[0]}.${currPriceFormattedDecimal.padEnd(2, '0')}`;
+        
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formattedDateTime}</td>
+                    <td>${entry.Quantity}</td>
+                    <td>${formattedCost}</td> <!-- Display Cost with exactly 2 digits after the decimal point -->
+                    <td>${formattedPurchaseClose}</td> <!-- Display Purchase Close Value with exactly 2 digits after the decimal point -->
+                    <td>${formattedCurrCost}</td> <!-- Display CurrCost with exactly 2 digits after the decimal point -->
+                    <td>${formattedCurrPrice}</td> <!-- Display CurrPrice with exactly 2 digits after the decimal point -->
+                    <td style="color: 
+                    ${entry.PercentDiff > 0 ? 'green' : entry.PercentDiff < 0 ? 'red' : 'black'};">${entry.PercentDiff}%</td> <!-- Percentage Difference between Current cost and Buy Cost -->
+                    <td style="color: ${entry.trans_type === 'BUY' ? 'green' : 'red'};"><strong>${entry.trans_type}</strong></td>
+                    `;
+        
+                tableBody.appendChild(row);
+            });
+            detailsRow.style.display = "";
+        }
+        
+        
+        
+        // Function to format date-time
+        function formatDateTime(dateTimeString) {
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: '2-digit', 
+                
+            };
+            const dateTime = new Date(dateTimeString);
+            return dateTime.toLocaleString('en-US', options);
+        }
+        
+    
+        // Function to get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+    
+
+</script>
+
+<script>
+    function toggleTable() {
+        var switchButton = document.getElementById('toggle');
+        var buyForm = document.getElementById('buyfrom');
+        var sellForm = document.getElementById('sellform');
+        var modalDialog = document.getElementById('modalDialog');
+        var toggleButton = document.querySelector('.toggle-button');
+
+        if (switchButton.checked) {
+            buyForm.style.display = '';
+            sellForm.style.display = 'none';
+            toggleButton.style.left = 'calc(100% - 32px)'; // Move the button to the right
+            modalDialog.style.borderColor = 'green !important'; // Set border color to green
+        } else {
+            buyForm.style.display = 'none';
+            sellForm.style.display = '';
+            toggleButton.style.left = '2px'; // Move the button to the left
+            modalDialog.style.borderColor = 'red !important'; // Set border color to red
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggleButton = document.querySelector('.toggle-button');
+
+        toggleButton.addEventListener('click', function() {
+            var switchButton = document.getElementById('toggle');
+            switchButton.checked = !switchButton.checked;
+            toggleTable();
+        });
+    });
+
+        // Function to fetch Etfnames and populate dropdowns
+        function populateDropdowns() {
+            // Make an AJAX request to fetch data from the Django view
+            $.ajax({
+                url: '{% url "UserBuy" %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Populate the first dropdown
+                    var select1 = $('#ETF');
+                    select1.empty();
+                    select1.append('<option value="">Select</option>');
+                    $.each(data.data, function(index, item) {
+                        select1.append('<option value="' + item + '">' + item + '</option>');
+                    });
+        
+                    // Populate the second dropdown
+                    var select2 = $('#ETF_sell');
+                    select2.empty();
+                    select2.append('<option value="">Select</option>');
+                    $.each(data.user_etfs, function(index, item) {
+                        select2.append('<option value="' + item.Etf_purchased__Etfnames + '">' + item.Etf_purchased__Etfnames + '</option>');
+                    });
+                    
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                }
+            });
+        }
+        
+    
+        // Attach click event listener to the button
+        $('#buysellbutton').click(function() {
+            console.log('Button clicked'); // Log when the button is clicked
+            populateDropdowns();
+          
+        });
+
+        // Function to update close and cost fields based on selected ETF and quantity
+        $(document).ready(function() {
+            // Define the showAlert function
+            function showAlert(message) {
+                alert(message); // This function will display a popup alert with the given message
+            }
+        
+            // Define the formatCloseValue function
+            function formatCloseValue(closeValue) {
+                const closeValueString = closeValue.toString();
+                const closeValueParts = closeValueString.split('.');
+                const formattedDecimal = closeValueParts.length > 1 ? closeValueParts[1].substring(0, 2) : '00';
+                return `${closeValueParts[0]}.${formattedDecimal.padEnd(2, '0')}`;
+            }
+        
+            // Define the updateCloseAndCost function
+            function updateCloseAndCost(closeElementId, closeValue, quantElementId, costElementId) {
+                var formattedCloseValue = formatCloseValue(closeValue);
+                $(closeElementId).val(formattedCloseValue);
+        
+                var quant = $(quantElementId).val();
+                var cost = (closeValue * quant).toFixed(2);
+                $(costElementId).val(cost);
+            }
+        
+            // Event handler for ETF selection change in buy form
+            $('#ETF').change(function() {
+                var selectedETF = $(this).val();
+                if (selectedETF) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()
+                        }
+                    });
+                    // Send selected ETF to backend to get close value
+                    $.ajax({
+                        url: '{% url "UserBuy" %}',
+                        type: 'POST',
+                        data: {
+                            'selected_etf': selectedETF,
+                            'form_type': 'get_close_value' // Indicate the form type
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            // Check if the request was successful
+                            if (!response.success) {
+                                // If not successful, show the alert popup with the message
+                                showAlert(response.message);
+                            } else {
+                                // If successful, update close and cost values
+                                updateCloseAndCost('#close', response.closevalue, '#quant', '#cost');
+                            }
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            console.log('Error:', errorThrown);
+                            // Handle AJAX error
+                            alert('An error occurred. Please try again later.');
+                        }
+                    });
+                }
+            });
+        
+            // Event handler for quantity change in buy form
+            $('#quant').keyup(function() {
+                var closeValue = $('#close').val(); // Use the previously set close value
+                var quant = $(this).val();
+                var cost = (closeValue * quant).toFixed(2);
+                $('#cost').val(cost);
+            });
+        
+               // Event handler for ETF selection change in sell form
+            $('#ETF_sell').change(function() {
+                var selectedETF = $(this).val();
+                if (selectedETF) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()
+                        }
+                    });
+                    // Send selected ETF to backend to get close value
+                    $.ajax({
+                        url: '{% url "UserBuy" %}',
+                        type: 'POST',
+                        data: {
+                            'selected_etf': selectedETF,
+                            'form_type': 'get_close_value' // Indicate the form type
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (!response.success) {
+                                // Display error message
+                                showAlert(response.message);
+                            }
+                            updateCloseAndCost('#close_sell', response.closevalue, '#quant_sell', '#cost_sell');
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            console.log('Error:', errorThrown);
+                            // Display error message as popup
+                            alert('An error occurred. Please try again later.');
+                        }
+                    });
+                }
+            });
+
+            // Event handler for quantity change in sell form
+            $('#quant_sell').keyup(function() {
+                var closeValue = $('#close_sell').val(); // Use the previously set close value
+                var quant = $(this).val();
+                var cost = (closeValue * quant).toFixed(2);
+                $('#cost_sell').val(cost);
+            });
+        });      
+  
+</script>
+
+<script>
+    // Function to hide messages after a delay
+    function hideMessages() {
+        $('#message-container').fadeOut(2000); // Fade out the message container in 1 second
+    }
+  
+    // Call hideMessages function after 2-3 seconds (2000-3000 milliseconds)
+    setTimeout(hideMessages, 3000); // Change the timeout delay as needed
+</script>
 
 
 
