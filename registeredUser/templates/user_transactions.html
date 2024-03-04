@@ -14,13 +14,13 @@
                             <!-- Buy/Sell Dropdown -->
                             <div class="row">
                                 <div class="dropdown col-md-4" >
-                                    <button class="btn btn-outline-info dropdown-toggle bg-transparent" type="button" style="font-size:20px; z-index: 1000;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-outline-info dropdown-toggle bg-transparent" type="button" style="font-size:20px; z-index: 1005;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                         <span id="selectedOption">All</span>
                                     </button>
-                                    <ul class="dropdown-menu" aria-labelledby="transactionTypeDropdown" style="z-index: 1001;">
-                                        <li><a class="dropdown-item" onclick="selectTransactionType('All')">All</a></li>
-                                        <li><a class="dropdown-item" onclick="selectTransactionType('Buy')">Buy</a></li>
-                                        <li><a class="dropdown-item" onclick="selectTransactionType('Sell')">Sell</a></li>
+                                    <ul class="dropdown-menu" aria-labelledby="transactionTypeDropdown" style="z-index: 1005;">
+                                        <li><a class="dropdown-item" href="#" onclick="selectTransactionType('All')">All</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Buy')">Buy</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Sell')">Sell</a></li>
                                     </ul>
                                 </div>
                                 <!--Search Bar-->
@@ -564,10 +564,6 @@
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.1/js/dataTables.js"></script>
-<script src="https://cdn.datatables.net/2.0.1/js/dataTables.bootstrap5.js"></script>
 
 <script>
     // JavaScript function to trigger the modal
@@ -585,27 +581,33 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Function to filter rows based on search input
         function filterRows() {
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("search");
             filter = input.value.toUpperCase();
             table = document.getElementById("allTable");
             tr = table.getElementsByTagName("tr");
-    
-            // Loop through all table rows, and hide those that don't match the search query
+        
+            // Loop through all table rows
             for (i = 0; i < tr.length; i++) {
                 td = tr[i].getElementsByTagName("td")[2]; // Change index to match the column of ETF names
                 if (td) {
                     txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
+                    if (filter === "" || txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = ""; // Show row if it matches search or if search is empty
                     } else {
-                        tr[i].style.display = "none";
+                        tr[i].style.display = "none"; // Hide row if it doesn't match search
+                        // Hide details row when search is cleared
+                        const detailsRow = tr[i].nextElementSibling;
+                        if (detailsRow && detailsRow.classList.contains('details-row')) {
+                            detailsRow.style.display = "none";
+                        }
                     }
                 }
             }
         }
+        
+
     
         // Attach filter function to input field
         document.getElementById("search").addEventListener("keyup", filterRows);
