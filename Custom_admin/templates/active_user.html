@@ -67,7 +67,110 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              Non omnis incidunt qui sed occaecati magni asperiores est mollitia. Soluta at et reprehenderit. Placeat autem numquam et fuga numquam. Tempora in facere consequatur sit dolor ipsum. Consequatur nemo amet incidunt est facilis. Dolorem neque recusandae quo sit molestias sint dignissimos.
+                <div class="dropdown" >
+                    <button class="btn btn-md dropdown-toggle bg-transparent" type="button" style="font-size:20px; z-index: 1000;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="selectedOption">All</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="transactionTypeDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="selectTransactionType('All')">All</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Buy')">Buy</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Sell')">Sell</a></li>
+                    </ul>
+                </div>
+                <table id="allTable" class="table table-hover"> 
+                    <thead>                           
+                        <tr>
+                            <th style="white-space: nowrap;">S. no. </th>
+                            <th style="white-space: nowrap;">Expand</th>
+                            <th style="white-space: nowrap;">ETF Name</th>
+                            <th style="white-space: nowrap;">Last Transaction</th>
+                            <th style="white-space: nowrap;">Total Quantity</th>
+                            <th style="white-space: nowrap;">Average Cost</th>
+                            <th style="white-space: nowrap;">Currrent Cost</th>
+                            <th style="white-space: nowrap;">Percentage diff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in data %}
+                        <tr class="expandable-row">
+                            <td>{{ forloop.counter }}</td>
+                            <td><button class="expand-btn">+</button></td>
+                            <td>{{ b.Etf_purchased__Etfnames }}</td>
+                            <td>{{ b.mod_date }}</td>
+                            <td>{{ b.total_quantity }}</td>
+                            <td>₹ {{ b.mod_avg|floatformat:2  }}</td>
+                            <td>₹ {{ b.current_price|floatformat:2  }}</td>
+                            <td style="color: 
+                                {% if b.percent_diff > 0 %}
+                                    green
+                                {% elif b.percent_diff < 0 %}
+                                    red
+                                {% else %}
+                                    black
+                                {% endif %}
+                                ;"
+                            >{{ b.percent_diff|floatformat:2 }}%</td>
+                        </tr>
+                        <tr class="details-row" style="display: none;">
+                            <td colspan="8">
+                                <table class="table table-light nested-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Quantity</th>
+                                            <th>Buy Cost</th>
+                                            <th>Buy Price</th>
+                                            <th>Current Cost</th>
+                                            <th>Current Price</th>
+                                            <th>% Difference</th>
+                                            <th>Trans type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Add details rows here -->
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <table id="sellTable" class="table table-hover" style="display: none;"> 
+                    <thead>                           
+                        <tr>
+                            <th style="white-space: nowrap;">S. no. </th>
+                            <th style="white-space: nowrap;">ETF Name</th>
+                            <th style="white-space: nowrap;">Last Sold</th>
+                            <th style="white-space: nowrap;">Total Quantity Sold</th>
+                            <th style="white-space: nowrap;">Average Sell Price</th>
+                            <th style="white-space: nowrap;">Currrent Sell Price</th>
+                            <th style="white-space: nowrap;">Percentage diff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Add sell table body content here -->
+                    </tbody>
+                </table>
+
+                   <!-- Buy Transactions Table (Initially hidden) -->
+                   <table id="buyTable" class="table table-hover" style="display: none;"> 
+                    <thead>                           
+                        <tr>
+                            <th style="white-space: nowrap;">S. no. </th>
+                            <th style="white-space: nowrap;">ETF Name</th>
+                            <th style="white-space: nowrap;">Last Purchased</th>
+                            <th style="white-space: nowrap;">Total Quantity purchased</th>
+                            <th style="white-space: nowrap;">Average Cost</th>
+                            <th style="white-space: nowrap;">Currrent Price</th>
+                            <th style="white-space: nowrap;">Percentage diff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Add sell table body content here -->
+                    </tbody>
+                </table>
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -81,6 +184,137 @@
  
 
 </main>
+<style>
+    .expand-btn {
+        background-color: transparent; /* Set background color to black */
+        color: black; /* Set text color to white */
+        border: none; /* Remove border */
+        padding: 5px 10px; /* Adjust padding */
+        font-size: 14px; /* Adjust font size */
+        cursor: pointer; /* Set cursor to pointer */
+    }
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const expandButtons = document.querySelectorAll('.expand-btn');
+
+    expandButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const detailsRow = this.closest('.expandable-row').nextElementSibling;
+            if (detailsRow.style.display === "none") {
+                detailsRow.style.display = "";
+                this.textContent = "-"; // Change the button text to "-" when expanded
+                const ETFName = this.closest('.expandable-row').querySelector('td:nth-child(3)').textContent.trim();
+                fetchDetailsData(ETFName, detailsRow);
+            } else {
+                detailsRow.style.display = "none";
+                this.textContent = "+"; // Change the button text to "+" when collapsed
+            }
+        });
+    });
+});
+
+function fetchDetailsData(ETFName, detailsRow) {
+    const userBuyHistoryUrl = document.getElementById('user_buy_history_url').dataset.url;
+    const csrftoken = getCookie('csrftoken');
+    const requestBody = {
+        ETFName: ETFName,
+    };
+    fetch(userBuyHistoryUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.detailed_data) {
+            updateDetailedData(data.detailed_data, detailsRow);
+        } else {
+            console.error('Invalid or missing detailed data:', data);
+        }
+    })
+    .catch(error => console.error('Error fetching details:', error));
+}
+
+function updateDetailedData(data, detailsRow) {
+    const tableBody = detailsRow.querySelector('tbody');
+    tableBody.innerHTML = '';
+    data.forEach(entry => {
+        const formattedDateTime = formatDateTime(entry.Date_time); // Format the date-time
+
+        // Format Cost
+        const costString = entry.Cost.toString(); // Convert cost to string
+        const costParts = costString.split('.'); // Split the string into parts before and after the decimal point
+        const costFormattedDecimal = costParts.length > 1 ? costParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+        const formattedCost = `₹ ${costParts[0]}.${costFormattedDecimal.padEnd(2, '0')}`;
+
+        // Format Purchase Close Value
+        const purchaseCloseString = entry.Purchase_close_value.toString(); // Convert purchase close value to string
+        const purchaseCloseParts = purchaseCloseString.split('.'); // Split the string into parts before and after the decimal point
+        const purchaseCloseFormattedDecimal = purchaseCloseParts.length > 1 ? purchaseCloseParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+        const formattedPurchaseClose = ` ${purchaseCloseParts[0]}.${purchaseCloseFormattedDecimal.padEnd(2, '0')}`;
+
+        // Format CurrCost
+        const currCostString = entry.CurrCost.toString(); // Convert CurrCost to string
+        const currCostParts = currCostString.split('.'); // Split the string into parts before and after the decimal point
+        const currCostFormattedDecimal = currCostParts.length > 1 ? currCostParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+        const formattedCurrCost = `₹ ${currCostParts[0]}.${currCostFormattedDecimal.padEnd(2, '0')}`;
+
+        // Format CurrPrice
+        const currPriceString = entry.CurrPrice.toString(); // Convert CurrPrice to string
+        const currPriceParts = currPriceString.split('.'); // Split the string into parts before and after the decimal point
+        const currPriceFormattedDecimal = currPriceParts.length > 1 ? currPriceParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+        const formattedCurrPrice = ` ${currPriceParts[0]}.${currPriceFormattedDecimal.padEnd(2, '0')}`;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${formattedDateTime}</td>
+            <td>${entry.Quantity}</td>
+            <td>${formattedCost}</td> <!-- Display Cost with exactly 2 digits after the decimal point -->
+            <td>${formattedPurchaseClose}</td> <!-- Display Purchase Close Value with exactly 2 digits after the decimal point -->
+            <td>${formattedCurrCost}</td> <!-- Display CurrCost with exactly 2 digits after the decimal point -->
+            <td>${formattedCurrPrice}</td> <!-- Display CurrPrice with exactly 2 digits after the decimal point -->
+            <td style="color: 
+            ${entry.PercentDiff > 0 ? 'green' : entry.PercentDiff < 0 ? 'red' : 'black'};">${entry.PercentDiff}%</td> <!-- Percentage Difference between Current cost and Buy Cost -->
+            <td style="color: ${entry.trans_type === 'BUY' ? 'green' : 'red'};"><strong>${entry.trans_type}</strong></td>
+            `;
+
+        tableBody.appendChild(row);
+    });
+    detailsRow.style.display = "";
+}
+
+// Function to format date-time
+function formatDateTime(dateTimeString) {
+    const options = { 
+        year: 'numeric', 
+        month: 'short', 
+        day: '2-digit', 
+    };
+    const dateTime = new Date(dateTimeString);
+    return dateTime.toLocaleString('en-US', options);
+}
+
+// Function to get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 
 
 
