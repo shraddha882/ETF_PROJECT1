@@ -22,25 +22,28 @@
                     <h5 class="card-title fw-bold">{{table_name}}</h5>  
                     <form id="filterForm" action="{% url 'SILVERbees' %}" method="POST">
                       {% csrf_token %}
-                          <div class="row">
-                              <div class="col-3">
-                                  <div class="cardbody">
-                                      <label for="startDate">Select start Date</label>
-                                      <input type="date" id="startDate" name="start_date" class="form-control">
-                                  </div>
-                              </div>
-                      
-                              <div class="col-3">
-                                  <div class="cardbody">
-                                      <label for="endDate">Select end Date</label>
-                                      <input type="date" id="endDate" name="end_date" class="form-control">
-                                  </div>
-                              </div>
-                      
-                              <div class="cardbody mt-3">
-                                  <button type="submit" class="btn-primary btn mt-1 btn-sm btn-rounded" style="background-color: #000080;">Apply filter</button>
-                              </div>
-                                                  
+                      <div class="row">
+                        <div class="col-3">
+                            <div class="cardbody">
+                                <label for="startDate">Select start Date</label>
+                                <input type="date" id="startDate" name="start_date" class="form-control">
+                            </div>
+                        </div>
+                    
+                        <div class="col-3">
+                            <div class="cardbody">
+                                <label for="endDate">Select end Date</label>
+                                <input type="date" id="endDate" name="end_date" class="form-control">
+                            </div>
+                        </div>
+                    
+                        <div class="col-3">
+                            <div class="cardbody mt-3">
+                                <button type="submit" class="btn-primary btn mt-1 btn-sm btn-rounded" style="background-color: #000080;">Apply filter</button>
+                            </div>
+                        </div>
+                    </div>
+                                      
                               <div class="col-12 mt-2">
                                   <hr class="my-4" style="border-top: 1px solid #100f0f;">
                               </div>

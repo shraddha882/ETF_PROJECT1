@@ -19,7 +19,7 @@ from django.db.models.functions import Coalesce, Cast
 from datetime import timedelta, date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from decimal import Decimal
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.core.serializers import serialize
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -195,79 +195,333 @@ def user_profile(request):
     return render(request, 'user_profile.html', context)
 
 
-
 def Usertrans(request):
     user = request.user.username
     user_instance = RegisteredUser.objects.get(username=user)
-    
-    # Aggregate data for each distinct ETF name
-    aggregated_data = (
-    UserBuyetf.objects.filter(Username=user_instance)
-    .values('Etf_purchased__Etfnames')
-    .annotate(
-        latest_date=Max('Date_time'),
-        total_quantity=Sum(
-            Case(
-                When(trans_type='BUY', then=F('Quantity')),
-                When(trans_type='SELL', then=F('Quantity') * -1),  # Negate quantity for sells
-                default=0,
-                output_field=FloatField()
-            )
-        ),
-        total_cost=Sum(
-            Case(
-                When(trans_type='BUY', then=F('Cost')),
-                When(trans_type='SELL', then=F('Cost') * -1),  # Negate total amount for sells
-                default=0,
-                output_field=FloatField()
-            )
-        )
-    )
-)
-
-    print(aggregated_data)
-    # Fetch current price for each ETF
-    current_prices = {}
-    for entry in aggregated_data:
-        etfname = entry['Etf_purchased__Etfnames']
+    aggregated_data={}
+    if request.method == 'POST':
         try:
-            current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-        except AllETF.DoesNotExist:
-            # Handle the case where the object is not found
-            # For example, set the price to 0 or handle it according to your logic
-            current_prices[etfname] = 0.0  # Set the price to 0
+            data = json.loads(request.body)
+            transaction_type = data.get('transactionType')  # Extract selected transaction type from request
+            if transaction_type == 'BUY':
+                # Aggregate data for BUY transactions
+                aggregated_data = (
+                    UserBuyetf.objects.filter(Username=user_instance, trans_type='BUY')
+                    .values('Etf_purchased__Etfnames')
+                    .annotate(
+                        total_quantity=Sum('Quantity'),
+                        total_cost=Sum('Cost')
+                    )
+                )
+                  # Fetch current price for each ETF
+                current_prices = {}
+                for entry in aggregated_data:
+                    etfname = entry['Etf_purchased__Etfnames']
+                    try:
+                        current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
+                    except AllETF.DoesNotExist:
+                        # Handle the case where the object is not found
+                        # For example, set the price to 0 or handle it according to your logic
+                        current_prices[etfname] = 0.0  # Set the price to 0
 
-    
-    # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-    modified_data = []
-    for entry in aggregated_data:
-        entry['mod_date'] = entry['latest_date'].date()
-        
-        # Calculate average cost
-        if entry['total_quantity'] != 0:
-            entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
-        else:
-            entry['mod_avg'] = 0.00
-        
-        entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-        
-        # Calculate percent difference without rounding off
-        if entry['mod_avg'] != 0:  # Ensure no division by zero
-            percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
-        else:
-            percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
-        entry['percent_diff'] = percent_diff
-        
-        
-        
-        modified_data.append(entry)  # Add the modified entry to the new list
-    #     print(modified_data)
-    context = {
-        'data': modified_data  # Pass the modified data to the template context
-    }
-    return render(request, 'user_transactions.html', context)
+                
+                # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
+                modified_data = []
+                for entry in aggregated_data:
+                    entry['mod_date'] = entry['latest_date'].date()
+                    
+                    # Calculate average cost
+                    if entry['total_quantity'] != 0:
+                        entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
+                    else:
+                        entry['mod_avg'] = 0.00
+                    
+                    entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
+                    
+                    # Calculate percent difference without rounding off
+                    if entry['mod_avg'] != 0:  # Ensure no division by zero
+                        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
+                    else:
+                        percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
+                    entry['percent_diff'] = percent_diff
+                    
+                    
+                    
+                    modified_data.append(entry)  # Add the modified entry to the new list
+                #     print(modified_data)
+                context = {
+                    'data': modified_data  # Pass the modified data to the template context
+                }
 
-def userbuyhistory(request):
+                return JsonResponse(context)
+            elif transaction_type == 'SELL':
+                # Aggregate data for SELL transactions
+                aggregated_data = (
+                    UserBuyetf.objects.filter(Username=user_instance, trans_type='SELL')
+                    .values('Etf_purchased__Etfnames')
+                    .annotate(
+                        total_quantity=Sum('Quantity'),
+                        total_cost=Sum('Cost')
+                    )
+                )
+                  # Fetch current price for each ETF
+                current_prices = {}
+                for entry in aggregated_data:
+                    etfname = entry['Etf_purchased__Etfnames']
+                    try:
+                        current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
+                    except AllETF.DoesNotExist:
+                        # Handle the case where the object is not found
+                        # For example, set the price to 0 or handle it according to your logic
+                        current_prices[etfname] = 0.0  # Set the price to 0
+
+                
+                # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
+                modified_data = []
+                for entry in aggregated_data:
+                    entry['mod_date'] = entry['latest_date'].date()
+                    
+                    # Calculate average cost
+                    if entry['total_quantity'] != 0:
+                        entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
+                    else:
+                        entry['mod_avg'] = 0.00
+                    
+                    entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
+                    
+                    # Calculate percent difference without rounding off
+                    if entry['mod_avg'] != 0:  # Ensure no division by zero
+                        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
+                    else:
+                        percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
+                    entry['percent_diff'] = percent_diff
+                    
+                    
+                    
+                    modified_data.append(entry)  # Add the modified entry to the new list
+                #     print(modified_data)
+                context = {
+                    'data': modified_data  # Pass the modified data to the template context
+                }
+
+                return JsonResponse(context)
+            else:
+                # Handle if trans_type is not specified, default to 'BUY'
+                    aggregated_data = (
+                        UserBuyetf.objects.filter(Username=user_instance)
+                        .values('Etf_purchased__Etfnames')
+                        .annotate(
+                            latest_date=Max('Date_time'),
+                            totalquantity=Sum(
+                                Case(
+                                    When(trans_type='BUY', then=F('Quantity')),
+                                    When(trans_type='SELL', then=F('Quantity') * -1),  # Negate quantity for sells
+                                    default=0,
+                                    output_field=FloatField()
+                                )
+                            ),
+                            totalcost=Sum(
+                                Case(
+                                    When(trans_type='BUY', then=F('Cost')),
+                                    When(trans_type='SELL', then=F('Cost') * -1),  # Negate total amount for sells
+                                    default=0,
+                                    output_field=FloatField()
+                                )
+                            )
+                        )
+                    )
+                      # Fetch current price for each ETF
+                    current_prices = {}
+                    for entry in aggregated_data:
+                        etfname = entry['Etf_purchased__Etfnames']
+                        try:
+                            current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
+                        except AllETF.DoesNotExist:
+                            # Handle the case where the object is not found
+                            # For example, set the price to 0 or handle it according to your logic
+                            current_prices[etfname] = 0.0  # Set the price to 0
+
+                    
+                    # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
+                    modified_data = []
+                    for entry in aggregated_data:
+                        entry['moddate'] = entry['latest_date'].date()
+                        entry['Etfnames'] = entry['Etf_purchased__Etfnames']
+                        
+                        # Calculate average cost
+                        if entry['totalquantity'] != 0:
+                            entry['modavg'] = entry['totalcost'] / entry['totalquantity']
+                        else:
+                            entry['modavg'] = 0.00
+                        
+                        entry['currentprice'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
+                        
+                        # Calculate percent difference without rounding off
+                        if entry['modavg'] != 0:  # Ensure no division by zero
+                            percent_diff = (entry['currentprice'] - entry['modavg']) / entry['modavg'] * 100
+                        else:
+                            percent_diff = float('0') if entry['currentprice'] > 0 else float('-inf')
+                        entry['percentdiff'] = percent_diff
+                        
+                        
+                        
+                        modified_data.append(entry)  # Add the modified entry to the new list
+                    #     print(modified_data)
+                    context = {
+                        'data': modified_data  # Pass the modified data to the template context
+                    }
+
+                    return JsonResponse(context)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        # Handle if trans_type is not specified, default to 'BUY'
+            aggregated_data = (
+                UserBuyetf.objects.filter(Username=user_instance)
+                .values('Etf_purchased__Etfnames')
+                .annotate(
+                    latest_date=Max('Date_time'),
+                    total_quantity=Sum(
+                        Case(
+                            When(trans_type='BUY', then=F('Quantity')),
+                            When(trans_type='SELL', then=F('Quantity') * -1),  # Negate quantity for sells
+                            default=0,
+                            output_field=FloatField()
+                        )
+                    ),
+                    total_cost=Sum(
+                        Case(
+                            When(trans_type='BUY', then=F('Cost')),
+                            When(trans_type='SELL', then=F('Cost') * -1),  # Negate total amount for sells
+                            default=0,
+                            output_field=FloatField()
+                        )
+                    )
+                )
+            )
+            # Fetch current price for each ETF
+           # Fetch current price for each ETF
+            current_prices = {}
+            for entry in aggregated_data:
+                etfname = entry['Etf_purchased__Etfnames']
+                try:
+                    current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
+                except AllETF.DoesNotExist:
+                    # Handle the case where the object is not found
+                    # For example, set the price to 0 or handle it according to your logic
+                    current_prices[etfname] = 0.0  # Set the price to 0
+
+            
+            # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
+            modified_data = []
+            for entry in aggregated_data:
+                entry['mod_date'] = entry['latest_date'].date()
+                entry['Etfnames'] = entry['Etf_purchased__Etfnames'].upper()
+                print(entry['Etfnames'])
+                
+                # Calculate average cost
+                if entry['total_quantity'] != 0:
+                    entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
+                else:
+                    entry['mod_avg'] = 0.00
+                
+                entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
+                print(entry['current_price'])
+                # Calculate percent difference without rounding off
+                if entry['mod_avg'] != 0:  # Ensure no division by zero
+                    percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
+                else:
+                    percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
+                entry['percent_diff'] = percent_diff
+                entry['20dma'],entry['etf_close_minus_20dma'], entry['etf_close_div_20dma'] = calculate_20dma([entry['Etfnames']])
+                entry['50dma'],entry['etf_close_minus_50dma'], entry['etf_close_div_50dma'] = calculate_50dma([entry['Etfnames']])
+                entry['100dma'],entry['etf_close_minus_100dma'], entry['etf_close_div_100dma'] = calculate_100dma([entry['Etfnames']])
+                print(entry['20dma'])
+                modified_data.append(entry)  # Add the modified entry to the new list
+            #     print(modified_data)
+            context = {
+                'data': modified_data  # Pass the modified data to the template context
+            }
+            return render(request,'user_transactions.html',context)
+
+
+
+def user_buy_trans(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            etf_name = data.get('ETFName')
+
+            etfname = etf_name.upper()
+            try:
+                etf_model = globals()[etfname]
+            except KeyError:
+                return JsonResponse({'error': 'Invalid ETF name'}, status=400)
+            
+            # Fetch only BUY transactions
+            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='BUY')\
+                .values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
+            
+            for entry in detailed_data:
+                entry['Date'] = entry['Date_time'].date()
+                
+                try:
+                    # Fetch current price of the ETF
+                    curr_price = AllETF.objects.get(Etfnames=etf_name).close
+                except ObjectDoesNotExist:
+                    return JsonResponse({'error': 'ETF data not found'}, status=400)
+                
+                # Calculate current cost and percentage difference
+                curr_cost = curr_price * entry['Quantity']
+                entry['CurrPrice'] = curr_price
+                entry['CurrCost'] = curr_cost
+                entry['PercentDiff'] = ((curr_cost - entry['Cost']) / entry['Cost']) * 100
+                
+            return JsonResponse({'detailed_data': list(detailed_data)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def user_sell_trans(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            etf_name = data.get('ETFName')
+
+            etfname = etf_name.upper()
+            try:
+                etf_model = globals()[etfname]
+            except KeyError:
+                return JsonResponse({'error': 'Invalid ETF name'}, status=400)
+            
+            # Fetch only SELL transactions
+            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='SELL')\
+                .values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
+            
+            for entry in detailed_data:
+                entry['Date'] = entry['Date_time'].date()
+                
+                try:
+                    # Fetch current price of the ETF
+                    curr_price = AllETF.objects.get(Etfnames=etf_name).close
+                except ObjectDoesNotExist:
+                    return JsonResponse({'error': 'ETF data not found'}, status=400)
+                
+                # Calculate current cost and percentage difference
+                curr_cost = curr_price * entry['Quantity']
+                entry['CurrPrice'] = curr_price
+                entry['CurrCost'] = curr_cost
+                entry['PercentDiff'] = ((curr_cost - entry['Cost']) / entry['Cost']) * 100
+                
+            return JsonResponse({'detailed_data': list(detailed_data)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def useralltrans(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -303,103 +557,29 @@ def userbuyhistory(request):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
-# def Userbuy(request):
-#     data = AllETF.objects.all()
-#     closevalue = None
-#     cost = None
-    
-#     if request.method == 'POST':
-#         # Retrieve form data from request.POST
-#         username = request.POST.get('username')
-#         type = request.POST.get('type')
-#         etf = request.POST.get('ETF')
-#         quant = int(request.POST.get('quant'))
-        
-#         closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
-#         cost = closevalue * quant  # Calculate the cost
-        
-#     context = {   
-#         'data': data,
-#         'closevalue': closevalue,
-#         'cost': cost,
-#     }
-    
-#     return render(request, 'user_buy.html', context)
-
- 
-# def Userbuy(request):
-#     data = AllETF.objects.all()
-#     closevalue = None
-#     cost = None
-    
-#     if request.method == 'POST':
-#         username = request.user.username  
-#         etf = request.POST.get('ETF')
-#         # quant = int(request.POST.get('quant'))
-        
-#         # closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
-#         # cost = closevalue * Decimal(quant)  # Calculate the cost
-
-
-#         quant = Decimal(request.POST.get('quant'))  # Convert to Decimal
-        
-#         closevalue = AllETF.objects.get(Etfnames=etf).close  # Get the close value of the selected ETF
-#         closevalue = Decimal(closevalue)  # Convert to Decimal
-
-
-        
-#         cost = closevalue * quant  # Calculate the cost as Decimal
-        
-#         # Retrieve the wallet associated with the user
-#         user_wallet = Wallet.objects.get(user__username=username)
-        
-#         # Check if the user has enough balance to make the purchase
-#         if user_wallet.balance >= cost:
-#             # Deduct the cost from the user's wallet balance
-#             user_wallet.balance -= cost
-#             user_wallet.save()  # Save the updated wallet balance
-            
-#             # Perform other actions related to buying the ETF
-#             purchase = UserBuyetf.objects.create(
-#                 Username=user_wallet.user,  # Assign the user to the ForeignKey field
-#                 Etf_purchased=AllETF.objects.get(Etfnames=etf),  # Assign the purchased ETF
-#                 Quantity=quant,
-#                 Cost=cost
-#             )
-#             purchase.save()
-            
-#             # Redirect to a success page or display a success message
-#             messages.success(request,"amount deducted successfully")
-            
-#             return redirect('UserBuy')  # Redirect to a success page
-            
-#         else:
-#             # If the user doesn't have enough balance, display an error message
-#             return render(request, 'insufficient_balance.html')
-        
-#     context = {   
-#         'data': data,
-#         'closevalue': closevalue,
-#         'cost': cost,
-#     }
-    
-#     return render(request, 'user_buy.html', context)
 
 def Userbuy(request):
-    data = AllETF.objects.all()
+    data = list(AllETF.objects.values_list('Etfnames', flat=True))
     closevalue = None
     cost = None
     username = request.user.username 
     
-     # Retrieve distinct ETFs for the current user
+    # Retrieve distinct ETFs for the current user
     user_etfs = UserBuyetf.objects.filter(Username__username=username).select_related('Etf_purchased').values('Etf_purchased__Etfnames', 'Etf_purchased__close').distinct()
-    print(user_etfs)
-    
     
     if request.method == 'POST':
         form_type = request.POST.get('form_type')  # Add a hidden input field in each form to indicate its type
         
-        if form_type == 'buy':  # Handle buy form submission
+        if form_type == 'get_close_value':
+            selected_etf = request.POST.get('selected_etf')
+            try:
+                # Retrieve the selected ETF object and its close value
+                selected_etf_obj = get_object_or_404(AllETF, Etfnames=selected_etf)
+                close_value = selected_etf_obj.close
+                return JsonResponse({'success': True, 'closevalue': close_value})
+            except AllETF.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Selected ETF not found'}, status=400)
+        elif form_type == 'buy':  # Handle buy form submission
             etf = request.POST.get('ETF')
             
             # Retrieve the selected ETF object and its close value in one query
@@ -428,158 +608,69 @@ def Userbuy(request):
                     trans_type='BUY'
                 )
                 
-                # Redirect to a success page or display a success message
-                messages.success(request, "Amount deducted successfully")
-                return redirect('UserBuy')  # Redirect to a success page
-                
+                messages.error(request, "ETF Purchased successfully")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))  # Redirect back to the same page                
             else:
-                # If the user doesn't have enough balance, display an error message
-                messages.error(request, "you dont have enough balance to buy")
-                return redirect('UserBuy')
+                return JsonResponse({'success': False, 'message': 'You do not have enough balance to buy'})
         
         elif form_type == 'sell':  # Handle sell form submission
-            if request.method == 'POST':
-                etf_id = request.POST.get('ETF')
-                quantity = Decimal(request.POST.get('quant'))
-                
-                try:
-                    # Retrieve the ETF object
-                    etf = AllETF.objects.get(Etfnames=etf_id)
-                    print("ETF object retrieved successfully:", etf)
-                    
-                    # Get the current close value of the ETF
-                    current_close_value = Decimal(etf.close)
-                    print("Current close value:", current_close_value)
-                    
-                    # Calculate total quantity of that ETF
-                    buyetf = user_etfs.filter(Etf_purchased__Etfnames=etf_id)
-                    total_cost = buyetf.aggregate(tquantity=Sum('Quantity'))['tquantity']
-                    tquantity = total_cost if total_cost is not None else 0
-                    print("Total quantity:", tquantity)
-                    
-                    # Get the purchase close value
-                    purchase_close_value = etf.close
-                    print("Purchase close value:", purchase_close_value)
-                    
-                    # Calculate the selling amount
-                    selling_amount = current_close_value * quantity
-                    print("Selling amount:", selling_amount)
-                    
-                    if quantity <= tquantity:
-                        # Check if the user will make a profit by selling
-                        if current_close_value >= purchase_close_value:
-                            # Update user's wallet balance
-                            user_wallet = Wallet.objects.get(user__username=username)
-                            user_wallet.balance += selling_amount
-                            user_wallet.save()
-                            print("User's wallet balance updated successfully")
-                            
-                            # Add a new record for selling ETF to UserBuyetf table
-                            UserBuyetf.objects.create(
-                                Username=user_wallet.user,
-                                Etf_purchased=etf,
-                                Quantity=quantity,
-                                Cost=selling_amount,
-                                Purchase_close_value=purchase_close_value,
-                                trans_type='SELL'
-                            )
-                            print("Record added to UserBuyetf table")
-                            
-                            # Redirect to a success page or display a success message
-                            messages.success(request, "ETFs sold successfully")
-                            return redirect('UserBuy')  # Redirect to a success page
-                        else:
-                            print("Current close value is lower than purchase close value. User will not make a profit.")
-                            return render(request, 'user_buy.html', context)  # Render the user_buy.html template again with the current context
-                    else:
-                        messages.error(request, "Selected quantity exceeds the amount of ETFs you have.")
-                        return redirect('UserBuy')
-                except ObjectDoesNotExist:
-                    messages.error(request, "Error: ETF data not found.")
-                    return render(request, 'user_buy.html', context)  # Render the user_buy.html template again with the current context
-
-                except Exception as e:
-                    messages.error(request, f"Error: {str(e)}")
-                    return render(request, 'user_buy.html', context)  # Render the user_buy.html template again with the current context
-
-         # Clear messages from session
-    storage = messages.get_messages(request)
-    storage.used = True
-        
-    context = {   
-        'data': data,
-        'closevalue': closevalue,
-        'cost': cost,
-        'user_etfs': user_etfs,
-    }
-    
-    return render(request, 'user_buy.html', context)
-
-def usersell(request):
-    username = request.user.username
-    
-    # Retrieve the user's purchased ETFs
-    try:
-        user_etfs = UserBuyetf.objects.filter(Username__username=username)
-    except ObjectDoesNotExist:
-        user_etfs = None
-    
-    if request.method == 'POST':
-        etf_id = request.POST.get('etf_id')
-        quantity = Decimal(request.POST.get('quant'))
-        
-        try:
-            # Retrieve the ETF object
+            etf_id = request.POST.get('ETF')
+            quantity = Decimal(request.POST.get('quant'))
+            print(etf_id)
+            
+             # Retrieve the ETF object
             etf = AllETF.objects.get(Etfnames=etf_id)
             
             # Get the current close value of the ETF
             current_close_value = Decimal(etf.close)
             
+            # Calculate total quantity of that ETF
+            buyetf = user_etfs.filter(Etf_purchased__Etfnames=etf_id)
+            total_cost = buyetf.aggregate(tquantity=Sum('Quantity'))['tquantity']
+            tquantity = total_cost if total_cost is not None else 0
+            
             # Get the purchase close value
-            buyetf = user_etfs.get(Etf_purchased__Etfnames=etf_id)
-            purchase_close_value = buyetf.Purchase_close_value
+            purchase_close_value = etf.close
             
             # Calculate the selling amount
             selling_amount = current_close_value * quantity
             
-            # Check if the user will make a profit by selling
-            if current_close_value >= purchase_close_value:
-                # Update user's wallet balance
-                user_wallet = Wallet.objects.get(user__username=username)
-                user_wallet.balance += selling_amount
-                user_wallet.save()
-                
-                # Add a new record for selling ETF to UserBuyetf table
-                UserBuyetf.objects.create(
-                    Username=user_wallet.user,
-                    Etf_purchased=etf,
-                    Quantity=quantity,
-                    Cost=selling_amount,
-                    Purchase_close_value=purchase_close_value,
-                    trans_type='SELL'
-                )
-                
-                # Redirect to a success page or display a success message
-                messages.success(request, "ETFs sold successfully")
-                return redirect('sell_etf')  # Redirect to a success page
+            if quantity <= tquantity:
+                # Check if the user will make a profit by selling
+                if current_close_value >= purchase_close_value:
+                    # Update user's wallet balance
+                    user_wallet = Wallet.objects.get(user__username=username)
+                    user_wallet.balance += selling_amount
+                    user_wallet.save()
+                    
+                    # Add a new record for selling ETF to UserBuyetf table
+                    UserBuyetf.objects.create(
+                        Username=user_wallet.user,
+                        Etf_purchased=etf,
+                        Quantity=quantity,
+                        Cost=selling_amount,
+                        Purchase_close_value=purchase_close_value,
+                        trans_type='SELL'
+                    )
+                    
+                    messages.error(request, "ETF sold successfully")
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))  # Redirect back to the same page
+                else:
+                    return JsonResponse({'success': False, 'message': 'Current close value is lower than purchase close value. You will not make a profit.'})
             else:
-                return redirect('sell_etf')  # Redirect to the selling page again without an error message
-        
-        except ObjectDoesNotExist:
-            messages.error(request, "Error: ETF data not found.")
-            return redirect('sell_etf')
-        except Exception as e:
-            messages.error(request, f"Error: {str(e)}")
-            return redirect('sell_etf')
+                return JsonResponse({'success': False, 'message': 'Selected quantity exceeds the amount of ETFs you have.'})
+                
+    # If it's not a POST request, return the context data
     
     context = {   
-        'user_etfs': user_etfs,
+        'data': data,
+        'closevalue': closevalue,
+        'cost': cost,
+        'user_etfs': list(user_etfs),
     }
-    return render(request, 'sell_etf.html', context)
-     
-
- 
-
+    
+    return JsonResponse(context)
+    
 
 def error_404(request):
     return render(request, 'error_404.html')
@@ -588,7 +679,8 @@ def error_404(request):
 def contact(request):
     return render(request, 'contact.html')
 
-
+def usersell(request):
+    return render(request,'sell_etf.html')
 # def userstocks(request):
 #     table_name = 'NIFTYBEES'
 #     alldata = NIFTYBEES_NS.objects.all()
@@ -1946,6 +2038,7 @@ def calculate_20dma(etf_name_list):
     # Calculate 20-day moving average for each ETF
     for etf in etf_name_list:
         etf_name = etf.upper()
+        print(etf_name)
         # Get the model corresponding to the ETF name dynamically
         etf_model = globals()[etf_name]
         

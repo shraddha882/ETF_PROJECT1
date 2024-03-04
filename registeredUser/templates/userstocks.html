@@ -20,8 +20,17 @@
           <div class="col-lg-12">        
               <div class="card">
                   <div class="card-body" style="overflow-x: auto;">
-                      <h5 class="card-title fw-bold">{{table_name}}</h5>     
-                        <table class="table   table-hover"> 
+                      <h5 class="card-title fw-bold">{{table_name}}</h5>  
+                      
+                      <!--Search Bar-->
+                      <div class="form-group has-search col-md-4">
+                                    
+                        <input id="search" type="text" class="form-control" placeholder="Search">
+                        
+                    </div> 
+                    <hr/>  
+                        <table class="table   table-hover" id="stockstable"> 
+                            
                             <thead>                           
                                 <tr>
                                     <th style="white-space: nowrap;">S. no. </th>
@@ -160,4 +169,34 @@
       </div>
   </section>
   </main>  
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Function to filter rows based on search input
+        function filterRows() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("search");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("stockstable");
+            tr = table.getElementsByTagName("tr");
+    
+            // Loop through all table rows, and hide those that don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[1]; // Change index to match the column of ETF names
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    
+        // Attach filter function to input field
+        document.getElementById("search").addEventListener("keyup", filterRows);
+    });
+ </script>
+ 
   {% endblock body %}

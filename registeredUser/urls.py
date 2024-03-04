@@ -38,7 +38,7 @@ urlpatterns = [
     # path('userstocksdd/',views.userstocksdd, name="userstocksdropdown"),
     path('usercommoditiesdd/',views.usercommoditiesdd, name="usercommoditiesdropdown"),
     path('usertransactions/',views.Usertrans, name="usertrans"),
-    path('userbuyhistory/', views.userbuyhistory, name='user_buy_history'),
+    path('userbuyhistory/', views.useralltrans, name='user_buy_history'),
     path('selletf/', views.usersell, name = 'sell_etf'),
     # path('buy_sell/', views.buy_sell, name = 'buy_sell'),
     
