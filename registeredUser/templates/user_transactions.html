@@ -14,7 +14,7 @@
                             <!-- Buy/Sell Dropdown -->
                             <div class="row">
                                 <div class="dropdown col-md-4" >
-                                    <button class="btn btn-outline-info dropdown-toggle bg-transparent" type="button" style="font-size:20px; z-index: 1005;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-info dropdown-toggle   btn-sm mt-3" type="button" style="font-size:15px; z-index: 1005;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                         <span id="selectedOption">All</span>
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="transactionTypeDropdown" style="z-index: 1005;">
@@ -26,12 +26,12 @@
                                 <!--Search Bar-->
                                 <div class="form-group has-search col-md-4">
                                     
-                                    <input id="search" type="text" class="form-control" placeholder="Search">
+                                    <input id="search" type="text" class="form-control mt-3" placeholder="Search"  >
                                     
                                 </div>
                                 <!-- Buy/Sell Button -->
                                 <div class="col-md-4 d-flex justify-content-end">
-                                    <button id="buysellbutton" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
+                                    <button id="buysellbutton" type="button" class="btn btn-sm btn-success mt-3" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
                                         Buy/Sell ETF
                                     </button>
                                 </div>
@@ -39,7 +39,7 @@
                         </div>
                         
                         <!-- All Transactions Table -->
-                        <table id="allTable" class="table table-hover"> 
+                        <table id="allTable" class="table table-hover mt-3"> 
                             <thead>                           
                                 <tr>
                                     <th style="white-space: nowrap;">S. no. </th>
@@ -239,13 +239,13 @@
         </div>
     </section>
     <div class="modal fade" id="ExtralargeModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered" id="modalDialog">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" id="modalDialog">
           <div class="modal-content">
             <div class="modal-header text-center">
                 <h5 class="modal-title w-100">Buy / Sell ETFs</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body overflow-auto">
                     <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
                       <div class="container">
                         <div class="row justify-content-center">
@@ -272,7 +272,7 @@
                               {% endif %}
                               <div class="card mb-3 mt-5" id='buyCard' style="border: 4px solid green;" >
                                 <div class="card-body">
-                                  <div class="pt-4 pb-2">
+                                  <div class="pt-3 pb-1">
                                     <h5 class="card-title text-center pb-0 fs-4">Buy any assets</h5>
                                     <p class="text-center small">Enter required details to buy assets</p>
                                   </div>
@@ -280,7 +280,7 @@
                                   <form class="row g-3 needs-validation" novalidate>
                                     {% csrf_token %}
                                     
-                                    <div class="row" style="margin-top: 50px">
+                                    <div class="row" >
                                         <div class="col-6">
                                             <p class="text-end"><strong>Username</strong></p>
                                         </div>
@@ -288,7 +288,7 @@
                                             <p style="margin-top: 0">: {{ request.user.username }}</p>
                                         </div>
                                     </div>
-                                    <br>
+                                    <!-- <br> -->
                                     <div class ="row">
                                       <div class="col-6">
                                         <label for="ETF_buy" class="form-label">Select ETF to Buy</label>
@@ -343,14 +343,14 @@
                               {% endif %}
                               <div class="card mb-3 mt-5" id="sellCard" style="border: 4px solid red;" >
                                 <div class="card-body">
-                                  <div class="pt-4 pb-2">
+                                  <div class="pt-3 pb-1">
                                     <h5 class="card-title text-center pb-0 fs-4">Sell any assets</h5>
                                     <p class="text-center small">Enter required details to sell assets</p>
                                   </div>
                                   <hr/>
                                   <form class="row g-3 needs-validation" novalidate>
                                     {% csrf_token %}
-                                    <div class="row" style="margin-top: 50px">
+                                    <div class="row">
                                         <div class="col-6">
                                             <p class="text-end"><strong>Username</strong></p>
                                         </div>
@@ -358,7 +358,7 @@
                                             <p style="margin-top: 0">: {{ request.user.username }}</p>
                                         </div>
                                     </div>
-                                    <br>
+                                    <!-- <br> -->
                                     <div class="row">
                                       <div class="col-6">
                                         <label for="ETF" class="form-label">Select ETF to Sell</label>
