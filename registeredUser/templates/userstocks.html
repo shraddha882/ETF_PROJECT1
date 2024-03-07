@@ -8,9 +8,9 @@
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url "UserDashboard"%}">Home</a></li>
-          <li class="breadcrumb-item"><a href="{% url "NIFTYbees" %}">Niftybees</a></li>
-          <li class="breadcrumb-item"><a href="{% url "ITbees" %}">Itbees</a></li>
-          <li class="breadcrumb-item"><a href="{% url "SBIetfit" %}">Sbietfit</a></li>
+          <li class="breadcrumb-item"><a href="{% url "etftables" 'niftybees_NS' %}">Niftybees</a></li>
+          <li class="breadcrumb-item"><a href="{% url "etftables" 'itbees_NS' %}">Itbees</a></li>
+          <li class="breadcrumb-item"><a href="{% url "etftables" 'sbietfit_NS' %}">Sbietfit</a></li>
         </ol>
       </nav>
     </div>
@@ -39,6 +39,7 @@
                                     <th style="white-space: nowrap;">High</th>
                                     <th style="white-space: nowrap;">Low</th>
                                     <th style="white-space: nowrap;">CMP</th> 
+                                    {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
                                     <th style="white-space: nowrap;">20 DMA</th> 
                                     <th style="white-space: nowrap;">CMP - 20 DMA</th> 
                                     <th style="white-space: nowrap;">20 DMA vs CMP</th> 
@@ -48,6 +49,7 @@
                                     <th style="white-space: nowrap;">100 DMA</th> 
                                     <th style="white-space: nowrap;">CMP - 100 DMA</th> 
                                     <th style="white-space: nowrap;">100 DMA vs CMP</th> 
+                                    {% endif %}
                                 </tr>
                             </thead>
                             <tbody>
@@ -62,7 +64,7 @@
                                     <td>{{ d.low|floatformat:2 }}</td>
                                     <td>{{ d.close|floatformat:2 }}</td> 
                                     {% comment %} <td>{{ etf_data }}</td>  {% endcomment %}
-                                    
+                                    {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
                                     {% for key, value in etf_data.items %}
                                         {% if key == d.Etfnames %}
                                             <td>{{ value|floatformat:2  }}</td>
@@ -153,6 +155,7 @@
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
+                        {% endif %}
                                 
 
                                     {% comment %} {% if etf_data.key == d.Etfnames %}<td>{{etf_data.value}}</td>{% endif %} {% endcomment %}
