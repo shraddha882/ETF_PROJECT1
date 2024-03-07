@@ -19,7 +19,7 @@ from django.db.models.functions import Coalesce, Cast
 from datetime import timedelta, date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from decimal import Decimal
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponseServerError
 from django.core.serializers import serialize
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -31,6 +31,10 @@ def Userdashboard(request):
     if request.user.is_authenticated:
         user = request.user.username
         data = RegisteredUser.objects.get(username = user)
+        if request.method == 'POST':
+            subs = request.POST.get('subs')
+            data.sub_status = subs
+            data.save()
         context = {
             'data':data
         }
@@ -81,11 +85,12 @@ def send_email_after_registration(email, token):
 
 
 def register(request):
-     current_date = datetime.now().date()
-     min_birth_date = (current_date - timedelta(days=365 * 18 + 4)).isoformat()
-     if request.method == 'POST':
+    current_date = datetime.datetime.now().date()
+    min_birth_date = (current_date - timedelta(days=365 * 18 + 4)).isoformat()
+
+    if request.method == 'POST':
         # Retrieve form data from request.POST
-        username  = request.POST.get('username')
+        username = request.POST.get('username')
         name = request.POST.get('Fname')
         email = request.POST.get('email')
         date_of_birth = request.POST.get('dob')
@@ -93,65 +98,42 @@ def register(request):
         password = request.POST.get('password')
         cpassword = request.POST.get('cpassword')
 
-        # Create a new User object and save it to the database
-        # Check if an account with the same email already exists
-        # current_date = datetime.now().date()
-        birth_date = datetime.strptime(date_of_birth, '%Y-%m-%d').date() if date_of_birth else None
-
         # Regular expression to check for special characters and numbers in the full name
         if re.search(r'[!@#$%^&*()_+=[\]{};:"\\|,.<>/?\d]', str(name)):
             messages.error(request, 'Full Name cannot contain special characters or numbers.')
-            
         # Limit the phone number to 10 digits
         elif not re.match(r'^\d{10}$', phone_number):
             messages.error(request, 'Phone number should be 10 digits long and contain only numbers.')
-            
-        # Check for other conditions
-        elif birth_date and birth_date > current_date:
-            messages.error(request, 'Invalid birth date. Please enter a valid date of birth.')
-            
-        # Check for 18+
-        age = None if not birth_date else datetime.now().year - birth_date.year - ((datetime.now().month, datetime.now().day) < (birth_date.month, birth_date.day))
-        if age is None or age < 18: messages.error(request, 'You must be 18 years old or older to register.')
-
-            
-            
-        elif RegisteredUser.objects.filter(email=email).exists():
-            messages.error(request, 'Email is already in use. Please choose a different one.')
-        
-        elif password == cpassword:
-            email_token = str(uuid.uuid4())
-           
-            data = RegisteredUser.objects.create(username  = username,name=name, email=email, password=password, date_of_birth=date_of_birth, phone_number=phone_number, token=email_token)
-            data.login_status = False
-            data.save()
-            
-            # Create Wallet instance for the user
-            wallet = Wallet.objects.create(user=data)
-            wallet.save()
-            
-
-            user = User.objects.create_user(username=username,password=password)
-            user.save() 
-             
-            print()
-            
-            # data = userdata.objects.create(user=user, username=username, Fname=name, email=email, password=password, email_token = email_token)
-            send_email_after_registration(email,email_token)
-            messages.success(request, 'Registration Link sent. Please click on link to verify your account')
-            # return redirect('emailverified')
-        
-            # messages.success(request, 'Successfully registered')
-            return redirect('Userlogin')
-        
         else:
-            messages.error(request, 'Passwords do not match. Registration failed.')
+            birth_date = datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() if date_of_birth else None
 
-     context = { 
+            if birth_date and birth_date > current_date:
+                messages.error(request, 'Invalid birth date. Please enter a valid date of birth.')
+            elif RegisteredUser.objects.filter(email=email).exists():
+                messages.error(request, 'Email is already in use. Please choose a different one.')
+            elif password != cpassword:
+                messages.error(request, 'Passwords do not match. Registration failed.')
+            else:
+                email_token = str(uuid.uuid4())
+
+                data = RegisteredUser.objects.create(username=username, name=name, email=email, password=password,
+                                                      date_of_birth=date_of_birth, phone_number=phone_number,
+                                                      token=email_token)
+                data.login_status = False
+                data.sub_status = 'Unsubscribed'
+                data.save()
+
+                user = User.objects.create_user(username=username, password=password)
+                user.save()
+
+                send_email_after_registration(email, email_token)
+                messages.success(request, 'Registration Link sent. Please click on link to verify your account')
+                return redirect('Userlogin')
+
+    context = {
         'min_birth_date': min_birth_date
-     }
-     return render(request, 'Registration.html', context)
-    
+    }
+    return render(request, 'Registration.html', context)  
 
  
 
@@ -160,6 +142,7 @@ def accout_verify(request,token):
     pf = RegisteredUser.objects.filter(token=token).first()
     pf.is_verified = True
     pf.save()
+                 
     # pf.is_active = False
     return render (request, 'login.html')
 
@@ -195,254 +178,125 @@ def user_profile(request):
     return render(request, 'user_profile.html', context)
 
 
-def Usertrans(request):
-    user = request.user.username
-    user_instance = RegisteredUser.objects.get(username=user)
-    aggregated_data={}
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            transaction_type = data.get('transactionType')  # Extract selected transaction type from request
-            if transaction_type == 'BUY':
-                # Aggregate data for BUY transactions
-                aggregated_data = (
-                    UserBuyetf.objects.filter(Username=user_instance, trans_type='BUY')
-                    .values('Etf_purchased__Etfnames')
-                    .annotate(
-                        total_quantity=Sum('Quantity'),
-                        total_cost=Sum('Cost')
-                    )
+
+def aggregate_buy_transactions(user_instance):
+    return (
+        UserBuyetf.objects.filter(Username=user_instance, trans_type='BUY')
+        .values('Etf_purchased__Etfnames')
+        .annotate(
+            total_quantity=Sum('Quantity'),
+            total_cost=Sum('Cost'),
+            latest_date=Max('Date_time')  # Annotate latest date
+        )
+    )
+
+def aggregate_sell_transactions(user_instance):
+    return (
+        UserBuyetf.objects.filter(Username=user_instance, trans_type='SELL')
+        .values('Etf_purchased__Etfnames')
+        .annotate(
+            total_quantity=Sum('Quantity'),
+            total_cost=Sum('Cost'),
+            latest_date=Max('Date_time')
+        )
+    )
+
+def aggregate_all_transactions(user_instance):
+    return (
+        UserBuyetf.objects.filter(Username=user_instance)
+        .values('Etf_purchased__Etfnames')
+        .annotate(
+            total_quantity=Sum(
+                Case(
+                    When(trans_type='BUY', then=F('Quantity')),
+                    When(trans_type='SELL', then=-F('Quantity')),
+                    default=0,
+                    output_field=FloatField()
                 )
-                  # Fetch current price for each ETF
-                current_prices = {}
-                for entry in aggregated_data:
-                    etfname = entry['Etf_purchased__Etfnames']
-                    try:
-                        current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-                    except AllETF.DoesNotExist:
-                        # Handle the case where the object is not found
-                        # For example, set the price to 0 or handle it according to your logic
-                        current_prices[etfname] = 0.0  # Set the price to 0
-
-                
-                # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-                modified_data = []
-                for entry in aggregated_data:
-                    entry['mod_date'] = entry['latest_date'].date()
-                    
-                    # Calculate average cost
-                    if entry['total_quantity'] != 0:
-                        entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
-                    else:
-                        entry['mod_avg'] = 0.00
-                    
-                    entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-                    
-                    # Calculate percent difference without rounding off
-                    if entry['mod_avg'] != 0:  # Ensure no division by zero
-                        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
-                    else:
-                        percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
-                    entry['percent_diff'] = percent_diff
-                    
-                    
-                    
-                    modified_data.append(entry)  # Add the modified entry to the new list
-                #     print(modified_data)
-                context = {
-                    'data': modified_data  # Pass the modified data to the template context
-                }
-
-                return JsonResponse(context)
-            elif transaction_type == 'SELL':
-                # Aggregate data for SELL transactions
-                aggregated_data = (
-                    UserBuyetf.objects.filter(Username=user_instance, trans_type='SELL')
-                    .values('Etf_purchased__Etfnames')
-                    .annotate(
-                        total_quantity=Sum('Quantity'),
-                        total_cost=Sum('Cost')
-                    )
+            ),
+            total_cost=Sum(
+                Case(
+                    When(trans_type='BUY', then=F('Cost')),
+                    When(trans_type='SELL', then=-F('Cost')),
+                    default=0,
+                    output_field=FloatField()
                 )
-                  # Fetch current price for each ETF
-                current_prices = {}
-                for entry in aggregated_data:
-                    etfname = entry['Etf_purchased__Etfnames']
-                    try:
-                        current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-                    except AllETF.DoesNotExist:
-                        # Handle the case where the object is not found
-                        # For example, set the price to 0 or handle it according to your logic
-                        current_prices[etfname] = 0.0  # Set the price to 0
+            ),
+            latest_date=Max('Date_time')
+        )
+    )
 
-                
-                # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-                modified_data = []
-                for entry in aggregated_data:
-                    entry['mod_date'] = entry['latest_date'].date()
-                    
-                    # Calculate average cost
-                    if entry['total_quantity'] != 0:
-                        entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
-                    else:
-                        entry['mod_avg'] = 0.00
-                    
-                    entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-                    
-                    # Calculate percent difference without rounding off
-                    if entry['mod_avg'] != 0:  # Ensure no division by zero
-                        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
-                    else:
-                        percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
-                    entry['percent_diff'] = percent_diff
-                    
-                    
-                    
-                    modified_data.append(entry)  # Add the modified entry to the new list
-                #     print(modified_data)
-                context = {
-                    'data': modified_data  # Pass the modified data to the template context
-                }
-
-                return JsonResponse(context)
-            else:
-                # Handle if trans_type is not specified, default to 'BUY'
-                    aggregated_data = (
-                        UserBuyetf.objects.filter(Username=user_instance)
-                        .values('Etf_purchased__Etfnames')
-                        .annotate(
-                            latest_date=Max('Date_time'),
-                            totalquantity=Sum(
-                                Case(
-                                    When(trans_type='BUY', then=F('Quantity')),
-                                    When(trans_type='SELL', then=F('Quantity') * -1),  # Negate quantity for sells
-                                    default=0,
-                                    output_field=FloatField()
-                                )
-                            ),
-                            totalcost=Sum(
-                                Case(
-                                    When(trans_type='BUY', then=F('Cost')),
-                                    When(trans_type='SELL', then=F('Cost') * -1),  # Negate total amount for sells
-                                    default=0,
-                                    output_field=FloatField()
-                                )
-                            )
-                        )
-                    )
-                      # Fetch current price for each ETF
-                    current_prices = {}
-                    for entry in aggregated_data:
-                        etfname = entry['Etf_purchased__Etfnames']
-                        try:
-                            current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-                        except AllETF.DoesNotExist:
-                            # Handle the case where the object is not found
-                            # For example, set the price to 0 or handle it according to your logic
-                            current_prices[etfname] = 0.0  # Set the price to 0
-
-                    
-                    # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-                    modified_data = []
-                    for entry in aggregated_data:
-                        entry['moddate'] = entry['latest_date'].date()
-                        entry['Etfnames'] = entry['Etf_purchased__Etfnames']
-                        
-                        # Calculate average cost
-                        if entry['totalquantity'] != 0:
-                            entry['modavg'] = entry['totalcost'] / entry['totalquantity']
-                        else:
-                            entry['modavg'] = 0.00
-                        
-                        entry['currentprice'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-                        
-                        # Calculate percent difference without rounding off
-                        if entry['modavg'] != 0:  # Ensure no division by zero
-                            percent_diff = (entry['currentprice'] - entry['modavg']) / entry['modavg'] * 100
-                        else:
-                            percent_diff = float('0') if entry['currentprice'] > 0 else float('-inf')
-                        entry['percentdiff'] = percent_diff
-                        
-                        
-                        
-                        modified_data.append(entry)  # Add the modified entry to the new list
-                    #     print(modified_data)
-                    context = {
-                        'data': modified_data  # Pass the modified data to the template context
-                    }
-
-                    return JsonResponse(context)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+def calculate_percent_diff(current_price, mod_avg):
+    if mod_avg != 0:
+        return (current_price - mod_avg) / mod_avg * 100
     else:
-        # Handle if trans_type is not specified, default to 'BUY'
-            aggregated_data = (
-                UserBuyetf.objects.filter(Username=user_instance)
-                .values('Etf_purchased__Etfnames')
-                .annotate(
-                    latest_date=Max('Date_time'),
-                    total_quantity=Sum(
-                        Case(
-                            When(trans_type='BUY', then=F('Quantity')),
-                            When(trans_type='SELL', then=F('Quantity') * -1),  # Negate quantity for sells
-                            default=0,
-                            output_field=FloatField()
-                        )
-                    ),
-                    total_cost=Sum(
-                        Case(
-                            When(trans_type='BUY', then=F('Cost')),
-                            When(trans_type='SELL', then=F('Cost') * -1),  # Negate total amount for sells
-                            default=0,
-                            output_field=FloatField()
-                        )
-                    )
-                )
-            )
-            # Fetch current price for each ETF
-           # Fetch current price for each ETF
-            current_prices = {}
-            for entry in aggregated_data:
-                etfname = entry['Etf_purchased__Etfnames']
-                try:
-                    current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-                except AllETF.DoesNotExist:
-                    # Handle the case where the object is not found
-                    # For example, set the price to 0 or handle it according to your logic
-                    current_prices[etfname] = 0.0  # Set the price to 0
+        return 0.0
 
+def Usertrans(request):
+    if request.method == 'GET':
+        try:
+            user_instance = RegisteredUser.objects.get(username=request.user.username)
+        except RegisteredUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        
+        aggregated_data_buy = aggregate_buy_transactions(user_instance)
+        modified_data_buy = modify_data(aggregated_data_buy)
+
+        aggregated_data_sell = aggregate_sell_transactions(user_instance)
+        modified_data_sell = modify_data(aggregated_data_sell)
+    
+        aggregated_data_all = aggregate_all_transactions(user_instance)
+        modified_data_all = modify_data(aggregated_data_all)
+        
+        context = {
+            'data_all': modified_data_all,
+            'data_buy': modified_data_buy,
+            'data_sell': modified_data_sell,
             
-            # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-            modified_data = []
-            for entry in aggregated_data:
-                entry['mod_date'] = entry['latest_date'].date()
-                entry['Etfnames'] = entry['Etf_purchased__Etfnames'].upper()
-                print(entry['Etfnames'])
-                
-                # Calculate average cost
-                if entry['total_quantity'] != 0:
-                    entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
-                else:
-                    entry['mod_avg'] = 0.00
-                
-                entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-                print(entry['current_price'])
-                # Calculate percent difference without rounding off
-                if entry['mod_avg'] != 0:  # Ensure no division by zero
-                    percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
-                else:
-                    percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
-                entry['percent_diff'] = percent_diff
-                entry['20dma'],entry['etf_close_minus_20dma'], entry['etf_close_div_20dma'] = calculate_20dma([entry['Etfnames']])
-                entry['50dma'],entry['etf_close_minus_50dma'], entry['etf_close_div_50dma'] = calculate_50dma([entry['Etfnames']])
-                entry['100dma'],entry['etf_close_minus_100dma'], entry['etf_close_div_100dma'] = calculate_100dma([entry['Etfnames']])
-                print(entry['20dma'])
-                modified_data.append(entry)  # Add the modified entry to the new list
-            #     print(modified_data)
-            context = {
-                'data': modified_data  # Pass the modified data to the template context
             }
-            return render(request,'user_transactions.html',context)
+
+        return render(request, 'user_transactions.html', context)
+
+def modify_data(aggregated_data):
+    # Create a dictionary to hold aggregated data for each ETF
+    aggregated_data_dict = {}
+    for entry in aggregated_data:
+        etfname = entry['Etf_purchased__Etfnames']
+        if etfname not in aggregated_data_dict:
+            aggregated_data_dict[etfname] = {
+                'Etf_purchased__Etfnames': etfname,
+                'total_quantity': entry['total_quantity'],
+                'total_cost': entry['total_cost'],
+                'latest_date': entry['latest_date']
+            }
+        else:
+            # Accumulate total quantity and cost
+            aggregated_data_dict[etfname]['total_quantity'] += entry['total_quantity']
+            aggregated_data_dict[etfname]['total_cost'] += entry['total_cost']
+            
+    # Modify aggregated data and create context
+    modified_data = []
+    for etfname, entry in aggregated_data_dict.items():
+        entry['mod_date'] = entry['latest_date'].date()  # Update mod_date
+        entry['etf_name'] = entry['Etf_purchased__Etfnames']  # Add ETF name
+        # Add other required fields like current price, average cost, percent difference, etc.
+        # Fetch current price for each ETF
+        try:
+            current_price = AllETF.objects.get(Etfnames=etfname).close
+        except AllETF.DoesNotExist:
+            current_price = 0.0  # Set the price to 0 if ETF not found
+        
+        entry['current_price'] = current_price  # Add current price
+        entry['mod_avg'] = entry['total_cost'] / entry['total_quantity'] if entry['total_quantity'] != 0 else 0.0  # Calculate average cost
+        current_price = entry['current_price']
+        entry['percent_diff'] = calculate_percent_diff(current_price, entry['mod_avg'])  # Calculate percent difference
+        entry['20dma'], entry['etf_close_minus_20dma'], entry['etf_close_div_20dma'] = calculate_20dma([etfname])  # Calculate 20 DMA
+        entry['50dma'], entry['etf_close_minus_50dma'], entry['etf_close_div_50dma'] = calculate_50dma([etfname])  # Calculate 50 DMA
+        entry['100dma'], entry['etf_close_minus_100dma'], entry['etf_close_div_100dma'] = calculate_100dma([etfname])  # Calculate 100 DMA
+        modified_data.append(entry)
+
+    return modified_data
 
 
 
@@ -459,8 +313,7 @@ def user_buy_trans(request):
                 return JsonResponse({'error': 'Invalid ETF name'}, status=400)
             
             # Fetch only BUY transactions
-            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='BUY')\
-                .values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
+            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='BUY').values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
             
             for entry in detailed_data:
                 entry['Date'] = entry['Date_time'].date()
@@ -497,8 +350,7 @@ def user_sell_trans(request):
                 return JsonResponse({'error': 'Invalid ETF name'}, status=400)
             
             # Fetch only SELL transactions
-            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='SELL')\
-                .values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
+            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='SELL').values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
             
             for entry in detailed_data:
                 entry['Date'] = entry['Date_time'].date()
@@ -747,9 +599,11 @@ def usersell(request):
 #         return render(request, 'usercommodities.html', context)
     
 
-def NIFTYbees(request):
-    table_name = 'NIFTYBEES'
-    alldata = NIFTYBEES_NS.objects.all()
+def etftables(request,table):
+    
+    table_name = table.upper()
+    model=globals()[table_name]
+    alldata = model.objects.all()
     data = list(alldata)
     calculate_percentage_diff(data)
     paginator = Paginator(alldata, 10)  # Show 10 records per page
@@ -784,7 +638,7 @@ def NIFTYbees(request):
                 'table_name':table_name,
                 
             }
-            return render(request, 'usernifty.html', context)
+            return render(request, 'useretftables.html', context)
         else:
             # If start_date or end_date is not provided, show all data
             context = {
@@ -792,7 +646,7 @@ def NIFTYbees(request):
                 'table_name':table_name,
                 
             }
-            return render(request, 'usernifty.html', context)
+            return render(request, 'useretftables.html', context)
 
     # Default behavior: show all data
     context = {
@@ -800,1124 +654,8 @@ def NIFTYbees(request):
                'table_name':table_name,
                
                }
-    return render(request, 'usernifty.html', context)
+    return render(request, 'useretftables.html', context)
 
-
-def GOLDbees(request):
-        table_name = 'GOLDBEES'
-
-        alldata = GOLDBEES_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-            
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-                # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-                # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-    
-        
-
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name,
-                    
-                }
-                return render(request, 'usergold.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name,
-                    
-                }
-                return render(request, 'usergold.html', context)
-
-        # Default behavior: show all data
-        context = {
-            'data': data,
-            'table_name':table_name,
-            
-
-                   }
-        return render(request, 'usergold.html', context)
-
-
-
-def ITbees(request):
-    table_name = 'ITBEES'
-    alldata = ITBEES_NS.objects.all()
-    data = list(alldata)
-    calculate_percentage_diff(data)
-    paginator = Paginator(alldata, 10)  # Show 10 records per page
-    page = request.GET.get('page')
-        
-    try:
-        data = paginator.page(page)
-    except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-        data = paginator.page(1)
-    except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-        data = paginator.page(paginator.num_pages)
-    
-
-
-    if request.method == 'POST':
-        start_date_str = request.POST.get('start_date')
-        end_date_str = request.POST.get('end_date')
-        print(start_date_str, end_date_str)
-
-        if start_date_str and end_date_str:
-            # Convert string dates to datetime objects
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-            queryset = alldata.filter(date__range=[start_date, end_date])
-            data = paginator.page(1) 
-            data = list(queryset)
-            calculate_percentage_diff(data)
-            print(start_date, end_date)
-            context = {
-                'data': data,
-                'table_name':table_name,
-                
-            }
-            return render(request, 'userit.html', context)
-        else:
-            # If start_date or end_date is not provided, show all data
-            context = {
-                'data': data,
-                'table_name':table_name,
-                
-            }
-            return render(request, 'userit.html', context)
-
-    # Default behavior: show all data
-    context = {
-        'data': data,
-        'table_name':table_name,
-        
-               }
-    return render(request, 'userit.html', context)
-
-
-def SBIetfit(request):
-    table_name = 'SBIETFIT'
-    alldata = SBIETFIT_NS.objects.all()
-    data = list(alldata)
-    calculate_percentage_diff(data)
-    paginator = Paginator(alldata, 10)  # Show 10 records per page
-    page = request.GET.get('page')
-        
-    try:
-        data = paginator.page(page)
-    except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-        data = paginator.page(1)
-    except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-        data = paginator.page(paginator.num_pages)
-    
-
-
-    if request.method == 'POST':
-        start_date_str = request.POST.get('start_date')
-        end_date_str = request.POST.get('end_date')
-        print(start_date_str, end_date_str)
-
-        if start_date_str and end_date_str:
-            # Convert string dates to datetime objects
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-            queryset = alldata.filter(date__range=[start_date, end_date])
-            data = paginator.page(1) 
-            data = list(queryset)
-            calculate_percentage_diff(data)
-
-            print(start_date, end_date)
-            context = {
-                'data': data,
-                  'table_name':table_name,
-                  
-            }
-            return render(request, 'usersbi.html', context)
-        else:
-            # If start_date or end_date is not provided, show all data
-            context = {
-                'data': data,
-                  'table_name':table_name
-            }
-            return render(request, 'usersbi.html', context)
-
-    # Default behavior: show all data
-    context = {'data': data,
-               'table_name':table_name,
-               
-               }
-    return render(request, 'usersbi.html', context)
-
-
-def SILVERbees(request):
-        table_name = 'SILVERBEES'
-        alldata = SILVERBEES_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-        
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                      'table_name':table_name,
-                      
-                }
-                return render(request, 'usersilver.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name,
-                    
-                }
-                return render(request, 'usersilver.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name,
-                   
-                   
-                   }
-        
-        return render(request, 'usersilver.html', context)
-
-
-
-
-def Egold(request):
-        table_name = 'EGOLD'
-        alldata = EGOLD_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'useregold.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'useregold.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'useregold.html', context)
-
-
-
-def Abslnn50et(request):
-        table_name = 'ABSLNN50ET'
-        alldata = ABSLNN50ET_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userabslnn50et.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userabslnn50et.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'userabslnn50et.html', context)
-
-def Commoietf(request):
-        table_name = 'COMMOIETF'
-        alldata = COMMOIETF_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usercommoietf.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usercommoietf.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'usercommoietf.html', context)
-
-
-def Cpseetf(request):
-        table_name = 'CPSEETF'
-        alldata = COMMOIETF_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usercpseetf.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usercpseetf.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'usercpseetf.html', context)
-
-
-def Dspitetf(request):
-        table_name = 'DSPITETF'
-        alldata = DSPITETF_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userdspitetf.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userdspitetf.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'userdspitetf.html', context)
-
-
-
-def Dspq50etf(request):
-        table_name = 'DSPQ50ETF'
-        alldata = DSPQ50ETF_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userdspq50.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userdspq50.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'userdspq50.html', context)
-
-def Axistec(request):
-        table_name = 'AXISTEC'
-        alldata = AXISTECETF_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'useraxistec.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'useraxistec.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'useraxistec.html', context)
-
-
-def Icicib22(request):
-        table_name = 'ICICIB22'
-        alldata = ICICIB22_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usericicib22.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usericicib22.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'usericicib22.html', context)
-
-
-def Infrabees(request):
-        table_name = 'INFRABEES'
-        alldata = INFRABEES_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userinfrabees.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userinfrabees.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'userinfrabees.html', context)
-
-
-def Iti(request):
-        table_name = 'ITI'
-        alldata = ITIETF_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'useriti.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'useriti.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'useriti.html', context)
-
-
-def Kotak(request):
-        table_name = 'KOTAK'
-        alldata = KOTAKPSUBK_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-         
-
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-
-                data = paginator.page(1)  # Reset to first page after filtering
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userkotak.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userkotak.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'userkotak.html', context)
-
-def Mafang(request):
-        table_name = 'MAFANG'
-        alldata = MAFANG_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-        
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usermafang.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usermafang.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'usermafang.html', context)
-
-
-def Movalue(request):
-        table_name = 'MOVALUE'
-        alldata = MOVALUE_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1) 
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usermovalue.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usermovalue.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'usermovalue.html', context)
-
-
-def Nifitetf(request):
-        table_name = 'NIFITETF'
-        alldata = NIFITETF_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1)
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usernifitetf.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usernifitetf.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'usernifitetf.html', context)
-
-def Psubnk(request):
-        table_name = 'PSUBNKIETF'
-        alldata = PSUBNKIETF_NS.objects.all()
-        data = list(alldata)
-        calculate_percentage_diff(data)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1)
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userpsubnkietf.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'userpsubnkietf.html', context)
-
-        # Default behavior: show all data
-        context = {'data': data,
-                   'table_name':table_name
-                   }
-        return render(request, 'userpsubnkietf.html', context)
-
-
-
-
-def Tech(request):
-        table_name = 'TECH'
-        alldata = TECH_NS.objects.all()
-        
-        data = list(alldata)
-        paginator = Paginator(alldata, 10)  # Show 10 records per page
-        page = request.GET.get('page')
-        
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            data = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            data = paginator.page(paginator.num_pages)
-
-
-            
-
-        if request.method == 'POST':
-            start_date_str = request.POST.get('start_date')
-            end_date_str = request.POST.get('end_date')
-            print(start_date_str, end_date_str)
-
-            if start_date_str and end_date_str:
-                # Convert string dates to datetime objects
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-                queryset = alldata.filter(date__range=[start_date, end_date])
-                data = paginator.page(1)
-                data = list(queryset)
-                calculate_percentage_diff(data)
-                print(start_date, end_date)
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usertechetf.html', context)
-            else:
-                # If start_date or end_date is not provided, show all data
-                context = {
-                    'data': data,
-                    'table_name':table_name
-                }
-                return render(request, 'usertechetf.html', context)
-
-        # Default behavior: show all data
-        context = {'data':data,
-                   'table_name':table_name
-                   }
-        return render(request, 'usertechetf.html', context)
-# def Tech(request):
-#     table_name = 'TECH'
-#     alldata = TECH_NS.objects.all()
-#     data = list(alldata)
-     
-
-#     # Paginate your data
-#     paginator = Paginator(alldata, 10)  # Show 10 records per page
-#     page = request.GET.get('page')
-    
-#     try:
-#         data = paginator.page(page)
-#     except PageNotAnInteger:
-#         # If page is not an integer, deliver first page.
-#         data = paginator.page(1)
-#     except EmptyPage:
-#         # If page is out of range (e.g. 9999), deliver last page of results.
-#         data = paginator.page(paginator.num_pages)
-
-#     if request.method == 'POST':
-#         start_date_str = request.POST.get('start_date')
-#         end_date_str = request.POST.get('end_date')
-
-#         if start_date_str and end_date_str:
-#             # Convert string dates to datetime objects
-#             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-#             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-#             queryset = alldata.filter(date__range=[start_date, end_date])
-#             data = paginator.page(1)  # Reset to first page after filtering
-#             data = list(queryset)
-#             calculate_percentage_diff(data)
-#             return render(request, 'usertechetf.html', {'data': data, 'table_name': table_name})
-#         else:
-#             # If start_date or end_date is not provided, show all data
-#             return render(request, 'usertechetf.html', {'data': data, 'table_name': table_name})
-
-#     # Default behavior: show all data
-#     return render(request, 'usertechetf.html', {'data': data, 'table_name': table_name})
 
 
 def Logout(request):
@@ -1957,6 +695,8 @@ def usercommoditiesdd(request):
 
 
 def userstocks(request):
+    user=request.user.username
+    user_instance = RegisteredUser.objects.get(username=user)
     category = 'Stocks'
     stocks1 = 'NIFTYBEES'
     stocks2 = 'ITBEES'
@@ -2033,7 +773,8 @@ def userstocks(request):
         'kotakp':stocks16,
         'dspq50':stocks17,
         'infrabees':stocks18,
-        'category':category
+        'category':category,
+        'user':user_instance
 
     }
     return render(request, 'userstocks.html',context)
