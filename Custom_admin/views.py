@@ -87,11 +87,13 @@ def Decline(request,username):
 
 def active_user(request):
     active_registered_users = RegisteredUser.objects.filter(login_status=True,is_verified=True)
+
     
     context = {
         'data' : active_registered_users,
         
     }
+
 
     
     return render(request, 'active_user.html', context)
@@ -160,10 +162,10 @@ def Usertrans(request):
             print(user_instance)
         except RegisteredUser.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
-
         
         aggregated_data_buy = aggregate_buy_transactions(user_instance)
         modified_data_buy = modify_data(aggregated_data_buy)
+
 
         aggregated_data_sell = aggregate_sell_transactions(user_instance)
         modified_data_sell = modify_data(aggregated_data_sell)
@@ -176,7 +178,9 @@ def Usertrans(request):
             'data_buy': modified_data_buy,
             'data_sell': modified_data_sell,
             }
+
         return JsonResponse({'dataall':list(modified_data_all)})
+
     
 def modify_data(aggregated_data):
     # Create a dictionary to hold aggregated data for each ETF
