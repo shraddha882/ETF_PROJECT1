@@ -41,7 +41,7 @@
                                     <td>{{ user.is_verified }}</td>
                                     <td>{{ user.login_status }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
+                                        <button  type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
                                            Transaction
                                           </button>
                                     </td>
@@ -992,7 +992,62 @@
     // Call hideMessages function after 2-3 seconds (2000-3000 milliseconds)
     setTimeout(hideMessages, 3000); // Change the timeout delay as needed
 </script>
+<script>
+   
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get all transaction buttons
+        var transactionButtons = document.querySelectorAll('.btn-primary');
 
+        // Add click event listener to each transaction button
+        transactionButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Get the username from the current row
+                var username = this.parentNode.previousElementSibling.previousElementSibling.textContent;
+
+                // Get CSRF token
+                var csrfToken = getCookie('csrftoken');
+
+                // Send AJAX request to backend view
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/customadmin/active_user/', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-CSRFToken', csrfToken); // Include CSRF token in the request header
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        console.log('Transaction request sent successfully');
+                        // You can add further logic here if needed
+                    } else {
+                        console.error('Error sending transaction request. Status: ' + xhr.status);
+                    }
+                };
+                xhr.onerror = function() {
+                    console.error('Error sending transaction request. Network error occurred.');
+                };
+                xhr.send(JSON.stringify({username: username}));
+            });
+        });
+    });
+
+    // Function to get CSRF token from cookie
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Check if the cookie name matches the desired name
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+ 
+
+
+</script>
 
 
 {% endblock body %}

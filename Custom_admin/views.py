@@ -87,13 +87,21 @@ def Decline(request,username):
 
 def active_user(request):
     active_registered_users = RegisteredUser.objects.filter(login_status=True,is_verified=True)
-    user = request.user.username
-    user_instance = RegisteredUser.objects.get(username=user)
+    #user = request.user.username
+    # user_instance = None
+    # if request.method == 'POST':
+    #      data = json.loads(request.body)
+    #      username = data.get('username')
+    #      user_instance = RegisteredUser.objects.get(username=username)
     aggregated_data={}
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            transaction_type = data.get('transactionType')  # Extract selected transaction type from request
+            user_instance = data.get('username')
+            print(user_instance)
+            transaction_type = data.get('transactionType')
+             
+              # Extract selected transaction type from request
             if transaction_type == 'BUY':
                 # Aggregate data for BUY transactions
                 aggregated_data = (
@@ -266,7 +274,11 @@ def active_user(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     else:
+        if request.method == 'POST':
         # Handle if trans_type is not specified, default to 'BUY'
+            data = json.loads(request.body)
+            user_instance = data.get('username')
+            print(user_instance)
             aggregated_data = (
                 UserBuyetf.objects.filter(Username=user_instance)
                 .values('Etf_purchased__Etfnames')
@@ -290,6 +302,7 @@ def active_user(request):
                     )
                 )
             )
+            print(aggregated_data)
             # Fetch current price for each ETF
            # Fetch current price for each ETF
             current_prices = {}
@@ -333,6 +346,10 @@ def active_user(request):
             context = {
                 'data': active_registered_users,
                 'data1': modified_data  # Pass the modified data to the template context
+            }
+        context = {
+                'data': active_registered_users,
+                # 'data1': modified_data  # Pass the modified data to the template context
             }
     
     return render(request, 'active_user.html', context)
