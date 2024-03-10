@@ -297,4 +297,72 @@
 
   </main><!-- End #main -->
 {% endblock body %}
- 
+// Function to fetch details data based on selected transaction type
+function fetchDetailsData(ETFName, detailsRow) {
+    let fetchUrl;
+
+    // Determine the fetch URL based on the selected transaction type
+    if (transactionType === 'Buy') {
+        fetchUrl = '/registereduser/userbuyhistory/';
+        console.log('Buy detailed data should be shown');
+    } else if (transactionType === 'Sell') {
+        fetchUrl = '/registereduser/usersellhistory/';
+        console.log('Sell detailed data should be shown');
+    } else {
+        fetchUrl = '/registereduser/userallhistory/';
+        console.log('ALL detailed data should be shown');
+    }
+
+    // Fetch data from the corresponding URL
+    const csrftoken = getCookie('csrftoken');
+    const requestBody = {
+        ETFName: ETFName,
+    };
+
+    fetch(fetchUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.detailed_data) {
+            // Filter data based on transaction type if it's not 'All'
+            if (transactionType !== 'All') {
+                data.detailed_data = data.detailed_data.filter(entry => entry.trans_type === transactionType);
+            }
+            updateDetailedData(data.detailed_data, detailsRow);
+        } else {
+            console.error('Invalid or missing detailed data:', data);
+        }
+    })
+    .catch(error => console.error('Error fetching details:', error));
+}
+
+// Event listener for dropdown selection change
+        $('.dropdown-item, #transactionTypeDropdown').on('click change', function(e) {
+            e.preventDefault();
+            console.log('Dropdown selection changed.'); // Debug statement
+            var selectedOption = $('#selectedOption').text(); // Get selected option from the button text
+            var etfName = $('#allTable tbody tr:first-child td:nth-child(3)').text(); // Get ETF name from the first row of the table
+            console.log('Selected option:', selectedOption); // Debug statement
+            console.log('ETF name:', etfName); // Debug statement
+            fetchData(selectedOption, etfName);
+        });
+
+        // Trigger initial data fetch when the page loads
+        $(document).ready(function() {
+            console.log('Page loaded.'); // Debug statement
+            var selectedOption = 'All'; // Default selected option
+            var etfName = $('#allTable tbody tr:first-child td:nth-child(3)').text(); // Get ETF name from the first row of the table
+            console.log('Selected option:', selectedOption); // Debug statement
+            console.log('ETF name:', etfName); // Debug statement
+            fetchData(selectedOption, etfName);
+        });
+
+
+
+        const selectedOption = document.getElementById('selectedOption').textContent.trim(); // Get the current selected option

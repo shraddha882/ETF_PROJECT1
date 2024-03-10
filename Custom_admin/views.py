@@ -87,255 +87,137 @@ def Decline(request,username):
 
 def active_user(request):
     active_registered_users = RegisteredUser.objects.filter(login_status=True,is_verified=True)
-    user = request.user.username
-    user_instance = RegisteredUser.objects.get(username=user)
-    aggregated_data={}
+    
+    context = {
+        'data' : active_registered_users,
+        
+    }
+
+    
+    return render(request, 'active_user.html', context)
+
+def aggregate_buy_transactions(user_instance):
+    return (
+        UserBuyetf.objects.filter(Username=user_instance, trans_type='BUY')
+        .values('Etf_purchased__Etfnames')
+        .annotate(
+            total_quantity=Sum('Quantity'),
+            total_cost=Sum('Cost'),
+            latest_date=Max('Date_time')  # Annotate latest date
+        )
+    )
+
+def aggregate_sell_transactions(user_instance):
+    return (
+        UserBuyetf.objects.filter(Username=user_instance, trans_type='SELL')
+        .values('Etf_purchased__Etfnames')
+        .annotate(
+            total_quantity=Sum('Quantity'),
+            total_cost=Sum('Cost'),
+            latest_date=Max('Date_time')
+        )
+    )
+
+def aggregate_all_transactions(user_instance):
+    return (
+        UserBuyetf.objects.filter(Username=user_instance)
+        .values('Etf_purchased__Etfnames')
+        .annotate(
+            total_quantity=Sum(
+                Case(
+                    When(trans_type='BUY', then=F('Quantity')),
+                    When(trans_type='SELL', then=-F('Quantity')),
+                    default=0,
+                    output_field=FloatField()
+                )
+            ),
+            total_cost=Sum(
+                Case(
+                    When(trans_type='BUY', then=F('Cost')),
+                    When(trans_type='SELL', then=-F('Cost')),
+                    default=0,
+                    output_field=FloatField()
+                )
+            ),
+            latest_date=Max('Date_time')
+        )
+    )
+
+def calculate_percent_diff(current_price, mod_avg):
+    if mod_avg != 0:
+        return (current_price - mod_avg) / mod_avg * 100
+    else:
+        return 0.0
+
+def Usertrans(request):
+    
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            transaction_type = data.get('transactionType')  # Extract selected transaction type from request
-            if transaction_type == 'BUY':
-                # Aggregate data for BUY transactions
-                aggregated_data = (
-                    UserBuyetf.objects.filter(Username=user_instance, trans_type='BUY')
-                    .values('Etf_purchased__Etfnames')
-                    .annotate(
-                        total_quantity=Sum('Quantity'),
-                        total_cost=Sum('Cost')
-                    )
-                )
-                  # Fetch current price for each ETF
-                current_prices = {}
-                for entry in aggregated_data:
-                    etfname = entry['Etf_purchased__Etfnames']
-                    try:
-                        current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-                    except AllETF.DoesNotExist:
-                        # Handle the case where the object is not found
-                        # For example, set the price to 0 or handle it according to your logic
-                        current_prices[etfname] = 0.0  # Set the price to 0
+            print(data)
+            user = data.get('name')
+            user_instance = RegisteredUser.objects.get(username=user)
+            print(user_instance)
+        except RegisteredUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
 
-                
-                # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-                modified_data = []
-                for entry in aggregated_data:
-                    entry['mod_date'] = entry['latest_date'].date()
-                    
-                    # Calculate average cost
-                    if entry['total_quantity'] != 0:
-                        entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
-                    else:
-                        entry['mod_avg'] = 0.00
-                    
-                    entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-                    
-                    # Calculate percent difference without rounding off
-                    if entry['mod_avg'] != 0:  # Ensure no division by zero
-                        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
-                    else:
-                        percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
-                    entry['percent_diff'] = percent_diff
-                    
-                    
-                    
-                    modified_data.append(entry)  # Add the modified entry to the new list
-                #     print(modified_data)
-                context = {
-                    'data': modified_data  # Pass the modified data to the template context
-                }
+        
+        aggregated_data_buy = aggregate_buy_transactions(user_instance)
+        modified_data_buy = modify_data(aggregated_data_buy)
 
-                return JsonResponse(context)
-            elif transaction_type == 'SELL':
-                # Aggregate data for SELL transactions
-                aggregated_data = (
-                    UserBuyetf.objects.filter(Username=user_instance, trans_type='SELL')
-                    .values('Etf_purchased__Etfnames')
-                    .annotate(
-                        total_quantity=Sum('Quantity'),
-                        total_cost=Sum('Cost')
-                    )
-                )
-                  # Fetch current price for each ETF
-                current_prices = {}
-                for entry in aggregated_data:
-                    etfname = entry['Etf_purchased__Etfnames']
-                    try:
-                        current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-                    except AllETF.DoesNotExist:
-                        # Handle the case where the object is not found
-                        # For example, set the price to 0 or handle it according to your logic
-                        current_prices[etfname] = 0.0  # Set the price to 0
-
-                
-                # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-                modified_data = []
-                for entry in aggregated_data:
-                    entry['mod_date'] = entry['latest_date'].date()
-                    
-                    # Calculate average cost
-                    if entry['total_quantity'] != 0:
-                        entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
-                    else:
-                        entry['mod_avg'] = 0.00
-                    
-                    entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-                    
-                    # Calculate percent difference without rounding off
-                    if entry['mod_avg'] != 0:  # Ensure no division by zero
-                        percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
-                    else:
-                        percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
-                    entry['percent_diff'] = percent_diff
-                    
-                    
-                    
-                    modified_data.append(entry)  # Add the modified entry to the new list
-                #     print(modified_data)
-                context = {
-                    'data': modified_data  # Pass the modified data to the template context
-                }
-
-                return JsonResponse(context)
-            else:
-                # Handle if trans_type is not specified, default to 'BUY'
-                    aggregated_data = (
-                        UserBuyetf.objects.filter(Username=user_instance)
-                        .values('Etf_purchased__Etfnames')
-                        .annotate(
-                            latest_date=Max('Date_time'),
-                            totalquantity=Sum(
-                                Case(
-                                    When(trans_type='BUY', then=F('Quantity')),
-                                    When(trans_type='SELL', then=F('Quantity') * -1),  # Negate quantity for sells
-                                    default=0,
-                                    output_field=FloatField()
-                                )
-                            ),
-                            totalcost=Sum(
-                                Case(
-                                    When(trans_type='BUY', then=F('Cost')),
-                                    When(trans_type='SELL', then=F('Cost') * -1),  # Negate total amount for sells
-                                    default=0,
-                                    output_field=FloatField()
-                                )
-                            )
-                        )
-                    )
-                      # Fetch current price for each ETF
-                    current_prices = {}
-                    for entry in aggregated_data:
-                        etfname = entry['Etf_purchased__Etfnames']
-                        try:
-                            current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-                        except AllETF.DoesNotExist:
-                            # Handle the case where the object is not found
-                            # For example, set the price to 0 or handle it according to your logic
-                            current_prices[etfname] = 0.0  # Set the price to 0
-
-                    
-                    # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-                    modified_data = []
-                    for entry in aggregated_data:
-                        entry['moddate'] = entry['latest_date'].date()
-                        entry['Etfnames'] = entry['Etf_purchased__Etfnames']
-                        
-                        # Calculate average cost
-                        if entry['totalquantity'] != 0:
-                            entry['modavg'] = entry['totalcost'] / entry['totalquantity']
-                        else:
-                            entry['modavg'] = 0.00
-                        
-                        entry['currentprice'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-                        
-                        # Calculate percent difference without rounding off
-                        if entry['modavg'] != 0:  # Ensure no division by zero
-                            percent_diff = (entry['currentprice'] - entry['modavg']) / entry['modavg'] * 100
-                        else:
-                            percent_diff = float('0') if entry['currentprice'] > 0 else float('-inf')
-                        entry['percentdiff'] = percent_diff
-                        
-                        
-                        
-                        modified_data.append(entry)  # Add the modified entry to the new list
-                    #     print(modified_data)
-                    context = {
-                        'data': modified_data  # Pass the modified data to the template context
-                    }
-
-                    return JsonResponse(context)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    else:
-        # Handle if trans_type is not specified, default to 'BUY'
-            aggregated_data = (
-                UserBuyetf.objects.filter(Username=user_instance)
-                .values('Etf_purchased__Etfnames')
-                .annotate(
-                    latest_date=Max('Date_time'),
-                    total_quantity=Sum(
-                        Case(
-                            When(trans_type='BUY', then=F('Quantity')),
-                            When(trans_type='SELL', then=F('Quantity') * -1),  # Negate quantity for sells
-                            default=0,
-                            output_field=FloatField()
-                        )
-                    ),
-                    total_cost=Sum(
-                        Case(
-                            When(trans_type='BUY', then=F('Cost')),
-                            When(trans_type='SELL', then=F('Cost') * -1),  # Negate total amount for sells
-                            default=0,
-                            output_field=FloatField()
-                        )
-                    )
-                )
-            )
-            # Fetch current price for each ETF
-           # Fetch current price for each ETF
-            current_prices = {}
-            for entry in aggregated_data:
-                etfname = entry['Etf_purchased__Etfnames']
-                try:
-                    current_prices[etfname] = (AllETF.objects.get(Etfnames=etfname).close)
-                except AllETF.DoesNotExist:
-                    # Handle the case where the object is not found
-                    # For example, set the price to 0 or handle it according to your logic
-                    current_prices[etfname] = 0.0  # Set the price to 0
-
-            
-            # Convert datetime fields to Indian Standard Time (IST) and create a new list of modified entries
-            modified_data = []
-            for entry in aggregated_data:
-                entry['mod_date'] = entry['latest_date'].date()
-                entry['Etfnames'] = entry['Etf_purchased__Etfnames'].upper()
-                print(entry['Etfnames'])
-                
-                # Calculate average cost
-                if entry['total_quantity'] != 0:
-                    entry['mod_avg'] = entry['total_cost'] / entry['total_quantity']
-                else:
-                    entry['mod_avg'] = 0.00
-                
-                entry['current_price'] = current_prices.get(entry['Etf_purchased__Etfnames'], 0)
-                print(entry['current_price'])
-                # Calculate percent difference without rounding off
-                if entry['mod_avg'] != 0:  # Ensure no division by zero
-                    percent_diff = (entry['current_price'] - entry['mod_avg']) / entry['mod_avg'] * 100
-                else:
-                    percent_diff = float('0') if entry['current_price'] > 0 else float('-inf')
-                entry['percent_diff'] = percent_diff
-                entry['20dma'],entry['etf_close_minus_20dma'], entry['etf_close_div_20dma'] = calculate_20dma([entry['Etfnames']])
-                entry['50dma'],entry['etf_close_minus_50dma'], entry['etf_close_div_50dma'] = calculate_50dma([entry['Etfnames']])
-                entry['100dma'],entry['etf_close_minus_100dma'], entry['etf_close_div_100dma'] = calculate_100dma([entry['Etfnames']])
-                # print(entry['20dma'])
-                modified_data.append(entry)  # Add the modified entry to the new list
-            #     print(modified_data)
-            context = {
-                'data': active_registered_users,
-                'data1': modified_data  # Pass the modified data to the template context
-            }
+        aggregated_data_sell = aggregate_sell_transactions(user_instance)
+        modified_data_sell = modify_data(aggregated_data_sell)
     
-    return render(request, 'active_user.html', context)
+        aggregated_data_all = aggregate_all_transactions(user_instance)
+        modified_data_all = modify_data(aggregated_data_all)
+        print(modified_data_all)
+        context = {
+            'data_all': modified_data_all,
+            'data_buy': modified_data_buy,
+            'data_sell': modified_data_sell,
+            }
+        return JsonResponse({'dataall':list(modified_data_all)})
+    
+def modify_data(aggregated_data):
+    # Create a dictionary to hold aggregated data for each ETF
+    aggregated_data_dict = {}
+    for entry in aggregated_data:
+        etfname = entry['Etf_purchased__Etfnames']
+        if etfname not in aggregated_data_dict:
+            aggregated_data_dict[etfname] = {
+                'Etf_purchased__Etfnames': etfname,
+                'total_quantity': entry['total_quantity'],
+                'total_cost': entry['total_cost'],
+                'latest_date': entry['latest_date']
+            }
+        else:
+            # Accumulate total quantity and cost
+            aggregated_data_dict[etfname]['total_quantity'] += entry['total_quantity']
+            aggregated_data_dict[etfname]['total_cost'] += entry['total_cost']
+            
+    # Modify aggregated data and create context
+    modified_data = []
+    for etfname, entry in aggregated_data_dict.items():
+        entry['mod_date'] = entry['latest_date'].date()  # Update mod_date
+        entry['etf_name'] = entry['Etf_purchased__Etfnames']  # Add ETF name
+        # Add other required fields like current price, average cost, percent difference, etc.
+        # Fetch current price for each ETF
+        try:
+            current_price = AllETF.objects.get(Etfnames=etfname).close
+        except AllETF.DoesNotExist:
+            current_price = 0.0  # Set the price to 0 if ETF not found
+        
+        entry['current_price'] = current_price  # Add current price
+        entry['mod_avg'] = entry['total_cost'] / entry['total_quantity'] if entry['total_quantity'] != 0 else 0.0  # Calculate average cost
+        current_price = entry['current_price']
+        entry['percent_diff'] = calculate_percent_diff(current_price, entry['mod_avg'])  # Calculate percent difference
+        entry['20dma'], entry['etf_close_minus_20dma'], entry['etf_close_div_20dma'] = calculate_20dma([etfname])  # Calculate 20 DMA
+        entry['50dma'], entry['etf_close_minus_50dma'], entry['etf_close_div_50dma'] = calculate_50dma([etfname])  # Calculate 50 DMA
+        entry['100dma'], entry['etf_close_minus_100dma'], entry['etf_close_div_100dma'] = calculate_100dma([etfname])  # Calculate 100 DMA
+        modified_data.append(entry)
+
+    return modified_data
+
 
 def deactivate_user(request):
     deactivate_registered_users = RegisteredUser.objects.filter(login_status=False)

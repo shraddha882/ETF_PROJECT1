@@ -8,7 +8,7 @@
             <div class="col-lg-12">        
                 <div class="card">
                     <div class="card-body" style="overflow-x: auto !important;">
-                        <div id="user_buy_history_url" data-url="{% url 'user_buy_history' %}"></div>
+                        {% comment %} <div id="user_buy_history_url" data-url="{% url 'user_buy_history' %}"></div> {% endcomment %}
                         <h5 class="card-header fw-bolder text-center ">ETF Transactions</h5>
                         <div class="container-fluid">    
                             <!-- Buy/Sell Dropdown -->
@@ -349,8 +349,8 @@
                             </tbody>
                         </table>
 
-                           <!-- Buy Transactions Table (Initially hidden) -->
-                           <table id="buyTable" class="table table-hover" style="display: none;"> 
+                        <!-- Buy Transactions Table (Initially hidden) -->
+                        <table id="buyTable" class="table table-hover" style="display: none;"> 
                             <thead>                           
                                 <tr>
                                     <th style="white-space: nowrap;">S. no. </th>
@@ -942,13 +942,13 @@
                 const row = this.closest('.expandable-row');
                 const detailsRow = row.nextElementSibling;
                 const ETFName = row.querySelector('td:nth-child(3)').textContent.trim(); // Assuming ETF name is in the third column
-
+                const selectedOption = document.getElementById('selectedOption').textContent.trim(); // Get the current selected option
         
                 if (detailsRow.style.display === "none" || detailsRow.style.display === "") {
                     detailsRow.style.display = "table-row";
                     row.classList.add('table-info');
                     button.innerHTML = '<span class="expand-sign">-</span>'; // Change button content to minus sign when expanding
-                    fetchDetailsData(ETFName, detailsRow.querySelector('.nested-table')); // Pass ETFName, nested table, and transaction type to fetchDetailsData
+                    fetchDetailsData(selectedOption, ETFName, detailsRow.querySelector('.nested-table')); // Pass ETFName, nested table, and transaction type to fetchDetailsData
                 } else {
                     detailsRow.style.display = "none";
                     row.classList.remove('table-info');
@@ -964,25 +964,15 @@
         
     
         // Function to fetch details data based on selected transaction type
-        function fetchDetailsData(ETFName, detailsRow) {
+        function fetchDetailsData(selectedOption, ETFName, detailsRow) {
             let fetchUrl;
 
-            // Determine the fetch URL based on the selected transaction type
-            if (transactionType === 'Buy') {
-                fetchUrl = '/registereduser/userbuyhistory/';
-                console.log('Buy detailed data should be shown');
-            } else if (transactionType === 'Sell') {
-                fetchUrl = '/registereduser/usersellhistory/';
-                console.log('Sell detailed data should be shown');
-            } else {
-                fetchUrl = '/registereduser/userallhistory/';
-                console.log('ALL detailed data should be shown');
-            }
-
+            fetchUrl = '/registereduser/usertransdetails/';
             // Fetch data from the corresponding URL
             const csrftoken = getCookie('csrftoken');
             const requestBody = {
                 ETFName: ETFName,
+                selectedOption: selectedOption,
             };
 
             fetch(fetchUrl, {
@@ -996,10 +986,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data && data.detailed_data) {
-                    // Filter data based on transaction type if it's not 'All'
-                    if (transactionType !== 'All') {
-                        data.detailed_data = data.detailed_data.filter(entry => entry.trans_type === transactionType);
-                    }
+                    
                     updateDetailedData(data.detailed_data, detailsRow);
                 } else {
                     console.error('Invalid or missing detailed data:', data);
