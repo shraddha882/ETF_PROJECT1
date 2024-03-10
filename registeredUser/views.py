@@ -126,6 +126,9 @@ def register(request):
                 user = User.objects.create_user(username=username, password=password)
                 user.save()
 
+                wallet = Wallet.objects.create(user = data)
+                wallet.save()
+                
                 send_email_after_registration(email, email_token)
                 messages.success(request, 'Registration Link sent. Please click on link to verify your account')
                 return redirect('Userlogin')
