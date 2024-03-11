@@ -460,7 +460,7 @@ def Userbuy(request):
                     trans_type='BUY'
                 )
                 
-                messages.error(request, "ETF Purchased successfully")
+                messages.success(request, "ETF Purchased successfully")
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))  # Redirect back to the same page                
             else:
                 return JsonResponse({'success': False, 'message': 'You do not have enough balance to buy'})
