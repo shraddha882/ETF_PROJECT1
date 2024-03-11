@@ -26,7 +26,7 @@
                 <div class="card">
                     <div class="card-body">
                     <h5 class="card-title">Pending request user data</h5>        
-                    <table class="table datatable table-hover">   
+                    <table class="table   table-hover">   
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -59,7 +59,10 @@
                                         Pending
                                       {% endif %}
                                   </td>
-                                  <td><a href="{% url 'approve' user.username %}"class="btn btn-info">Approve</a> &nbsp;&nbsp; <a href="{% url 'decline' user.username %}" class="btn btn-danger">Decline</a></td>
+                                  
+                                
+
+                                  <!-- <td><a href="{% url 'approve' user.username %}"class="btn btn-info">Approve</a> &nbsp;&nbsp; <a href="{% url 'decline' user.username %}" class="btn btn-danger">Decline</a></td> -->
                             </tr>
                             {% endfor %}
                         </tbody>
