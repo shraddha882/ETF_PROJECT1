@@ -13,6 +13,16 @@
         </ol>
       </nav>
     </div>
+    <div class="dropdown mb-2">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Selected user details
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="statusDropdown">
+            <li><a class="dropdown-item" href="{% url 'users_data' %}">All Users</a></li>
+            <li><a class="dropdown-item" href="{% url 'active_user' %}">Active Users</a></li>
+            <li><a class="dropdown-item" href="{% url 'deactivate_user' %}">Deactivated Users</a></li>
+        </ul>
+    </div>
     <section class="section">
         <div class="row">
             <div class="col-lg-12">        
@@ -22,6 +32,7 @@
                     <table class="table table-hover">   
                         <thead>
                             <tr>
+                                <th>S.No.</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Dob</th>
@@ -29,7 +40,7 @@
                                 <th>IS verified</th>
                                 <th>Status</th>
                                 <th>Action</th>
-                           <!-- <th>Update</th>   -->
+                      
                             </tr>
                         </thead>
                         <tbody>     
@@ -37,12 +48,13 @@
                             {% for user in data %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
+                                <td>{{ user.name }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>{{ user.date_of_birth }}</td>
                                 <td>{{ user.phone_number}}</td>
                                 <td>{{ user.is_verified }}</td>
                                 <td>{{ user.login_status }}</td>
-                                <td><!-- Action buttons here --></td>
+                                <td><button type="button" class="btn btn-danger d-inline" id="delete-selected">Delete</button></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -53,5 +65,31 @@
         </div>
     </section>
 </main>
+<script>
+    // Function to toggle select all checkbox
+    document.getElementById('select-all').addEventListener('change', function() {
+        var checkboxes = document.querySelectorAll('.user-checkbox');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = this.checked;
+        }.bind(this));
+    });
+  
+    // Function to handle deletion of selected users
+    document.getElementById('delete-selected').addEventListener('click', function() {
+        var selectedUsers = [];
+        var checkboxes = document.querySelectorAll('.user-checkbox:checked');
+        checkboxes.forEach(function(checkbox) {
+            selectedUsers.push(checkbox.getAttribute('data-username'));
+        });
+  
+        // Redirect to delete view with selected users' usernames
+        if (selectedUsers.length > 0) {
+            var url = '{% url "delete_selected_users" %}?usernames=' + selectedUsers.join(',');
+            window.location.href = url;
+        } else {
+            alert('Please select at least one user to delete.');
+        }
+    });
+  </script>
 {% endblock body %}
 
