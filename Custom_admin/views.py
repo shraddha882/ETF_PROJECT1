@@ -26,7 +26,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import json, datetime
 from django.db.models import Sum, Avg, Max, Case, When, F,FloatField, Value
 from django.db.models.functions import Coalesce, Cast
-
+from django.http import HttpResponseRedirect
 
 def admindashboard(request):
         return render(request, 'admindashboard.html')
@@ -62,28 +62,60 @@ def users_data(request):
     
 
 # @login_required
-def Approve(request,username):
-    update=RegisteredUser.objects.get(username=username)
-    user=User.objects.get(username=username)
-    if user is not None:
-        update.login_status=True
-        update.save()
-        messages.success(request, f'{username} is now allowed to Login')  
-    else:
-        update.delete()
+# def Approve(request,username):
+#     update=RegisteredUser.objects.get(username=username)
+#     user=User.objects.get(username=username)
+#     if user is not None:
+#         update.login_status=True
+#         update.save()
+#         messages.success(request, f'{username} is now allowed to Login')  
+#     else:
+#         update.delete()
+#     return redirect('users_data')
+
+# # @login_required
+# def Decline(request,username):
+#     update=RegisteredUser.objects.get(username=username)
+#     user=User.objects.get(username=username)
+#     if user is not None:    
+#         update.login_status=False
+#         update.save()
+#         messages.error(request, f'{username} is not allowed to Login')
+#     else:
+#         update.delete()
+#     return redirect('users_data')
+
+def Approve(request, username):
+    update = get_object_or_404(RegisteredUser, username=username)
+    update.login_status = True
+    update.save()
+    messages.success(request, f'{username} is now allowed to login')
     return redirect('users_data')
 
-# @login_required
-def Decline(request,username):
-    update=RegisteredUser.objects.get(username=username)
-    user=User.objects.get(username=username)
-    if user is not None:    
-        update.login_status=False
-        update.save()
-        messages.error(request, f'{username} is not allowed to Login')
-    else:
-        update.delete()
+def Decline(request, username):
+    update = get_object_or_404(RegisteredUser, username=username)
+    update.login_status = False
+    update.save()
+    messages.error(request, f'{username} is not allowed to login')
     return redirect('users_data')
+
+def delete_selected_users(request):
+    if request.method == 'GET' and 'usernames' in request.GET:
+        usernames = request.GET.get('usernames').split(',')
+        # Delete selected users
+        deleted_users = RegisteredUser.objects.filter(username__in=usernames)
+        deleted_users_count = deleted_users.count()
+        deleted_usernames = ", ".join([user.username for user in deleted_users])
+        deleted_users.delete()
+        # Add a success message
+        messages.success(request, f"{deleted_users_count} user(s) ({deleted_usernames}) deleted successfully.")
+        # Redirect back to the user details page
+        return redirect('users_data')
+    else:
+        # Handle other cases, like POST requests
+        pass
+
+
 
 def active_user(request):
     active_registered_users = RegisteredUser.objects.filter(login_status=True,is_verified=True)
@@ -151,7 +183,8 @@ def calculate_percent_diff(current_price, mod_avg):
     else:
         return 0.0
 
-def Usertrans(request):
+def admintrans(request):
+
     
     if request.method == 'POST':
         try:
