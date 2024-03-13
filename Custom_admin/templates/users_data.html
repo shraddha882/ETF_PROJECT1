@@ -2,6 +2,72 @@
 {% block title %}User details{% endblock title %}
 {% load static %}
 {% block body %}
+ 
+<style>
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 30px; /* Adjusted width */
+    height: 18px; /* Adjusted height */
+  }
+
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 9px; /* Adjusted border-radius */
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px; /* Adjusted height */
+    width: 14px; /* Adjusted width */
+    left: 2px; /* Adjusted position */
+    bottom: 2px; /* Adjusted position */
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%; /* Rounded shape */
+  }
+
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+
+  input:checked + .slider:before {
+    -webkit-transform: translateX(14px); /* Adjusted translation */
+    -ms-transform: translateX(14px);
+    transform: translateX(14px);
+  }
+
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 9px;
+  }
+
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  
+</style>
+
 <main id="main" class="main">
     {% if messages %}
                     {% for message in messages  %}
@@ -20,28 +86,55 @@
         </ol>
       </nav>
     </div>
-    <section class="section">
+    <div class="d-inline " >
+      <div class="dropdown mb-2 d-inline">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              Selected user details
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="statusDropdown">
+              <li><a class="dropdown-item" href="{% url 'users_data' %}">All Users</a></li>
+              <li><a class="dropdown-item" href="{% url 'active_user' %}">Active Users</a></li>
+              <li><a class="dropdown-item" href="{% url 'deactivate_user' %}">Deactivated Users</a></li>
+          </ul>
+      </div>
+      <!-- <button type="button" class="btn btn-danger d-inline" id="delete-selected">  
+        Delete</button>
+         -->
+         
+         <button type="button" class="btn btn-danger d-inline" id="delete-selected">
+          &#128465;  
+      </button>
+
+  </div>
+  
+  
+    <section class="section mt-2">
         <div class="row">
             <div class="col-lg-12">        
                 <div class="card">
                     <div class="card-body">
                     <h5 class="card-title">Pending request user data</h5>        
-                    <table class="table datatable   table-hover">   
+                    <table class="table   table-hover">   
                         <thead>
                             <tr>
+                                <th><input type="checkbox" id="select-all"></th>
                                 <th>Name</th>
+                                <th>Username</th>
                                 <th>Email</th>
                                 <th>DOB</th>
                                 <th>Phone</th>
                                 <th>Is Verified</th> 
                                 <th>Status</th>
-                                <th>Approve / Decline</th>
+                                <th>Subscription</th>
+                                {% comment %} <th>Approve / Decline</th> {% endcomment %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for user in users %}
                             <tr>
+                                <td><input type="checkbox" class="user-checkbox" data-username="{{ user.username }}"></td>
                                 <td>{{ user.name }}</td>
+                                <td>{{ user.username }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>{{user.date_of_birth}}</td>
                                 <td>{{user.phone_number}}</td>
@@ -52,18 +145,23 @@
                                       Pending
                                     {% endif %}
                                 </td>
-                                  <td class="text-center">
+                                  {% comment %} <td class="text-center">
                                       {% if user.login_status %}
                                           {{ user.login_status }}
                                       {% else %}
                                         Pending
                                       {% endif %}
+                                  </td> {% endcomment %}
+                                  <td class="text-center">
+                                    <label class="switch">
+                                        <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="window.location.href='{% if user.login_status %}{% url 'decline' user.username %}{% else %}{% url 'approve' user.username %}{% endif %}'">
+                                        <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
+                                    </label>
                                   </td>
-                                  
                                 
                                 
-
-                                  <td><a href="{% url 'approve' user.username %}"class="btn btn-info">Approve</a> &nbsp;&nbsp; <a href="{% url 'decline' user.username %}" class="btn btn-danger">Decline</a></td>
+                                <td>{{ user.sub_status }}</td>       
+                                  {% comment %} <td><a href="{% url 'approve' user.username %}"class="btn btn-info">Approve</a> &nbsp;&nbsp; <a href="{% url 'decline' user.username %}" class="btn btn-danger">Decline</a></td> {% endcomment %}
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -72,34 +170,48 @@
                 </div>
             </div>
         </div>
-
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Open Modal
-          </button>
-          
-          <!-- Modal -->
-          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  Modal content goes here.
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  <!-- Additional buttons if needed -->
-                </div>
-              </div>
-            </div>
-          </div>
-
+     
     </section>
 </main>
+<script>
+  function toggleStatus(checked, username) {
+      var url = '';
+      if (checked) {
+          url = '{% url "approve" user.username %}';
+      } else {
+          url = '{% url "decline" user.username %}';
+      }
+      window.location.href = url;
+  }
+</script>
+<script>
+  // Function to toggle select all checkbox
+  document.getElementById('select-all').addEventListener('change', function() {
+      var checkboxes = document.querySelectorAll('.user-checkbox');
+      checkboxes.forEach(function(checkbox) {
+          checkbox.checked = this.checked;
+      }.bind(this));
+  });
+
+  // Function to handle deletion of selected users
+  document.getElementById('delete-selected').addEventListener('click', function() {
+      var selectedUsers = [];
+      var checkboxes = document.querySelectorAll('.user-checkbox:checked');
+      checkboxes.forEach(function(checkbox) {
+          selectedUsers.push(checkbox.getAttribute('data-username'));
+      });
+
+      // Redirect to delete view with selected users' usernames
+      if (selectedUsers.length > 0) {
+          var url = '{% url "delete_selected_users" %}?usernames=' + selectedUsers.join(',');
+          window.location.href = url;
+      } else {
+          alert('Please select at least one user to delete.');
+      }
+  });
+</script>
+
+
 
  
  
