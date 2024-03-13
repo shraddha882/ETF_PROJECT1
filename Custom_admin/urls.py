@@ -14,7 +14,6 @@ urlpatterns = [
     path('active_user/', active_user, name='active_user'),
     path('admintrans/', admintrans, name='admintrans' ),
     path('deactivate_user/', deactivate_user, name='deactivate_user'),
-    # path('admintrans/',admintrans, name="admintrans"),
     path('adminbuyhistory/',adminbuyhistory, name='adminbuyhistory'),
     path('faq/', faq, name='faq'),
     path('error_404/', error_404, name='error_404'),
