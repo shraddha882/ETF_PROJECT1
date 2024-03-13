@@ -2,20 +2,21 @@
 {% block title %}User details{% endblock title %}
 {% load static %}
 {% block body %}
+ 
 <style>
   .switch {
     position: relative;
     display: inline-block;
-    width: 60px;
-    height: 34px;
+    width: 30px; /* Adjusted width */
+    height: 18px; /* Adjusted height */
   }
-  
+
   .switch input { 
     opacity: 0;
     width: 0;
     height: 0;
   }
-  
+
   .slider {
     position: absolute;
     cursor: pointer;
@@ -24,48 +25,49 @@
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    transition: background-color 0.4s;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 9px; /* Adjusted border-radius */
   }
-  
+
   .slider:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
+    height: 14px; /* Adjusted height */
+    width: 14px; /* Adjusted width */
+    left: 2px; /* Adjusted position */
+    bottom: 2px; /* Adjusted position */
     background-color: white;
-    transition: transform 0.4s;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%; /* Rounded shape */
   }
-  
-  .switch input:checked + .slider {
-    background-color: green; /* Green */
+
+  input:checked + .slider {
+    background-color: #2196F3;
   }
-  
-  .switch input:focus + .slider {
-    box-shadow: 0 0 1px #28a745;
+
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
   }
-  
-  .switch input:checked + .slider:before {
-    transform: translateX(26px);
+
+  input:checked + .slider:before {
+    -webkit-transform: translateX(14px); /* Adjusted translation */
+    -ms-transform: translateX(14px);
+    transform: translateX(14px);
   }
-  
+
   /* Rounded sliders */
   .slider.round {
-    border-radius: 34px;
+    border-radius: 9px;
   }
-  
+
   .slider.round:before {
     border-radius: 50%;
   }
   
-  /* Red slider */
-  .switch input[type="checkbox"].slider.round:checked + .slider:before {
-    background-color: red; /* Red */
-  }
-  
-  
 </style>
+
 <main id="main" class="main">
     {% if messages %}
                     {% for message in messages  %}
@@ -95,7 +97,14 @@
               <li><a class="dropdown-item" href="{% url 'deactivate_user' %}">Deactivated Users</a></li>
           </ul>
       </div>
-      <button type="button" class="btn btn-danger d-inline" id="delete-selected">Delete Selected</button>
+      <!-- <button type="button" class="btn btn-danger d-inline" id="delete-selected">  
+        Delete</button>
+         -->
+         
+         <button type="button" class="btn btn-danger d-inline" id="delete-selected">
+          &#128465;  
+      </button>
+
   </div>
   
   
@@ -105,7 +114,7 @@
                 <div class="card">
                     <div class="card-body">
                     <h5 class="card-title">Pending request user data</h5>        
-                    <table class="table datatable table-hover">   
+                    <table class="table   table-hover">   
                         <thead>
                             <tr>
                                 <th><input type="checkbox" id="select-all"></th>
@@ -161,6 +170,7 @@
                 </div>
             </div>
         </div>
+     
     </section>
 </main>
 <script>
@@ -203,4 +213,8 @@
 
 
 
+ 
+ 
+
+ 
 {% endblock body %}
