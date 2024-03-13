@@ -60,7 +60,7 @@ def users_data(request):
         users = RegisteredUser.objects.all()
         return render(request, 'users_data.html', {'users': users})
     
-
+from django.db import transaction
 # @login_required
 def Approve(request,username):
     update=RegisteredUser.objects.get(username=username)
@@ -72,7 +72,7 @@ def Approve(request,username):
     else:
         update.delete()
     return redirect('users_data')
-
+ 
 # @login_required
 def Decline(request,username):
     update=RegisteredUser.objects.get(username=username)
@@ -84,7 +84,7 @@ def Decline(request,username):
     else:
         update.delete()
     return redirect('users_data')
-
+ 
 def active_user(request):
     active_registered_users = RegisteredUser.objects.filter(login_status=True,is_verified=True)
 
