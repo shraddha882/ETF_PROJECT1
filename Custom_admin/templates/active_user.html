@@ -38,6 +38,7 @@
                                     <th>Phone</th>
                                     <th>IS verified</th>
                                     <th>Status</th>
+                                    <th>Subscription</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -50,6 +51,7 @@
                                     <td>{{ user.phone_number }}</td>
                                     <td>{{ user.is_verified }}</td>
                                     <td>{{ user.login_status }}</td>
+                                    <td>{{ user.sub_status }}</td>       
                                     <td>
                                         <button  type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
                                            Transaction
@@ -77,33 +79,33 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-
                 <div class="row">
                     <div class="col-lg-12">        
                         <div class="card">
                             <div class="card-body" style="overflow-x: auto !important;">
-                                <div id="user_buy_history_url" data-url="{% url 'adminbuyhistory' %}"></div>
+                                {% comment %} <div id="user_buy_history_url" data-url="{% url 'user_buy_history' %}"></div> {% endcomment %}
                                 <h5 class="card-header fw-bolder text-center ">ETF Transactions</h5>
                                 <div class="container-fluid">    
                                     <!-- Buy/Sell Dropdown -->
                                     <div class="row">
-                                        {% comment %} <div class="dropdown col-md-4" >
-                                            <button class="btn btn-outline-info dropdown-toggle bg-transparent" type="button" style="font-size:20px; z-index: 1005;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <div class="dropdown col-md-4" >
+                                            <button class="btn btn-outline-info dropdown-toggle   btn-sm mt-3" type="button" style="font-size:15px; z-index: 1005;" id="transactionTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                                 <span id="selectedOption">All</span>
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="transactionTypeDropdown" style="z-index: 1005;">
-                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('All')">All</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Buy')">Buy</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Sell')">Sell</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('All');">All</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Buy');">Buy</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="selectTransactionType('Sell');">Sell</a></li>
                                             </ul>
-                                        </div> {% endcomment %}
+                                        </div>
                                         <!--Search Bar-->
                                         <div class="form-group has-search col-md-4">
                                             
-                                            <input id="search" type="text" class="form-control" placeholder="Search">
+                                            <input id="search" type="text" class="form-control mt-3" placeholder="Search"  >
                                             
                                         </div>
                                        
+                                        
                                     </div>
                                 </div>
                                 
@@ -111,7 +113,7 @@
                                 <table id="allTable" class="table table-hover mt-3"> 
                                     <thead>                           
                                         <tr>
-                                            
+                                            {% comment %} <th style="white-space: nowrap;">S. no. </th> {% endcomment %}
                                             <th style="white-space: nowrap;">Expand</th>
                                             <th style="white-space: nowrap;">ETF Name</th>
                                             <th style="white-space: nowrap;">Last Transaction</th>
@@ -131,9 +133,112 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        
+                                        {% for b in data_all %}
                                         <tr class="expandable-row">
-                                            
+                                            <td>{{ forloop.counter }}</td>
+                                            <td><button class="expand-btn"><span class="expand-sign">+</span></button></td>
+                                            <td>{{ b.etf_name }}</td>
+                                            <td>{{ b.mod_date }}</td>
+                                            <td>{{ b.total_quantity }}</td>
+                                            <td>₹ {{ b.mod_avg|floatformat:2  }}</td>
+                                            <td>₹ {{ b.current_price|floatformat:2  }}</td>
+                                            <td style="color: 
+                                                {% if b.percent_diff > 0 %}
+                                                    green
+                                                {% elif b.percent_diff < 0 %}
+                                                    red
+                                                {% else %}
+                                                    black
+                                                {% endif %}
+                                                ;"
+                                            >{{ b.percent_diff|floatformat:2 }}%</td>
+        
+                                            {% for key, value in b.20dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    <td>{{ value|floatformat:2  }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for key, value in b.etf_close_minus_20dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for key, value in b.etf_close_div_20dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}%</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+        
+        
+                                            {% for key, value in b.50dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    <td>{{ value|floatformat:2 }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for key, value in b.etf_close_minus_50dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for key, value in b.etf_close_div_50dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}%</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+        
+        
+                                            {% for key, value in b.100dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    <td>{{ value|floatformat:2 }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for key, value in b.etf_close_minus_100dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% for key, value in b.etf_close_div_100dma.items %}
+                                                {% if key == b.etf_name %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}%</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                    
                                         </tr>
                                         <tr class="details-row" style="display: none;">
                                             <td colspan="10">
@@ -156,7 +261,7 @@
                                                 </table>
                                             </td>
                                         </tr>
-                                        
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                                 <!-- Sell Transactions Table (Initially hidden) -->
@@ -202,7 +307,7 @@
                                                     {% endif %}
                                                     ;"
                                                 >{{ b.percent_diff|floatformat:2 }}%</td>
-
+        
                                                 {% for key, value in b.20dma.items %}
                                                     {% if key == b.etf_name %}
                                                         <td>{{ value|floatformat:2  }}</td>
@@ -230,8 +335,8 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endfor %}
-
-
+        
+        
                                                 {% for key, value in b.50dma.items %}
                                                     {% if key == b.etf_name %}
                                                         <td>{{ value|floatformat:2 }}</td>
@@ -259,8 +364,8 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endfor %}
-
-
+        
+        
                                                 {% for key, value in b.100dma.items %}
                                                     {% if key == b.etf_name %}
                                                         <td>{{ value|floatformat:2 }}</td>
@@ -314,7 +419,7 @@
                                         {% endfor %}
                                     </tbody>
                                 </table>
-
+        
                                 <!-- Buy Transactions Table (Initially hidden) -->
                                 <table id="buyTable" class="table table-hover" style="display: none;"> 
                                     <thead>                           
@@ -386,8 +491,8 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endfor %}
-
-
+        
+        
                                                 {% for key, value in b.etf_data_50dma.items %}
                                                     {% if key == b.etf_name %}
                                                         <td>{{ value|floatformat:2 }}</td>
@@ -417,8 +522,8 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endfor %}
-
-
+        
+        
                                                 {% for key, value in b.etf_data_100dma.items %}
                                                     {% if key == b.etf_name %}
                                                         <td>{{ value|floatformat:2 }}</td>
@@ -474,12 +579,10 @@
                                         {% endfor %}
                                     </tbody>
                                 </table>
-                                
                             </div>
                         </div>
                     </div>
                 </div>
-               
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               
@@ -524,6 +627,7 @@
         padding-left: 0;
         margin-right: auto;
         margin-left: auto;
+         
     }
 
 
@@ -638,7 +742,6 @@
     }
       
 </style>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
@@ -691,6 +794,199 @@
         document.getElementById("search").addEventListener("keyup", filterRows);
     });
  </script>
+
+ <script>
+      
+    
+
+    // Function to initialize the page
+      function initializePage() {
+          // Set the default transaction type to 'All' when the page is loaded
+          selectTransactionType('All');
+      }
+  
+      function selectTransactionType(transactionType) {
+          console.log('Transaction type selected:', transactionType); // Debug statement
+          var allTable = document.getElementById('allTable');
+          var buyTable = document.getElementById('buyTable'); // Added buyTable variable
+          var sellTable = document.getElementById('sellTable');
+          var dropdownToggle = document.getElementById('transactionTypeDropdown');
+          var selectedOption = document.getElementById('selectedOption'); // Added selectedOption variable
+          
+          if (transactionType === 'All') {
+              console.log('Displaying All transactions table.'); // Debug statement
+              allTable.style.display = 'table';
+              buyTable.style.display = 'none';
+              sellTable.style.display = 'none';
+              dropdownToggle.innerText = 'All';
+          } else if (transactionType === 'Buy') {
+              console.log('Displaying Buy transactions table.'); // Debug statement
+              allTable.style.display = 'none';
+              buyTable.style.display = 'table';
+              sellTable.style.display = 'none';
+              dropdownToggle.innerText = 'Buy';
+          } else if (transactionType === 'Sell') {
+              console.log('Displaying Sell transactions table.'); // Debug statement
+              allTable.style.display = 'none';
+              buyTable.style.display = 'none';
+              sellTable.style.display = 'table';
+              dropdownToggle.innerText = 'Sell';
+          }
+  
+          // Set font size for the selected option
+          selectedOption.style.fontSize = '100px';
+      }
+  
+  
+      document.addEventListener('DOMContentLoaded', function() {
+          const expandButtons = document.querySelectorAll('.expand-btn');
+          
+          expandButtons.forEach(button => {
+              button.addEventListener('click', function () {
+                  const row = this.closest('.expandable-row');
+                  const detailsRow = row.nextElementSibling;
+                  const ETFName = row.querySelector('td:nth-child(3)').textContent.trim(); // Assuming ETF name is in the third column
+                  const selectedOption = document.getElementById('selectedOption').textContent.trim(); // Get the current selected option
+          
+                  if (detailsRow.style.display === "none" || detailsRow.style.display === "") {
+                      detailsRow.style.display = "table-row";
+                      row.classList.add('table-info');
+                      button.innerHTML = '<span class="expand-sign">-</span>'; // Change button content to minus sign when expanding
+                      fetchDetailsData(selectedOption, ETFName, detailsRow.querySelector('.nested-table')); // Pass ETFName, nested table, and transaction type to fetchDetailsData
+                  } else {
+                      detailsRow.style.display = "none";
+                      row.classList.remove('table-info');
+                      button.innerHTML = '<span class="expand-sign">+</span>'; // Change button content to plus sign when collapsing
+                  }
+          
+                  // Reapply the styles to the expand sign
+                  const expandSign = button.querySelector('.expand-sign');
+                  expandSign.style.fontWeight = 'bold';
+                  expandSign.style.fontSize = '1.6em'; // Adjust font size as needed
+              });
+          });
+          
+      
+          // Function to fetch details data based on selected transaction type
+          function fetchDetailsData(selectedOption, ETFName, detailsRow) {
+              let fetchUrl;
+  
+              fetchUrl = '/customadmin/admintrans/';
+              // Fetch data from the corresponding URL
+              const csrftoken = getCookie('csrftoken');
+              const requestBody = {
+                  ETFName: ETFName,
+                  selectedOption: selectedOption,
+              };
+  
+              fetch(fetchUrl, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRFToken': csrftoken
+                  },
+                  body: JSON.stringify(requestBody)
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data && data.detailed_data) {
+                      
+                      updateDetailedData(data.detailed_data, detailsRow);
+                  } else {
+                      console.error('Invalid or missing detailed data:', data);
+                  }
+              })
+              .catch(error => console.error('Error fetching details:', error));
+          }
+  
+          
+          
+              
+          function updateDetailedData(data, detailsRow) {
+              const tableBody = detailsRow.querySelector('tbody');
+              tableBody.innerHTML = '';
+              data.forEach(entry => {
+                  const formattedDateTime = formatDateTime(entry.Date_time); // Format the date-time
+                  console.log('Data should be shown:',data);
+                  // Format Cost
+                  const costString = entry.Cost.toString(); // Convert cost to string
+                  const costParts = costString.split('.'); // Split the string into parts before and after the decimal point
+                  const costFormattedDecimal = costParts.length > 1 ? costParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                  const formattedCost = ` ₹ ${costParts[0]}.${costFormattedDecimal.padEnd(2, '0')}`;
+          
+                  // Format Purchase Close Value
+                  const purchaseCloseString = entry.Purchase_close_value.toString(); // Convert purchase close value to string
+                  const purchaseCloseParts = purchaseCloseString.split('.'); // Split the string into parts before and after the decimal point
+                  const purchaseCloseFormattedDecimal = purchaseCloseParts.length > 1 ? purchaseCloseParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                  const formattedPurchaseClose = ` ${purchaseCloseParts[0]}.${purchaseCloseFormattedDecimal.padEnd(2, '0')}`;
+          
+                  // Format CurrCost
+                  const currCostString = entry.CurrCost.toString(); // Convert CurrCost to string
+                  const currCostParts = currCostString.split('.'); // Split the string into parts before and after the decimal point
+                  const currCostFormattedDecimal = currCostParts.length > 1 ? currCostParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                  const formattedCurrCost = ` ₹ ${currCostParts[0]}.${currCostFormattedDecimal.padEnd(2, '0')} `;
+          
+                  // Format CurrPrice
+                  const currPriceString = entry.CurrPrice.toString(); // Convert CurrPrice to string
+                  const currPriceParts = currPriceString.split('.'); // Split the string into parts before and after the decimal point
+                  const currPriceFormattedDecimal = currPriceParts.length > 1 ? currPriceParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                  const formattedCurrPrice = ` ${currPriceParts[0]}.${currPriceFormattedDecimal.padEnd(2, '0')}`;
+          
+                  const row = document.createElement('tr');
+                  row.innerHTML = `
+                      <td>${formattedDateTime}</td>
+                      <td>${entry.Quantity}</td>
+                      <td>${formattedCost}</td> <!-- Display Cost with exactly 2 digits after the decimal point -->
+                      <td>${formattedPurchaseClose}</td> <!-- Display Purchase Close Value with exactly 2 digits after the decimal point -->
+                      <td>${formattedCurrCost}</td> <!-- Display CurrCost with exactly 2 digits after the decimal point -->
+                      <td>${formattedCurrPrice}</td> <!-- Display CurrPrice with exactly 2 digits after the decimal point -->
+                      <td style="color: 
+                      ${entry.PercentDiff > 0 ? 'green' : entry.PercentDiff < 0 ? 'red' : 'black'};">${entry.PercentDiff}%</td> <!-- Percentage Difference between Current cost and Buy Cost -->
+                      <td style="color: ${entry.trans_type === 'BUY' ? 'green' : 'red'};"><strong>${entry.trans_type}</strong></td>
+                      `;
+          
+                  tableBody.appendChild(row);
+              });
+              detailsRow.style.display = "";
+          }
+          
+          
+          
+          // Function to format date-time
+          function formatDateTime(dateTimeString) {
+              const options = { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: '2-digit', 
+                  
+              };
+              const dateTime = new Date(dateTimeString);
+              return dateTime.toLocaleString('en-US', options);
+          }
+          
+      
+          // Function to get CSRF token from cookie
+          function getCookie(name) {
+              let cookieValue = null;
+              if (document.cookie && document.cookie !== '') {
+                  const cookies = document.cookie.split(';');
+                  for (let i = 0; i < cookies.length; i++) {
+                      const cookie = cookies[i].trim();
+                      // Does this cookie string begin with the name we want?
+                      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                          break;
+                      }
+                  }
+              }
+              return cookieValue;
+          }
+      });
+      
+      
+         
+  
+  </script>
     
 <script>
     // Function to handle transaction button click
@@ -698,7 +994,7 @@
         var name = row.cells[1].innerText; // Get the value of the first column
         const csrftoken = getCookie('csrftoken');
         // Send the value to the backend URL using fetch API
-        fetch('/customadmin/usertrans/', {
+        fetch('/customadmin/admintrans/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -714,7 +1010,7 @@
         })
         .then(data => {
             if (!data || !data.dataall) {
-                throw new Error('Invalid response format or missing dataall property');
+                throw new Error('Invalid response format or missing data_all property');
             }
             populateTable(data.dataall);
         })
@@ -740,14 +1036,14 @@
                 <td>₹ ${entry.mod_avg.toFixed(2)}</td>
                 <td>₹ ${entry.current_price.toFixed(2)}</td>
                 <td style="color: ${entry.percent_diff > 0 ? 'green' : entry.percent_diff < 0 ? 'red' : 'black'};">${entry.percent_diff.toFixed(2)}%</td>
-                <td>${entry['20dma'][entry.etf_name]}</td>
-                <td>${entry.etf_close_minus_20dma[entry.etf_name]}</td>
+                <td>${entry['20dma'][entry.etf_name].toFixed(2)}</td>
+                <td>${entry.etf_close_minus_20dma[entry.etf_name].toFixed(2)}</td>
                 <td>${entry.etf_close_div_20dma[entry.etf_name].toFixed(2)}%</td>
-                <td>${entry['50dma'][entry.etf_name]}</td>
-                <td>${entry.etf_close_minus_50dma[entry.etf_name]}</td>
+                <td>${entry['50dma'][entry.etf_name].toFixed(2)}</td>
+                <td>${entry.etf_close_minus_50dma[entry.etf_name].toFixed(2)}</td>
                 <td>${entry.etf_close_div_50dma[entry.etf_name].toFixed(2)}%</td>
-                <td>${entry['100dma'][entry.etf_name]}</td>
-                <td>${entry.etf_close_minus_100dma[entry.etf_name]}</td>
+                <td>${entry['100dma'][entry.etf_name].toFixed(2)}</td>
+                <td>${entry.etf_close_minus_100dma[entry.etf_name].toFixed(2)}</td>
                 <td>${entry.etf_close_div_100dma[entry.etf_name].toFixed(2)}%</td>
             `;
 

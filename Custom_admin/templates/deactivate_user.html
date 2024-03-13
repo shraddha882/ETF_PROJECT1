@@ -39,6 +39,7 @@
                                 <th>Phone</th>
                                 <th>IS verified</th>
                                 <th>Status</th>
+                                <th>Subscription</th>
                                 <th>Action</th>
                       
                             </tr>
@@ -54,6 +55,7 @@
                                 <td>{{ user.phone_number}}</td>
                                 <td>{{ user.is_verified }}</td>
                                 <td>{{ user.login_status }}</td>
+                                <td>{{ user.sub_status }}</td>       
                                 <td><button type="button" class="btn btn-danger d-inline" id="delete-selected">Delete</button></td>
                             </tr>
                             {% endfor %}

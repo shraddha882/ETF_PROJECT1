@@ -125,9 +125,7 @@ def active_user(request):
         'data' : active_registered_users,
         
     }
-
-
-    
+ 
     return render(request, 'active_user.html', context)
 
 def aggregate_buy_transactions(user_instance):
@@ -189,10 +187,10 @@ def admintrans(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print(data)
+            # print(data)
             user = data.get('name')
             user_instance = RegisteredUser.objects.get(username=user)
-            print(user_instance)
+            # print(user_instance)
         except RegisteredUser.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
         
@@ -205,7 +203,7 @@ def admintrans(request):
     
         aggregated_data_all = aggregate_all_transactions(user_instance)
         modified_data_all = modify_data(aggregated_data_all)
-        print(modified_data_all)
+        # print(modified_data_all)
         context = {
             'data_all': modified_data_all,
             'data_buy': modified_data_buy,
