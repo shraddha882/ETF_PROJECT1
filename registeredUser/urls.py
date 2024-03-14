@@ -15,9 +15,9 @@ urlpatterns = [
     path('etftables/<str:table>/', views.etftables,name="etftables"),
     path('usercommoditiesdd/',views.usercommoditiesdd, name="usercommoditiesdropdown"),
     path('usertransactions/',views.Usertrans, name="usertrans"),
-    path('usertransdetails/', views.usertransdetails, name='usertransdetails'),
-    path('userallhistory/', views.useralltrans, name='user_all_history'),
-    path('usersellhistory/', views.user_sell_trans, name='user_sell_history'),
+    path('usertransdetails/', views.userbuydetails, name='userbuydetails'),
+    path('userallhistory/', views.useralldetails, name='useralldetails'),
+    path('usersellhistory/', views.userselldetails, name='userselldetails'),
     path('selletf/', views.usersell, name = 'sell_etf'),
     # path('buy_sell/', views.buy_sell, name = 'buy_sell'),
     

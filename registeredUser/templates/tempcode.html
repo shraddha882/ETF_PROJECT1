@@ -800,4 +800,93 @@
                         });      
                   
                 </script>
+
                 
+                <script>
+                    // Function to handle transaction button click
+                    function handleTransactionClick(row) {
+                        var name = row.cells[1].innerText; // Get the value of the first column
+                        const csrftoken = getCookie('csrftoken');
+                        // Send the value to the backend URL using fetch API
+                        fetch('/customadmin/admintrans/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrftoken
+                            },
+                            body: JSON.stringify({ name: name }),
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (!data || !data.dataall) {
+                                throw new Error('Invalid response format or missing data_all property');
+                            }
+                            populateTable(data.dataall);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    }
+                
+                    function populateTable(data) {
+                        var tableBody = document.querySelector('#allTable tbody');
+                        tableBody.innerHTML = ''; // Clear existing table rows
+                        data.forEach(entry => {
+                            var row = document.createElement('tr');
+                            row.classList.add('expandable-row');
+                            console.log('Data should be shown:',data);
+                            // Add table cells
+                            row.innerHTML = `
+                                
+                                <td><button class="expand-btn"><span class="expand-sign">+</span></button></td>
+                                <td>${entry.etf_name}</td>
+                                <td>${entry.mod_date}</td>
+                                <td>${entry.total_quantity}</td>
+                                <td>₹ ${entry.mod_avg.toFixed(2)}</td>
+                                <td>₹ ${entry.current_price.toFixed(2)}</td>
+                                <td style="color: ${entry.percent_diff > 0 ? 'green' : entry.percent_diff < 0 ? 'red' : 'black'};">${entry.percent_diff.toFixed(2)}%</td>
+                                <td>${entry['20dma'][entry.etf_name].toFixed(2)}</td>
+                                <td>${entry.etf_close_minus_20dma[entry.etf_name].toFixed(2)}</td>
+                                <td>${entry.etf_close_div_20dma[entry.etf_name].toFixed(2)}%</td>
+                                <td>${entry['50dma'][entry.etf_name].toFixed(2)}</td>
+                                <td>${entry.etf_close_minus_50dma[entry.etf_name].toFixed(2)}</td>
+                                <td>${entry.etf_close_div_50dma[entry.etf_name].toFixed(2)}%</td>
+                                <td>${entry['100dma'][entry.etf_name].toFixed(2)}</td>
+                                <td>${entry.etf_close_minus_100dma[entry.etf_name].toFixed(2)}</td>
+                                <td>${entry.etf_close_div_100dma[entry.etf_name].toFixed(2)}%</td>
+                            `;
+                
+                            tableBody.appendChild(row);
+                        });
+                    }
+                
+                    // Function to get CSRF token from cookie
+                    function getCookie(name) {
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            const cookies = document.cookie.split(';');
+                            for (let i = 0; i < cookies.length; i++) {
+                                const cookie = cookies[i].trim();
+                                // Does this cookie string begin with the name we want?
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+                
+                    // Add event listener to all transaction buttons
+                    document.querySelectorAll('.btn.btn-primary').forEach(button => {
+                        button.addEventListener('click', function() {
+                            var row = this.closest('tr'); // Get the parent row of the clicked button
+                            handleTransactionClick(row);
+                        });
+                    });
+                </script>

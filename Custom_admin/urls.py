@@ -43,5 +43,8 @@ urlpatterns = [
     path('stocks/commoins/', commoietfns,name="commoietfns"),
     path('stocks/axistecns/', axistecns,name="axistecns"),
     path('stocks/abslnnns/', abslnn50etns,name="abslnn50etns"),
+    path('admintransdetails/', adminbuydetails, name='adminbuydetails'),
+    path('adminallhistory/', adminalldetails, name='adminalldetails'),
+    path('adminsellhistory/', adminselldetails, name='adminselldetails'),
     
 ]
