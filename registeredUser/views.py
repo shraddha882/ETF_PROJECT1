@@ -303,91 +303,12 @@ def modify_data(aggregated_data):
 
 
 
-def usertransdetails(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            print(data)
-            etf_name = data.get('ETFName')
-            etfname = etf_name.upper()
-            selectedOption = data.get('selectedOption')
-            print(etf_name,selectedOption)
-            
-            etf_model = globals().get(etfname)
-            if etf_model is None:
-                return JsonResponse({'error': 'Invalid ETF name'}, status=400)
-
-            if selectedOption == 'Buy':
-                # Fetch only BUY transactions
-                detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='BUY').values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
-                
-                for entry in detailed_data:
-                    entry['Date'] = entry['Date_time'].date()
-                    
-                    try:
-                        # Fetch current price of the ETF
-                        curr_price = AllETF.objects.get(Etfnames=etf_name).close
-                    except ObjectDoesNotExist:
-                        return JsonResponse({'error': 'ETF data not found'}, status=400)
-                    
-                    # Calculate current cost and percentage difference
-                    curr_cost = curr_price * entry['Quantity']
-                    entry['CurrPrice'] = curr_price
-                    entry['CurrCost'] = curr_cost
-                    entry['PercentDiff'] = ((curr_cost - entry['Cost']) / entry['Cost']) * 100
-                    
-                return JsonResponse({'detailed_data': list(detailed_data)})
-            
-            elif selectedOption == 'Sell':
-                # Fetch only SELL transactions
-                detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='SELL').values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
-                
-                for entry in detailed_data:
-                    entry['Date'] = entry['Date_time'].date()
-                    
-                    try:
-                        # Fetch current price of the ETF
-                        curr_price = AllETF.objects.get(Etfnames=etf_name).close
-                    except ObjectDoesNotExist:
-                        return JsonResponse({'error': 'ETF data not found'}, status=400)
-                    
-                    # Calculate current cost and percentage difference
-                    curr_cost = curr_price * entry['Quantity']
-                    entry['CurrPrice'] = curr_price
-                    entry['CurrCost'] = curr_cost
-                    entry['PercentDiff'] = ((curr_cost - entry['Cost']) / entry['Cost']) * 100
-                    
-                return JsonResponse({'detailed_data': list(detailed_data)})
-            
-            elif selectedOption == 'All':
-                detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value','trans_type')
-            
-                for entry in detailed_data:
-                    entry['Date'] = entry['Date_time'].date()
-                    
-                    try:
-                        # Fetch current price of the ETF
-                        curr_price = AllETF.objects.get(Etfnames=etf_name).close
-                    except ObjectDoesNotExist:
-                        return JsonResponse({'error': 'ETF data not found'}, status=400)
-                    
-                    # Calculate current cost and percentage difference
-                    curr_cost = curr_price * entry['Quantity']
-                    entry['CurrPrice'] = curr_price
-                    entry['CurrCost'] = curr_cost
-                    entry['PercentDiff'] = ((curr_cost - entry['Cost']) / entry['Cost']) * 100
-                    
-                return JsonResponse({'detailed_data': list(detailed_data)})
-        except json.decoder.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format in request body'}, status=400)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-def user_sell_trans(request):
+def userbuydetails(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             etf_name = data.get('ETFName')
+            username = request.user.username
 
             etfname = etf_name.upper()
             try:
@@ -396,7 +317,7 @@ def user_sell_trans(request):
                 return JsonResponse({'error': 'Invalid ETF name'}, status=400)
             
             # Fetch only SELL transactions
-            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name, trans_type='SELL').values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
+            detailed_data = UserBuyetf.objects.filter(Username__username=username,Etf_purchased__Etfnames=etf_name, trans_type='Buy').values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
             
             for entry in detailed_data:
                 entry['Date'] = entry['Date_time'].date()
@@ -419,21 +340,57 @@ def user_sell_trans(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-def useralltrans(request):
+def userselldetails(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             etf_name = data.get('ETFName')
-
+            username = request.user.username
             etfname = etf_name.upper()
-            print(data)
+            try:
+                etf_model = globals()[etfname]
+            except KeyError:
+                return JsonResponse({'error': 'Invalid ETF name'}, status=400)
+            
+            # Fetch only SELL transactions
+            detailed_data = UserBuyetf.objects.filter(Username__username=username,Etf_purchased__Etfnames=etf_name, trans_type='SELL').values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value', 'trans_type')
+            
+            for entry in detailed_data:
+                entry['Date'] = entry['Date_time'].date()
+                
+                try:
+                    # Fetch current price of the ETF
+                    curr_price = AllETF.objects.get(Etfnames=etf_name).close
+                except ObjectDoesNotExist:
+                    return JsonResponse({'error': 'ETF data not found'}, status=400)
+                
+                # Calculate current cost and percentage difference
+                curr_cost = curr_price * entry['Quantity']
+                entry['CurrPrice'] = curr_price
+                entry['CurrCost'] = curr_cost
+                entry['PercentDiff'] = ((curr_cost - entry['Cost']) / entry['Cost']) * 100
+                
+            return JsonResponse({'detailed_data': list(detailed_data)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def useralldetails(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            etf_name = data.get('ETFName')
+            username = request.user.username
+            etfname = etf_name.upper()
+            print(username)
             try:
                 etf_model = globals()[etfname]
             except KeyError:
                 return JsonResponse({'error': 'Invalid ETF name'}, status=400)
             
             
-            detailed_data = UserBuyetf.objects.filter(Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value','trans_type')
+            detailed_data = UserBuyetf.objects.filter(Username__username=username,Etf_purchased__Etfnames=etf_name).values('Date_time', 'Quantity', 'Cost', 'Purchase_close_value','trans_type')
             
             for entry in detailed_data:
                 entry['Date'] = entry['Date_time'].date()
