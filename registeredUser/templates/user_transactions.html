@@ -63,7 +63,7 @@
                             </thead>
                             <tbody>
                                 {% for b in data_all %}
-                                <tr class="expandable-row">
+                                <tr class="expandable-row-all">
                                     <td>{{ forloop.counter }}</td>
                                     <td><button class="expand-btn"><span class="expand-sign">+</span></button></td>
                                     <td>{{ b.etf_name }}</td>
@@ -169,7 +169,7 @@
                                     {% endfor %}
                             
                                 </tr>
-                                <tr class="details-row" style="display: none;">
+                                <tr class="details-row-all" style="display: none;">
                                     <td colspan="10">
                                         <table class="table table-light nested-table">
                                             <thead>
@@ -218,7 +218,7 @@
                             </thead>
                             <tbody>
                                 {% for b in data_sell %}
-                                    <tr class="expandable-row">
+                                    <tr class="expandable-row-sell">
                                         <td>{{ forloop.counter }}</td>
                                         <td><button class="expand-btn"><span class="expand-sign">+</span></button></td>
                                         <td>{{ b.etf_name }}</td>
@@ -324,7 +324,7 @@
                                         {% endfor %}
                                 
                                     </tr>
-                                <tr class="details-row" style="display: none;">
+                                <tr class="details-row-sell" style="display: none;">
                                     <td colspan="10">
                                         <table class="table table-light nested-table">
                                             <thead>
@@ -374,7 +374,7 @@
                             </thead>
                             <tbody>
                                 {% for b in data_buy %}
-                                    <tr class="expandable-row">
+                                    <tr class="expandable-row-buy">
                                         <td>{{ forloop.counter }}</td>
                                         <td><button class="expand-btn"><span class="expand-sign">+</span></button></td>
                                         <td>{{ b.etf_name }}</td>
@@ -484,7 +484,7 @@
                                         {% endfor %}
                                 
                                     </tr>
-                                <tr class="details-row" style="display: none;">
+                                <tr class="details-row-buy" style="display: none;">
                                     <td colspan="10">
                                         <table class="table table-light nested-table">
                                             <thead>
@@ -695,7 +695,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                <h5 class="modal-title" id="errorModalLabel">Message</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -937,19 +937,46 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const expandButtons = document.querySelectorAll('.expand-btn');
-        
+    
         expandButtons.forEach(button => {
             button.addEventListener('click', function () {
-                const row = this.closest('.expandable-row');
+                // Determine the parent table of the clicked button
+                const parentTable = this.closest('table');
+                console.log(parentTable);
+                // Determine the class name for expandable rows and details rows based on the parent table
+                let expandableRowClass, detailsRowClass;
+                if (parentTable.id === 'allTable') {
+                    expandableRowClass = 'expandable-row-all';
+                    detailsRowClass = 'details-row-all';
+                } else if (parentTable.id === 'buyTable') {
+                    expandableRowClass = 'expandable-row-buy';
+                    detailsRowClass = 'details-row-buy';
+                } else if (parentTable.id === 'sellTable') {
+                    expandableRowClass = 'expandable-row-sell';
+                    detailsRowClass = 'details-row-sell';
+                }
+    
+                // Find the corresponding expandable row and details row
+                const row = this.closest('.' + expandableRowClass);
                 const detailsRow = row.nextElementSibling;
-                const ETFName = row.querySelector('td:nth-child(3)').textContent.trim(); // Assuming ETF name is in the third column
-                const selectedOption = document.getElementById('selectedOption').textContent.trim(); // Get the current selected option
-        
+    
+                // Extract ETF Name from the row
+                const ETFName = row.querySelector('td:nth-child(3)').textContent.trim();
+    
+                // Toggle display of details row
                 if (detailsRow.style.display === "none" || detailsRow.style.display === "") {
                     detailsRow.style.display = "table-row";
                     row.classList.add('table-info');
                     button.innerHTML = '<span class="expand-sign">-</span>'; // Change button content to minus sign when expanding
-                    fetchDetailsData(selectedOption, ETFName, detailsRow.querySelector('.nested-table')); // Pass ETFName, nested table, and transaction type to fetchDetailsData
+    
+                    // Fetch details based on the parent table
+                    if (parentTable.id === 'allTable') {
+                        fetchDetailsAll(ETFName, detailsRow.querySelector('.nested-table'));
+                    } else if (parentTable.id === 'buyTable') {
+                        fetchDetailsBuy(ETFName, detailsRow.querySelector('.nested-table'));
+                    } else if (parentTable.id === 'sellTable') {
+                        fetchDetailsSell(ETFName, detailsRow.querySelector('.nested-table'));
+                    }
                 } else {
                     detailsRow.style.display = "none";
                     row.classList.remove('table-info');
@@ -965,7 +992,7 @@
         
     
         // Function to fetch details data based on selected transaction type
-        function fetchDetailsData(selectedOption, ETFName, detailsRow) {
+        function fetchDetailsBuy(ETFName, detailsRow) {
             let fetchUrl;
 
             fetchUrl = '/registereduser/usertransdetails/';
@@ -973,7 +1000,6 @@
             const csrftoken = getCookie('csrftoken');
             const requestBody = {
                 ETFName: ETFName,
-                selectedOption: selectedOption,
             };
 
             fetch(fetchUrl, {
@@ -988,7 +1014,7 @@
             .then(data => {
                 if (data && data.detailed_data) {
                     
-                    updateDetailedData(data.detailed_data, detailsRow);
+                    updateDetailsBuy(data.detailed_data, detailsRow);
                 } else {
                     console.error('Invalid or missing detailed data:', data);
                 }
@@ -999,7 +1025,7 @@
         
         
             
-        function updateDetailedData(data, detailsRow) {
+        function updateDetailsBuy(data, detailsRow) {
             const tableBody = detailsRow.querySelector('tbody');
             tableBody.innerHTML = '';
             data.forEach(entry => {
@@ -1046,7 +1072,173 @@
             });
             detailsRow.style.display = "";
         }
+
+        // Function to fetch details data based on selected transaction type
+        function fetchDetailsSell( ETFName, detailsRow) {
+            let fetchUrl;
+
+            fetchUrl = '/registereduser/usersellhistory/';
+            // Fetch data from the corresponding URL
+            const csrftoken = getCookie('csrftoken');
+            const requestBody = {
+                ETFName: ETFName,
+                
+            };
+
+            fetch(fetchUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.detailed_data) {
+                    
+                    updateDetailsSell(data.detailed_data, detailsRow);
+                } else {
+                    console.error('Invalid or missing detailed data:', data);
+                }
+            })
+            .catch(error => console.error('Error fetching details:', error));
+        }
+
         
+        
+            
+        function updateDetailsSell(data, detailsRow) {
+            const tableBody = detailsRow.querySelector('tbody');
+            tableBody.innerHTML = '';
+            data.forEach(entry => {
+                const formattedDateTime = formatDateTime(entry.Date_time); // Format the date-time
+                console.log('Data should be shown:',data);
+                // Format Cost
+                const costString = entry.Cost.toString(); // Convert cost to string
+                const costParts = costString.split('.'); // Split the string into parts before and after the decimal point
+                const costFormattedDecimal = costParts.length > 1 ? costParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCost = ` ₹ ${costParts[0]}.${costFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format Purchase Close Value
+                const purchaseCloseString = entry.Purchase_close_value.toString(); // Convert purchase close value to string
+                const purchaseCloseParts = purchaseCloseString.split('.'); // Split the string into parts before and after the decimal point
+                const purchaseCloseFormattedDecimal = purchaseCloseParts.length > 1 ? purchaseCloseParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedPurchaseClose = ` ${purchaseCloseParts[0]}.${purchaseCloseFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format CurrCost
+                const currCostString = entry.CurrCost.toString(); // Convert CurrCost to string
+                const currCostParts = currCostString.split('.'); // Split the string into parts before and after the decimal point
+                const currCostFormattedDecimal = currCostParts.length > 1 ? currCostParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCurrCost = ` ₹ ${currCostParts[0]}.${currCostFormattedDecimal.padEnd(2, '0')} `;
+        
+                // Format CurrPrice
+                const currPriceString = entry.CurrPrice.toString(); // Convert CurrPrice to string
+                const currPriceParts = currPriceString.split('.'); // Split the string into parts before and after the decimal point
+                const currPriceFormattedDecimal = currPriceParts.length > 1 ? currPriceParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCurrPrice = ` ${currPriceParts[0]}.${currPriceFormattedDecimal.padEnd(2, '0')}`;
+        
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formattedDateTime}</td>
+                    <td>${entry.Quantity}</td>
+                    <td>${formattedCost}</td> <!-- Display Cost with exactly 2 digits after the decimal point -->
+                    <td>${formattedPurchaseClose}</td> <!-- Display Purchase Close Value with exactly 2 digits after the decimal point -->
+                    <td>${formattedCurrCost}</td> <!-- Display CurrCost with exactly 2 digits after the decimal point -->
+                    <td>${formattedCurrPrice}</td> <!-- Display CurrPrice with exactly 2 digits after the decimal point -->
+                    <td style="color: 
+                    ${entry.PercentDiff > 0 ? 'green' : entry.PercentDiff < 0 ? 'red' : 'black'};">${entry.PercentDiff}%</td> <!-- Percentage Difference between Current cost and Buy Cost -->
+                    <td style="color: ${entry.trans_type === 'BUY' ? 'green' : 'red'};"><strong>${entry.trans_type}</strong></td>
+                    `;
+        
+                tableBody.appendChild(row);
+            });
+            detailsRow.style.display = "";
+        }
+
+        // Function to fetch details data based on selected transaction type
+        function fetchDetailsAll( ETFName, detailsRow) {
+            let fetchUrl;
+
+            fetchUrl = '/registereduser/userallhistory/';
+            // Fetch data from the corresponding URL
+            const csrftoken = getCookie('csrftoken');
+            const requestBody = {
+                ETFName: ETFName,
+                
+            };
+
+            fetch(fetchUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.detailed_data) {
+                    
+                    updateDetailsAll(data.detailed_data, detailsRow);
+                } else {
+                    console.error('Invalid or missing detailed data:', data);
+                }
+            })
+            .catch(error => console.error('Error fetching details:', error));
+        }
+
+        
+        
+            
+        function updateDetailsAll(data, detailsRow) {
+            const tableBody = detailsRow.querySelector('tbody');
+            tableBody.innerHTML = '';
+            data.forEach(entry => {
+                const formattedDateTime = formatDateTime(entry.Date_time); // Format the date-time
+                console.log('Data should be shown:',data);
+                // Format Cost
+                const costString = entry.Cost.toString(); // Convert cost to string
+                const costParts = costString.split('.'); // Split the string into parts before and after the decimal point
+                const costFormattedDecimal = costParts.length > 1 ? costParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCost = ` ₹ ${costParts[0]}.${costFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format Purchase Close Value
+                const purchaseCloseString = entry.Purchase_close_value.toString(); // Convert purchase close value to string
+                const purchaseCloseParts = purchaseCloseString.split('.'); // Split the string into parts before and after the decimal point
+                const purchaseCloseFormattedDecimal = purchaseCloseParts.length > 1 ? purchaseCloseParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedPurchaseClose = ` ${purchaseCloseParts[0]}.${purchaseCloseFormattedDecimal.padEnd(2, '0')}`;
+        
+                // Format CurrCost
+                const currCostString = entry.CurrCost.toString(); // Convert CurrCost to string
+                const currCostParts = currCostString.split('.'); // Split the string into parts before and after the decimal point
+                const currCostFormattedDecimal = currCostParts.length > 1 ? currCostParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCurrCost = ` ₹ ${currCostParts[0]}.${currCostFormattedDecimal.padEnd(2, '0')} `;
+        
+                // Format CurrPrice
+                const currPriceString = entry.CurrPrice.toString(); // Convert CurrPrice to string
+                const currPriceParts = currPriceString.split('.'); // Split the string into parts before and after the decimal point
+                const currPriceFormattedDecimal = currPriceParts.length > 1 ? currPriceParts[1].substring(0, 2) : '00'; // Ensure exactly two decimal places
+                const formattedCurrPrice = ` ${currPriceParts[0]}.${currPriceFormattedDecimal.padEnd(2, '0')}`;
+        
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formattedDateTime}</td>
+                    <td>${entry.Quantity}</td>
+                    <td>${formattedCost}</td> <!-- Display Cost with exactly 2 digits after the decimal point -->
+                    <td>${formattedPurchaseClose}</td> <!-- Display Purchase Close Value with exactly 2 digits after the decimal point -->
+                    <td>${formattedCurrCost}</td> <!-- Display CurrCost with exactly 2 digits after the decimal point -->
+                    <td>${formattedCurrPrice}</td> <!-- Display CurrPrice with exactly 2 digits after the decimal point -->
+                    <td style="color: 
+                    ${entry.PercentDiff > 0 ? 'green' : entry.PercentDiff < 0 ? 'red' : 'black'};">${entry.PercentDiff}%</td> <!-- Percentage Difference between Current cost and Buy Cost -->
+                    <td style="color: ${entry.trans_type === 'BUY' ? 'green' : 'red'};"><strong>${entry.trans_type}</strong></td>
+                    `;
+        
+                tableBody.appendChild(row);
+            });
+            detailsRow.style.display = "";
+        }
+
         
         
         // Function to format date-time

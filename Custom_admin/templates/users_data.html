@@ -69,24 +69,24 @@
 </style>
 
 <main id="main" class="main">
-    {% if messages %}
-                    {% for message in messages  %}
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <strong> {{message}} </strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
-    {% endif %}
-    <div class="pagetitle">
+  {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>{{message}}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+  {% endif %}
+  <div class="pagetitle">
       <h1>User details</h1>
       <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url "admindashboard" %}">Home</a></li>
-          <li class="breadcrumb-item active">User Data</li>
-        </ol>
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url "admindashboard" %}">Home</a></li>
+              <li class="breadcrumb-item active">User Data</li>
+          </ol>
       </nav>
-    </div>
-    <div class="d-inline " >
+  </div>
+  <div class="d-inline ">
       <div class="dropdown mb-2 d-inline">
           <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               Selected user details
@@ -97,107 +97,108 @@
               <li><a class="dropdown-item" href="{% url 'deactivate_user' %}">Deactivated Users</a></li>
           </ul>
       </div>
-      <!-- <button type="button" class="btn btn-danger d-inline" id="delete-selected">  
-        Delete</button>
-         -->
-         
-         <button type="button" class="btn btn-danger d-inline" id="delete-selected">
-          &#128465;  
-      </button>
 
+      <button type="button" class="btn btn-danger d-inline" id="delete-selected" style="display: none !important">
+          &#128465;
+      </button>
   </div>
-  
-  
-    <section class="section mt-2">
-        <div class="row">
-            <div class="col-lg-12">        
-                <div class="card">
-                    <div class="card-body">
-                    <h5 class="card-title">Pending request user data</h5>        
-                    <table class="table   table-hover">   
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id="select-all"></th>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>DOB</th>
-                                <th>Phone</th>
-                                <th>Is Verified</th> 
-                                <th>Status</th>
-                                <th>Subscription</th>
-                                {% comment %} <th>Approve / Decline</th> {% endcomment %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for user in users %}
-                            <tr>
-                                <td><input type="checkbox" class="user-checkbox" data-username="{{ user.username }}"></td>
-                                <td>{{ user.name }}</td>
-                                <td>{{ user.username }}</td>
-                                <td>{{ user.email }}</td>
-                                <td>{{user.date_of_birth}}</td>
-                                <td>{{user.phone_number}}</td>
-                                <td class="text-center">
-                                    {% if user.is_verified %}
-                                      {{user.is_verified}}
-                                    {% else %}
-                                      Pending
-                                    {% endif %}
-                                </td>
-                                  {% comment %} <td class="text-center">
-                                      {% if user.login_status %}
-                                          {{ user.login_status }}
-                                      {% else %}
-                                        Pending
-                                      {% endif %}
-                                  </td> {% endcomment %}
+
+  <section class="section mt-2">
+      <div class="row">
+          <div class="col-lg-12">
+              <div class="card">
+                  <div class="card-body">
+                      <h5 class="card-title">Pending request user data</h5>
+                      <table class="table   table-hover">
+                          <thead>
+                              <tr>
+                                  <th><input type="checkbox" id="select-all"></th>
+                                  <th>Name</th>
+                                  <th>Username</th>
+                                  <th>Email</th>
+                                  <th>DOB</th>
+                                  <th>Phone</th>
+                                  <th>Is Verified</th>
+                                  <th>Status</th>
+                                  <th>Subscription</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {% for user in users %}
+                              <tr>
+                                  <td><input type="checkbox" class="user-checkbox" data-username="{{ user.username }}"></td>
+                                  <td>{{ user.name }}</td>
+                                  <td>{{ user.username }}</td>
+                                  <td>{{ user.email }}</td>
+                                  <td>{{user.date_of_birth}}</td>
+                                  <td>{{user.phone_number}}</td>
                                   <td class="text-center">
-                                    <label class="switch">
-                                        <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="window.location.href='{% if user.login_status %}{% url 'decline' user.username %}{% else %}{% url 'approve' user.username %}{% endif %}'">
-                                        <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
-                                    </label>
+                                      {% if user.is_verified %}
+                                          {{user.is_verified}}
+                                      {% else %}
+                                          Pending
+                                      {% endif %}
                                   </td>
-                                
-                                
-                                <td>{{ user.sub_status }}</td>       
-                                  {% comment %} <td><a href="{% url 'approve' user.username %}"class="btn btn-info">Approve</a> &nbsp;&nbsp; <a href="{% url 'decline' user.username %}" class="btn btn-danger">Decline</a></td> {% endcomment %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-     
-    </section>
+                                  <td class="text-center">
+                                      <label class="switch">
+                                          <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}')">
+                                          <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
+                                      </label>
+                                  </td>
+                                  <td>{{ user.sub_status }}</td>
+                              </tr>
+                              {% endfor %}
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
 </main>
 <script>
-  function toggleStatus(checked, username) {
-      var url = '';
-      if (checked) {
-          url = '{% url "approve" user.username %}';
-      } else {
-          url = '{% url "decline" user.username %}';
-      }
-      window.location.href = url;
+  // Function to toggle delete button visibility based on checkbox state
+  function toggleDeleteButtonVisibility() {
+    var deleteButton = document.getElementById('delete-selected');
+    var checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    deleteButton.style.display = checkboxes.length > 0 ? 'inline' : 'none';
   }
-</script>
-<script>
+
+  // Initial toggle delete button visibility
+  toggleDeleteButtonVisibility();
+
   // Function to toggle select all checkbox
-  document.getElementById('select-all').addEventListener('change', function() {
-      var checkboxes = document.querySelectorAll('.user-checkbox');
-      checkboxes.forEach(function(checkbox) {
-          checkbox.checked = this.checked;
-      }.bind(this));
+  document.getElementById('select-all').addEventListener('change', function () {
+    var checkboxes = document.querySelectorAll('.user-checkbox');
+    checkboxes.forEach(function (checkbox) {
+        checkbox.checked = this.checked;
+    }.bind(this));
+    toggleDeleteButtonVisibility();
   });
 
   // Function to handle deletion of selected users
-  document.getElementById('delete-selected').addEventListener('click', function() {
+  document.getElementById('delete-selected').addEventListener('click', function () {
+    var selectedUsers = [];
+    var checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    checkboxes.forEach(function (checkbox) {
+        selectedUsers.push(checkbox.getAttribute('data-username'));
+    });
+
+    // Redirect to delete view with selected users' usernames
+    if (selectedUsers.length > 0) {
+        var url = '{% url "delete_selected_users" %}?usernames=' + selectedUsers.join(',');
+        window.location.href = url;
+    } else {
+        alert('Please select at least one user to delete.');
+    }
+  });
+
+
+  // Function to handle deletion of selected users
+  document.getElementById('delete-selected').addEventListener('click', function () {
       var selectedUsers = [];
       var checkboxes = document.querySelectorAll('.user-checkbox:checked');
-      checkboxes.forEach(function(checkbox) {
+      checkboxes.forEach(function (checkbox) {
           selectedUsers.push(checkbox.getAttribute('data-username'));
       });
 
@@ -209,7 +210,22 @@
           alert('Please select at least one user to delete.');
       }
   });
+
+  // Function to toggle delete button visibility based on checkbox state
+  function toggleDeleteButtonVisibility() {
+    var deleteButton = document.getElementById('delete-selected');
+    var checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    if (checkboxes.length > 0) {
+        deleteButton.style.display = 'inline';
+    } else {
+        deleteButton.style.display = 'none';
+    }
+  }
+
+  // Initial toggle delete button visibility
+  toggleDeleteButtonVisibility();
 </script>
+
 
 
 
