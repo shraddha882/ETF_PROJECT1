@@ -119,6 +119,9 @@ def delete_selected_users(request):
 
 
  
+
+
+ 
 def active_user(request):
     active_registered_users = RegisteredUser.objects.filter(login_status=True,is_verified=True)
 

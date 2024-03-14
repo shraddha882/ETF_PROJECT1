@@ -838,33 +838,7 @@
       }
   
   
-      document.addEventListener('DOMContentLoaded', function() {
-          const expandButtons = document.querySelectorAll('.expand-btn');
-          
-          expandButtons.forEach(button => {
-              button.addEventListener('click', function () {
-                  const row = this.closest('.expandable-row');
-                  const detailsRow = row.nextElementSibling;
-                  const ETFName = row.querySelector('td:nth-child(3)').textContent.trim(); // Assuming ETF name is in the third column
-                  const selectedOption = document.getElementById('selectedOption').textContent.trim(); // Get the current selected option
-          
-                  if (detailsRow.style.display === "none" || detailsRow.style.display === "") {
-                      detailsRow.style.display = "table-row";
-                      row.classList.add('table-info');
-                      button.innerHTML = '<span class="expand-sign">-</span>'; // Change button content to minus sign when expanding
-                      fetchDetailsData(selectedOption, ETFName, detailsRow.querySelector('.nested-table')); // Pass ETFName, nested table, and transaction type to fetchDetailsData
-                  } else {
-                      detailsRow.style.display = "none";
-                      row.classList.remove('table-info');
-                      button.innerHTML = '<span class="expand-sign">+</span>'; // Change button content to plus sign when collapsing
-                  }
-          
-                  // Reapply the styles to the expand sign
-                  const expandSign = button.querySelector('.expand-sign');
-                  expandSign.style.fontWeight = 'bold';
-                  expandSign.style.fontSize = '1.6em'; // Adjust font size as needed
-              });
-          });
+      ;
           
       
           // Function to fetch details data based on selected transaction type
@@ -987,7 +961,7 @@
          
   
   </script>
-    
+     
 <script>
     // Function to handle transaction button click
     function handleTransactionClick(row) {
@@ -1087,6 +1061,8 @@
     // Call hideMessages function after 2-3 seconds (2000-3000 milliseconds)
     setTimeout(hideMessages, 3000); // Change the timeout delay as needed
 </script>
+
+
 <script>
    
     document.addEventListener("DOMContentLoaded", function() {

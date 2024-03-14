@@ -184,6 +184,7 @@
       window.location.href = url;
   }
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   // Function to toggle select all checkbox
   document.getElementById('select-all').addEventListener('change', function() {
@@ -209,8 +210,43 @@
           alert('Please select at least one user to delete.');
       }
   });
+  
+        
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      function filterRows() {
+          var input, filter, table, tr, td, i, txtValue;
+          input = document.getElementById("search");
+          filter = input.value.toUpperCase();
+          table = document.getElementById("allTable");
+          tr = table.getElementsByTagName("tr");
+      
+          // Loop through all table rows
+          for (i = 0; i < tr.length; i++) {
+              td = tr[i].getElementsByTagName("td")[2]; // Change index to match the column of ETF names
+              if (td) {
+                  txtValue = td.textContent || td.innerText;
+                  if (filter === "" || txtValue.toUpperCase().indexOf(filter) > -1) {
+                      tr[i].style.display = ""; // Show row if it matches search or if search is empty
+                  } else {
+                      tr[i].style.display = "none"; // Hide row if it doesn't match search
+                      // Hide details row when search is cleared
+                      const detailsRow = tr[i].nextElementSibling;
+                      if (detailsRow && detailsRow.classList.contains('details-row')) {
+                          detailsRow.style.display = "none";
+                      }
+                  }
+              }
+          }
+      }
+      
 
+  
+      // Attach filter function to input field
+      document.getElementById("search").addEventListener("keyup", filterRows);
+  });
+</script>
 
 
  
