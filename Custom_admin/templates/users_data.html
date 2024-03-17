@@ -68,6 +68,7 @@
   
 </style>
 
+
 <main id="main" class="main">
   {% if messages %}
       {% for message in messages %}
@@ -98,10 +99,10 @@
           </ul>
       </div>
 
-      <button type="button" class="btn btn-danger d-inline" style = "display: none !important;" id="delete-selected" style="display: none !important">
-        &#128465;
-    </button>
+
   </div>
+  <button type="button" class="btn btn-danger" id="delete-selected" style="display: none;">&#128465;</button>
+
 
   <section class="section mt-2">
       <div class="row">
@@ -112,7 +113,7 @@
                       <table class="table   table-hover">
                           <thead>
                               <tr>
-                                  <th><input type="checkbox" id="select-all"></th>
+                                  <th><input type="checkbox" class="all-checkbox" id="select-all"></th>
                                   <th>Name</th>
                                   <th>Username</th>
                                   <th>Email</th>
@@ -126,8 +127,8 @@
                           <tbody>
                               {% for user in users %}
                               <tr>
-                                  <td><input type="checkbox" class="user-checkbox" data-username="{{ user.username }}"></td>
-                                  <td>{{ user.name }}</td>
+                                <td><input type="checkbox" class="data-checkbox" data-username="{{ user.username }}" onclick="toggleDeleteButtonVisibility()"></td>
+                                <td>{{ user.name }}</td>
                                   <td>{{ user.username }}</td>
                                   <td>{{ user.email }}</td>
                                   <td>{{user.date_of_birth}}</td>
@@ -139,14 +140,22 @@
                                           Pending
                                       {% endif %}
                                   </td>
-                                  <td class="text-center">
+                                  <!-- <td class="text-center">
                                       <label class="switch">
-                                          <!-- <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}')"> -->
                                           <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}')">
-
+ 
                                           <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
                                       </label>
-                                  </td>
+                                  </td> -->
+
+                                  <td class="text-center">
+                                    <label class="switch">
+                                        <!-- Add a class to the checkbox -->
+                                        <input type="checkbox"    {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}');">
+                                        <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
+                                    </label>
+                                </td>
+                                
                                   <td>{{ user.sub_status }}</td>
                               </tr>
                               {% endfor %}
@@ -158,26 +167,22 @@
       </div>
   </section>
 </main>
-<style>
-    #delete-selected {
-        display: none !important;
-    }
-</style>
+ 
 
 <script>
   // Function to toggle delete button visibility based on checkbox state
-  function toggleDeleteButtonVisibility() {
-    var deleteButton = document.getElementById('delete-selected');
-    var checkboxes = document.querySelectorAll('.user-checkbox:checked');
-    deleteButton.style.display = checkboxes.length > 0 ? 'inline' : 'none';
-  }
+//   function toggleDeleteButtonVisibility() {
+//     var deleteButton = document.getElementById('delete-selected');
+//     var checkboxes = document.querySelectorAll('.data-checkbox:checked');
+//     deleteButton.style.display = checkboxes.length > 0 ? 'inline' : 'none';
+//   }
 
-  // Initial toggle delete button visibility
-  toggleDeleteButtonVisibility();
+//   // Initial toggle delete button visibility
+//   toggleDeleteButtonVisibility();
 
   // Function to toggle select all checkbox
   document.getElementById('select-all').addEventListener('change', function () {
-    var checkboxes = document.querySelectorAll('.user-checkbox');
+    var checkboxes = document.querySelectorAll('.data-checkbox');
     checkboxes.forEach(function (checkbox) {
         checkbox.checked = this.checked;
     }.bind(this));
@@ -187,7 +192,7 @@
   // Function to handle deletion of selected users
   document.getElementById('delete-selected').addEventListener('click', function () {
     var selectedUsers = [];
-    var checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    var checkboxes = document.querySelectorAll('.data-checkbox:checked');
     checkboxes.forEach(function (checkbox) {
         selectedUsers.push(checkbox.getAttribute('data-username'));
     });
@@ -205,7 +210,7 @@
   // Function to handle deletion of selected users
   document.getElementById('delete-selected').addEventListener('click', function () {
       var selectedUsers = [];
-      var checkboxes = document.querySelectorAll('.user-checkbox:checked');
+      var checkboxes = document.querySelectorAll('.data-checkbox:checked');
       checkboxes.forEach(function (checkbox) {
           selectedUsers.push(checkbox.getAttribute('data-username'));
       });
@@ -219,16 +224,46 @@
       }
   });
 
-  // Function to toggle delete button visibility based on checkbox state
-  function toggleDeleteButtonVisibility() {
+//   // Function to toggle delete button visibility based on checkbox state
+//   function toggleDeleteButtonVisibility() {
+//     var deleteButton = document.getElementById('delete-selected');
+//     var checkboxes=[];
+//     checkboxes.push(document.querySelectorAll('data-checkbox:checked'));
+//     // var checkboxes = document.querySelectorAll('.data-checkbox:checked');
+//     if (checkboxes.length >0) {
+//         deleteButton.style.display = '';
+//     } else {
+//         deleteButton.style.display = 'none';
+//     }
+//   }
+//   function toggleDeleteButtonVisibility() {
+//     var deleteButton = document.getElementById('delete-selected');
+//     var checkboxes = document.querySelectorAll('.data-checkbox:checked');
+    
+//     if (checkboxes.length > 0) {
+//         deleteButton.style.display = '';
+//     } else {
+//         deleteButton.style.display = 'none';
+//     }
+// }
+document.addEventListener('DOMContentLoaded', function() {
+    var checkboxes = document.querySelectorAll('.data-checkbox');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('click', toggleDeleteButtonVisibility);
+    });
+});
+
+function toggleDeleteButtonVisibility() {
     var deleteButton = document.getElementById('delete-selected');
-    var checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    var checkboxes = document.querySelectorAll('.data-checkbox:checked');
+    
     if (checkboxes.length > 0) {
-        deleteButton.style.display = 'inline';
+        deleteButton.style.display = '';
     } else {
         deleteButton.style.display = 'none';
     }
-  }
+}
+
 
   // Initial toggle delete button visibility
   toggleDeleteButtonVisibility();
@@ -267,29 +302,6 @@
       document.getElementById("search").addEventListener("keyup", filterRows);
   });
 </script>
-<script>
-    // Get all user checkboxes
-    const userCheckboxes = document.querySelectorAll('.user-checkbox');
-    const deleteButton = document.getElementById('delete-selected');
-
-    // Function to check if any checkbox is checked
-    function checkIfAnyChecked() {
-        for (let checkbox of userCheckboxes) {
-            if (checkbox.checked) {
-                deleteButton.style.display = 'inline'; // Show the delete button
-                return;
-            }
-        }
-        deleteButton.style.display = 'none'; // Hide the delete button if no checkbox is checked
-    }
-
-    // Add event listener to each checkbox
-    userCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', checkIfAnyChecked);
-    });
-</script>
  
- 
-
  
 {% endblock body %}

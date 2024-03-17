@@ -13,16 +13,40 @@
             </ol>
         </nav>
     </div>
-    <div class="dropdown mb-2">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          Selected user details
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="statusDropdown">
-            <li><a class="dropdown-item" href="{% url 'users_data' %}">All Users</a></li>
-            <li><a class="dropdown-item" href="{% url 'active_user' %}">Active Users</a></li>
-            <li><a class="dropdown-item" href="{% url 'deactivate_user' %}">Deactivated Users</a></li>
-        </ul>
+    <div class="row">
+        <div class="dropdown mb-2 col-4">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Selected user details
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="statusDropdown">
+                <li><a class="dropdown-item" href="{% url 'users_data' %}">All Users</a></li>
+                <li><a class="dropdown-item" href="{% url 'active_user' %}">Active Users</a></li>
+                <li><a class="dropdown-item" href="{% url 'deactivate_user' %}">Deactivated Users</a></li>
+            </ul>
+        </div>
+        <div class="dropdown mb-2 col-4" id="dropdown-sub" style="display: none;">
+            <button class="btn btn-light dropdown-toggle" type="button" id="subscriptionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Select Subscriptions  
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="subscriptionDropdown">
+                <li><a class="dropdown-item" href="#">Silver</a></li>
+                <li><a class="dropdown-item" href="#">Gold</a></li>
+                <li><a class="dropdown-item" href="#">Platinum</a></li>
+            </ul>
+        </div>
+        <div class="dropdown mb-2 col-4" id="dropdown-dur" style="display: none;">
+            <button class="btn btn-light dropdown-toggle" type="button" id="durationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Select Months  
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="durationDropdown">
+                <li><a class="dropdown-item" href="#">1 month</a></li>
+                <li><a class="dropdown-item" href="#">3 months</a></li>
+                <li><a class="dropdown-item" href="#">6 months</a></li>
+                <li><a class="dropdown-item" href="#">12 months</a></li>
+            </ul>
+        </div>
     </div>
+    
     <section class="section">
         <div class="row">
             <div class="col-lg-12">
@@ -32,6 +56,8 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" class="all-checkbox" id="select-all"></th>
+
                                     <th>S.no.</th>
                                     <th>Username</th>
                                     <th>Dob</th>
@@ -45,6 +71,8 @@
                             <tbody>
                                 {% for user in data %}
                                 <tr>
+                                    <td><input type="checkbox" class="data-checkbox" data-username="{{ user.username }}" onclick="toggleDropdownVisibility()"></td>
+
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ user.username }}</td>
                                     <td>{{ user.date_of_birth }}</td>
@@ -744,7 +772,62 @@
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+    document.getElementById('select-all').addEventListener('change', function () {
+    var checkboxes = document.querySelectorAll('.data-checkbox');
+    checkboxes.forEach(function (checkbox) {
+        checkbox.checked = this.checked;
+    }.bind(this));
+    toggleDropdownVisibility();
+  });
 
+    document.addEventListener('DOMContentLoaded', function() {
+    var checkboxes = document.querySelectorAll('.data-checkbox');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('click', toggleDeleteButtonVisibility);
+    });
+});
+
+function toggleDropdownVisibility() {
+    var dropdownbutton = document.getElementById('dropdown-sub');
+    var dropdownbutton2 = document.getElementById('dropdown-dur');
+
+    var checkboxes = document.querySelectorAll('.data-checkbox:checked');
+    
+    if (checkboxes.length > 0) {
+        dropdownbutton.style.display = '';
+        dropdownbutton2.style.display = '';
+
+    } else {
+        dropdownbutton.style.display = 'none';
+        dropdownbutton2.style.display = 'none';
+
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var subscriptionDropdown = document.getElementById('subscriptionDropdown');
+    var durationDropdown = document.getElementById('durationDropdown');
+    
+    // Event listener for subscription dropdown items
+    var subscriptionItems = document.querySelectorAll('#dropdown-sub .dropdown-item');
+    subscriptionItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            subscriptionDropdown.innerHTML = this.innerHTML;
+        });
+    });
+    
+    // Event listener for duration dropdown items
+    var durationItems = document.querySelectorAll('#dropdown-dur .dropdown-item');
+    durationItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            durationDropdown.innerHTML = this.innerHTML;
+        });
+    });
+});
+
+
+</script>
 
 <script>
     // JavaScript function to trigger the modal
