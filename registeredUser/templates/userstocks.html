@@ -2,6 +2,66 @@
 {% block title %}Stocks{% endblock title %}
 {% load static %}
 {% block body %}
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    /* CUSTOM UTIL CLASSES */
+    
+
+    .modal-body {
+        background: #00B4DB; /* Set modal body background color to the same as body-pricing */
+        background: -webkit-linear-gradient(to right, #0083B0, #00B4DB);
+        background: linear-gradient(to right, #0083B0, #00B4DB);
+        color: #514B64;
+        min-height: 100vh;
+        padding-bottom: 100px;
+    }
+
+    .rounded-lg {
+        border-radius: 1rem !important;
+    }
+
+    .text-small {
+        font-size: 0.9rem !important;
+    }
+
+    .custom-separator {
+        width: 5rem;
+        height: 6px;
+        border-radius: 1rem;
+    }
+
+    .text-uppercase {
+        letter-spacing: 0.2em;
+    }
+
+    /* FOR DEMO PURPOSES */
+    body-pricing {
+        background: #00B4DB;
+        background: -webkit-linear-gradient(to right, #0083B0, #00B4DB);
+        background: linear-gradient(to right, #0083B0, #00B4DB);
+        color: #514B64;
+        min-height: 100vh;
+    }
+
+    .pricing-card {
+        transition: all 0.3s ease;
+    }
+
+    /* Add this style to increase hover effect */
+    .pricing-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .dropdown-button {
+        background: transparent;
+        border: none;
+        color: inherit;
+    }
+</style>
+
 <main id="main" class="main">
     <div class="pagetitle">
       <h1>THIS IS STOCKS PAGE</h1>
@@ -39,7 +99,7 @@
                                     <th style="white-space: nowrap;">High</th>
                                     <th style="white-space: nowrap;">Low</th>
                                     <th style="white-space: nowrap;">CMP</th> 
-                                    {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                    
                                     <th style="white-space: nowrap;">20 DMA</th> 
                                     <th style="white-space: nowrap;">CMP - 20 DMA</th> 
                                     <th style="white-space: nowrap;">20 DMA vs CMP</th> 
@@ -49,7 +109,7 @@
                                     <th style="white-space: nowrap;">100 DMA</th> 
                                     <th style="white-space: nowrap;">CMP - 100 DMA</th> 
                                     <th style="white-space: nowrap;">100 DMA vs CMP</th> 
-                                    {% endif %}
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,98 +124,133 @@
                                     <td>{{ d.low|floatformat:2 }}</td>
                                     <td>{{ d.close|floatformat:2 }}</td> 
                                     {% comment %} <td>{{ etf_data }}</td>  {% endcomment %}
-                                    {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
-                                    {% for key, value in etf_data.items %}
-                                        {% if key == d.Etfnames %}
-                                            <td>{{ value|floatformat:2  }}</td>
-                                        {% endif %}
-                                    {% endfor %}
-                                    {% for key, value in etf_close_minus_20dma.items %}
-                                    {% if key == d.Etfnames %}
-                                        {% if value < 0 %}
-                                            <td style="color: red">{{ value|floatformat:2 }}</td>
-                                        {% elif value > 0 %}
-                                            <td style="color: green">{{ value|floatformat:2 }}</td>
-                                        {% else %}
-                                            <td>{{ value|floatformat:2 }}</td>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                        
-                                {% for key, value in etf_close_div_20dma.items %}
-                                    {% if key == d.Etfnames %}
-                                        {% if value < 0 %}
-                                            <td style="color: red">{{ value|floatformat:2 }}%</td>
-                                        {% elif value > 0 %}
-                                            <td style="color: green">{{ value|floatformat:2 }}%</td>
-                                        {% else %}
-                                            <td>{{ value|floatformat:2 }}%</td>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
+                                    
+                                        {% for key, value in etf_data.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    <td>{{ value|floatformat:2  }}</td>
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for key, value in etf_close_minus_20dma.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for key, value in etf_close_div_20dma.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}%</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}%</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}%</td>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    
+                                    
+                                        {% for key, value in etf_data_50dma.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    <td>{{ value|floatformat:2 }}</td>
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        <!-- Close - 50DMA -->
+                                        {% for key, value in etf_close_minus_50dma.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        <!-- Close / 50DMA -->
+                                        {% for key, value in etf_close_div_50dma.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    
 
-
-                                {% for key, value in etf_data_50dma.items %}
-                                {% if key == d.Etfnames %}
-                                    <td>{{ value|floatformat:2 }}</td>
-                                {% endif %}
-                            {% endfor %}
-                            <!-- Close - 50DMA -->
-                            {% for key, value in etf_close_minus_50dma.items %}
-                                {% if key == d.Etfnames %}
-                                    {% if value < 0 %}
-                                        <td style="color: red">{{ value|floatformat:2 }}</td>
-                                    {% elif value > 0 %}
-                                        <td style="color: green">{{ value|floatformat:2 }}</td>
-                                    {% else %}
-                                        <td>{{ value|floatformat:2 }}</td>
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                            <!-- Close / 50DMA -->
-                            {% for key, value in etf_close_div_50dma.items %}
-                                {% if key == d.Etfnames %}
-                                    {% if value < 0 %}
-                                        <td style="color: red">{{ value|floatformat:2 }}%</td>
-                                    {% elif value > 0 %}
-                                        <td style="color: green">{{ value|floatformat:2 }}%</td>
-                                    {% else %}
-                                        <td>{{ value|floatformat:2 }}%</td>
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-
-
-                            {% for key, value in etf_data_100dma.items %}
-                            {% if key == d.Etfnames %}
-                                <td>{{ value|floatformat:2 }}</td>
-                            {% endif %}
-                        {% endfor %}
-                        <!-- Close - 50DMA -->
-                        {% for key, value in etf_close_minus_100dma.items %}
-                            {% if key == d.Etfnames %}
-                                {% if value < 0 %}
-                                    <td style="color: red">{{ value|floatformat:2 }}</td>
-                                {% elif value > 0 %}
-                                    <td style="color: green">{{ value|floatformat:2 }}</td>
-                                {% else %}
-                                    <td>{{ value|floatformat:2 }}</td>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                        <!-- Close / 50DMA -->
-                        {% for key, value in etf_close_div_100dma.items %}
-                            {% if key == d.Etfnames %}
-                                {% if value < 0 %}
-                                    <td style="color: red">{{ value|floatformat:2 }}%</td>
-                                {% elif value > 0 %}
-                                    <td style="color: green">{{ value|floatformat:2 }}%</td>
-                                {% else %}
-                                    <td>{{ value|floatformat:2 }}%</td>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                        {% endif %}
+                                        {% for key, value in etf_data_100dma.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    <td>{{ value|floatformat:2 }}</td>
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        <!-- Close - 50DMA -->
+                                        {% for key, value in etf_close_minus_100dma.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        <!-- Close / 50DMA -->
+                                        {% for key, value in etf_close_div_100dma.items %}
+                                            {% if key == d.Etfnames %}
+                                                {% if user.sub_status == 'Gold' or user.sub_status == 'Silver' or user.sub_status == 'Platinum' %}
+                                                    {% if value < 0 %}
+                                                        <td style="color: red">{{ value|floatformat:2 }}</td>
+                                                    {% elif value > 0 %}
+                                                        <td style="color: green">{{ value|floatformat:2 }}</td>
+                                                    {% else %}
+                                                        <td>{{ value|floatformat:2 }}</td>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <td><button style="background-color: transparent; border: none; color: black; font-size: 16px; cursor: pointer; padding: 0;" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">?</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    
                                 
 
                                     {% comment %} {% if etf_data.key == d.Etfnames %}<td>{{etf_data.value}}</td>{% endif %} {% endcomment %}
@@ -198,35 +293,209 @@
           </div>
       </div>
   </section>
-  </main>  
+  </main> 
+  
+  
+<div class="modal fade" id="ExtralargeModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" id="modalDialog">
+      <div class="modal-content">
+        <div class="modal-header text-center">
+            <h5 class="modal-title w-100">Buy Subscriptions</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body overflow-auto">
+          <!-- add code here-->
+          <div class = "body-pricing">
+            <section>
+                <div class="container py-5" style="max-height: 80vh; overflow-y: auto;">
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Function to filter rows based on search input
-        function filterRows() {
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("search");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("stockstable");
-            tr = table.getElementsByTagName("tr");
-    
-            // Loop through all table rows, and hide those that don't match the search query
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[1]; // Change index to match the column of ETF names
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
+                    <!-- FOR DEMO PURPOSE -->
+                    <header class="text-center mb-5 text-white">
+                        <div class="row">
+                            <div class="col-lg-7 mx-auto">
+                                <h1>Subscription Table</h1>
+                                <p>Select any subscription from below<br></p>
+                            </div>
+                        </div>
+                    </header>
+                    <!-- END -->
+
+
+                    <div class="row text-center align-items-end">
+                        <!-- Pricing Table-->
+                        <div class="col-lg-4 mb-5 mb-lg-0">
+                            <div class="bg-white p-5 rounded-lg shadow pricing-card">
+                                <h1 class="h6 text-uppercase font-weight-bold mb-4">Silver</h1>
+                                <h2 class="h1 font-weight-bold">₹<span id="silver-price">0</span>/<div class="dropdown my-4">
+                                    <button class="btn btn-secondary dropdown-toggle dropdown-button" type="button" id="silver-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        1 Month
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="silver-dropdown">
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 0, '1 Month')">1 Month</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 0, '3 Months')">3 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 0, '6 Months')">6 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 0, '12 Months')">12 Months</a>
+                                    </div>
+                                </div></h2>
+                                <div class="custom-separator my-4 mx-auto bg-primary"></div>
+                                <ul class="list-unstyled my-5 text-small text-left">
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> ETF data</li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fa fa-times mr-2"></i>
+                                        <del>DMA comparisons</del>
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fa fa-times mr-2"></i>
+                                        <del>Buy/Sell ETFs</del>
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fa fa-times mr-2"></i>
+                                        <del>Feature 4</del>
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fa fa-times mr-2"></i>
+                                        <del>Feature 5</del>
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fa fa-times mr-2"></i>
+                                        <del>Feature 6</del>
+                                    </li>
+                                </ul>
+                                <a href="#" class="btn btn-primary btn-block p-2 shadow rounded-pill">Subscribe</a>
+                            </div>
+                        </div>
+                        <!-- END -->
+
+
+                        <!-- Pricing Table-->
+                        <div class="col-lg-4 mb-5 mb-lg-0">
+                            <div class="bg-white p-5 rounded-lg shadow pricing-card">
+                                <h1 class="h6 text-uppercase font-weight-bold mb-4">Gold</h1>
+                                <h2 class="h1 font-weight-bold">₹<span id="gold-price">399</span>/<div class="dropdown my-4">
+                                    <button class="btn btn-secondary dropdown-toggle dropdown-button" type="button" id="gold-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        1 Month
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="gold-dropdown">
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 399, '1 Month')">1 Month</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 999, '3 Months')">3 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 1799, '6 Months')">6 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 3499, '12 Months')">12 Months</a>
+                                    </div>
+                                </div></h2>
+                                <div class="custom-separator my-4 mx-auto bg-primary"></div>
+                                <ul class="list-unstyled my-5 text-small text-left font-weight-normal">
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> ETF data</li>
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> DMA comparisons</li>
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> Buy/Sell ETFs</li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fa fa-times mr-2"></i>
+                                        <del>Feature 4</del>
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fa fa-times mr-2"></i>
+                                        <del>Feature 5</del>
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fa fa-times mr-2"></i>
+                                        <del>Feature 6</del>
+                                    </li>
+                                </ul>
+                                <a href="#" class="btn btn-primary btn-block p-2 shadow rounded-pill">Subscribe</a>
+                            </div>
+                        </div>
+                        <!-- END -->
+
+
+                        <!-- Pricing Table-->
+                        <div class="col-lg-4">
+                            <div class="bg-white p-5 rounded-lg shadow pricing-card">
+                                <h1 class="h6 text-uppercase font-weight-bold mb-4">Platinum</h1>
+                                <h2 class="h1 font-weight-bold">₹<span id="platinum-price">899</span>/<div class="dropdown my-4">
+                                    <button class="btn btn-secondary dropdown-toggle dropdown-button" type="button" id="platinum-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        1 Month
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="platinum-dropdown">
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('platinum', 899, '1 Month')">1 Month</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('platinum', 2399, '3 Months')">3 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('platinum', 4499, '6 Months')">6 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('platinum', 8699, '12 Months')">12 Months</a>
+                                    </div>
+                                </div></h2>
+                                <div class="custom-separator my-4 mx-auto bg-primary"></div>
+                                <ul class="list-unstyled my-5 text-small text-left font-weight-normal">
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> ETF data</li>
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> DMA comparisons</li>
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> Buy/Sell ETFs</li>
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> Feature 4</li>
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> Feature 5</li>
+                                    <li class="mb-3">
+                                        <i class="fa fa-check mr-2 text-primary"></i> Feature 6</li>
+                                </ul>
+                                <a href="#" class="btn btn-primary btn-block p-2 shadow rounded-pill">Subscribe</a>
+                            </div>
+                        </div>
+                        <!-- END -->
+
+                    </div>
+                </div>
+            </section>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function updatePrice(card, price, label) {
+        document.getElementById(card + '-price').textContent = price;
+        document.getElementById(card + '-dropdown').textContent = label;
+    }
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Function to filter rows based on search input
+    function filterRows() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("stockstable");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those that don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1]; // Change index to match the column of ETF names
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
                 }
             }
         }
-    
-        // Attach filter function to input field
-        document.getElementById("search").addEventListener("keyup", filterRows);
-    });
- </script>
+    }
+
+    // Attach filter function to input field
+    document.getElementById("search").addEventListener("keyup", filterRows);
+});
+</script>
  
   {% endblock body %}
