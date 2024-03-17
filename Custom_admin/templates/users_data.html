@@ -98,9 +98,9 @@
           </ul>
       </div>
 
-      <button type="button" class="btn btn-danger d-inline" id="delete-selected" style="display: none !important">
-          &#128465;
-      </button>
+      <button type="button" class="btn btn-danger d-inline" style = "display: none !important;" id="delete-selected" style="display: none !important">
+        &#128465;
+    </button>
   </div>
 
   <section class="section mt-2">
@@ -141,7 +141,9 @@
                                   </td>
                                   <td class="text-center">
                                       <label class="switch">
+                                          <!-- <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}')"> -->
                                           <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}')">
+
                                           <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
                                       </label>
                                   </td>
@@ -156,6 +158,12 @@
       </div>
   </section>
 </main>
+<style>
+    #delete-selected {
+        display: none !important;
+    }
+</style>
+
 <script>
   // Function to toggle delete button visibility based on checkbox state
   function toggleDeleteButtonVisibility() {
@@ -259,9 +267,27 @@
       document.getElementById("search").addEventListener("keyup", filterRows);
   });
 </script>
+<script>
+    // Get all user checkboxes
+    const userCheckboxes = document.querySelectorAll('.user-checkbox');
+    const deleteButton = document.getElementById('delete-selected');
 
+    // Function to check if any checkbox is checked
+    function checkIfAnyChecked() {
+        for (let checkbox of userCheckboxes) {
+            if (checkbox.checked) {
+                deleteButton.style.display = 'inline'; // Show the delete button
+                return;
+            }
+        }
+        deleteButton.style.display = 'none'; // Hide the delete button if no checkbox is checked
+    }
 
-
+    // Add event listener to each checkbox
+    userCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', checkIfAnyChecked);
+    });
+</script>
  
  
 

@@ -1293,7 +1293,7 @@
     setTimeout(hideMessages, 3000); // Change the timeout delay as needed
 </script>
 
-
+<!-- 
 <script>
    
     document.addEventListener("DOMContentLoaded", function() {
@@ -1349,6 +1349,28 @@
  
 
 
+</script> -->
+<script>
+    function toggleDetails(button) {
+        var row = button.parentNode.parentNode; // Get the parent row of the button
+        var detailsRow = row.nextElementSibling; // Get the next row which contains details
+        if (detailsRow.style.display === "table-row") {
+            detailsRow.style.display = "none";
+            button.querySelector(".expand-sign").innerText = "+";
+        } else {
+            detailsRow.style.display = "table-row";
+            button.querySelector(".expand-sign").innerText = "-";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var expandButtons = document.querySelectorAll(".expand-btn-all");
+        expandButtons.forEach(function(button) {
+            button.addEventListener("click", function() {
+                toggleDetails(this);
+            });
+        });
+    });
 </script>
 
 
