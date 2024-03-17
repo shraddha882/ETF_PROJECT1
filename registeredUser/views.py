@@ -28,15 +28,16 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 def Userdashboard(request):
-    if request.user.is_authenticated:
-        user = request.user.username
-        data = RegisteredUser.objects.get(username = user)
-        if request.method == 'POST':
-            subs = request.POST.get('subs')
-            data.sub_status = subs
-            data.save()
-        context = {
-            'data':data
+    
+    user = request.user.username
+    data = RegisteredUser.objects.get(username = user)
+    if request.method == 'POST':
+        subs = request.POST.get('subs')
+        data.sub_status = subs
+        data.save()
+    context = {
+        'data':data,
+        'user':user
         }
 
     return render(request,'UserDashboard.html', context)
