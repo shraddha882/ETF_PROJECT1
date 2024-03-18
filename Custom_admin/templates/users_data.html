@@ -89,8 +89,8 @@
   </div>
   <div class="d-inline ">
       <div class="dropdown mb-2 d-inline">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              Selected user details
+          <button class="btn btn-info dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              Select user details
           </button>
           <ul class="dropdown-menu" aria-labelledby="statusDropdown">
               <li><a class="dropdown-item" href="{% url 'users_data' %}">All Users</a></li>
@@ -140,22 +140,20 @@
                                           Pending
                                       {% endif %}
                                   </td>
-                                  <!-- <td class="text-center">
-                                      <label class="switch">
-                                          <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}')">
- 
-                                          <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
-                                      </label>
-                                  </td> -->
-
-                                  <td class="text-center">
+                                  
+                                  {% comment %} <td class="text-center">
                                     <label class="switch">
                                         <!-- Add a class to the checkbox -->
                                         <input type="checkbox"    {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}');">
                                         <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
                                     </label>
-                                </td>
-                                
+                                  </td> {% endcomment %}
+                                  <td class="text-center">
+                                    <label class="switch">
+                                        <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="window.location.href='{% if user.login_status %}{% url 'decline' user.username %}{% else %}{% url 'approve' user.username %}{% endif %}'">
+                                        <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
+                                    </label>
+                                  </td>
                                   <td>{{ user.sub_status }}</td>
                               </tr>
                               {% endfor %}

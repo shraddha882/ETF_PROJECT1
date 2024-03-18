@@ -14,9 +14,9 @@
         </nav>
     </div>
     <div class="row">
-        <div class="dropdown mb-2 col-4">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            Selected user details
+        <div class="dropdown mb-2 col-md-2">
+            <button class="btn btn-info dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Select user details
             </button>
             <ul class="dropdown-menu" aria-labelledby="statusDropdown">
                 <li><a class="dropdown-item" href="{% url 'users_data' %}">All Users</a></li>
@@ -24,7 +24,7 @@
                 <li><a class="dropdown-item" href="{% url 'deactivate_user' %}">Deactivated Users</a></li>
             </ul>
         </div>
-        <div class="dropdown mb-2 col-4" id="dropdown-sub" style="display: none;">
+        <div class="dropdown mb-2 col-md-2" id="dropdown-sub" style="display: none;">
             <button class="btn btn-light dropdown-toggle" type="button" id="subscriptionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             Select Subscriptions  
             </button>
@@ -34,7 +34,7 @@
                 <li><a class="dropdown-item" href="#">Platinum</a></li>
             </ul>
         </div>
-        <div class="dropdown mb-2 col-4" id="dropdown-dur" style="display: none;">
+        <div class="dropdown mb-2 col-md-2" id="dropdown-dur" style="display: none;">
             <button class="btn btn-light dropdown-toggle" type="button" id="durationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             Select Months  
             </button>
@@ -876,9 +876,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Attach filter function to input field
         document.getElementById("search").addEventListener("keyup", filterRows);
     });
- </script>
 
- <script>
+  
+
+</script>
+
+<script>
       
     
 
@@ -1376,7 +1379,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(hideMessages, 3000); // Change the timeout delay as needed
 </script>
 
-<!-- 
+
 <script>
    
     document.addEventListener("DOMContentLoaded", function() {
@@ -1432,7 +1435,7 @@ document.addEventListener('DOMContentLoaded', function() {
  
 
 
-</script> -->
+</script>
 <script>
     function toggleDetails(button) {
         var row = button.parentNode.parentNode; // Get the parent row of the button
