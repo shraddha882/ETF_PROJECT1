@@ -24,26 +24,40 @@
                 <li><a class="dropdown-item" href="{% url 'deactivate_user' %}">Deactivated Users</a></li>
             </ul>
         </div>
+        <div class="dropdown mb-2 col-md-2">
+            <button class="btn btn-light dropdown-toggle" type="button" id="filterSubscriptionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Filter by Subscription  
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="filterSubscriptionDropdown">
+                <li><a class="dropdown-item" href="#" data-filter="All">All</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="Silver">Silver</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="Gold">Gold</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="Diamond">Diamond</a></li>
+            </ul>
+        </div>
         <div class="dropdown mb-2 col-md-2" id="dropdown-sub" style="display: none;">
             <button class="btn btn-light dropdown-toggle" type="button" id="subscriptionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            Select Subscriptions  
+            Silver  
             </button>
             <ul class="dropdown-menu" aria-labelledby="subscriptionDropdown">
                 <li><a class="dropdown-item" href="#">Silver</a></li>
                 <li><a class="dropdown-item" href="#">Gold</a></li>
-                <li><a class="dropdown-item" href="#">Platinum</a></li>
+                <li><a class="dropdown-item" href="#">Diamond</a></li>
             </ul>
         </div>
         <div class="dropdown mb-2 col-md-2" id="dropdown-dur" style="display: none;">
             <button class="btn btn-light dropdown-toggle" type="button" id="durationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            Select Months  
+            1 month
             </button>
             <ul class="dropdown-menu" aria-labelledby="durationDropdown">
                 <li><a class="dropdown-item" href="#">1 month</a></li>
                 <li><a class="dropdown-item" href="#">3 months</a></li>
                 <li><a class="dropdown-item" href="#">6 months</a></li>
-                <li><a class="dropdown-item" href="#">12 months</a></li>
+                <li><a class="dropdown-item" href="#">1 year</a></li>
             </ul>
+        </div>
+        <div class="dropdown mb-2 col-md-2" id="btn-apply" style="display: none;">
+            <a class="btn btn-primary btn-block p-2 shadow rounded-pill" onclick="applyAndRefresh()" data-bs-dismiss="modal">Apply</a>
         </div>
     </div>
     
@@ -53,7 +67,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Active Users</h5>
-                        <table class="table table-hover">
+                        <table class="table table-hover" id= 'userTable'>
                             <thead>
                                 <tr>
                                     <th><input type="checkbox" class="all-checkbox" id="select-all"></th>
@@ -65,6 +79,7 @@
                                     <th>IS verified</th>
                                     <th>Status</th>
                                     <th>Subscription</th>
+                                    <th>Period</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -79,7 +94,12 @@
                                     <td>{{ user.phone_number }}</td>
                                     <td>{{ user.is_verified }}</td>
                                     <td>{{ user.login_status }}</td>
-                                    <td>{{ user.sub_status }}</td>       
+                                    {% for wallet in wallet %}
+                                    {% if user.username == wallet.user.username %}
+                                        <td>{{ wallet.sub_status }}</td>
+                                        <td>{{ wallet.period }}</td>
+                                    {% endif %}
+                                    {% endfor %}     
                                     <td>
                                         <button  type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
                                            Transaction
@@ -773,6 +793,102 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+    function applyFilter() {
+        var selectedFilter = document.getElementById("filterSubscriptionDropdown").textContent.trim();
+        var rows = document.getElementById("userTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        console.log(selectedFilter);
+        for (var i = 0; i < rows.length; i++) {
+            var subscriptionCell = rows[i].getElementsByTagName("td")[7];
+            if (subscriptionCell) {
+                var subscription = subscriptionCell.textContent.trim();
+                if (selectedFilter === "All" || subscription === selectedFilter) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    document.querySelectorAll('#filterSubscriptionDropdown .dropdown-item').forEach(item => {
+        item.addEventListener('click', event => {
+            var filter = event.target.textContent;
+            document.getElementById("filterSubscriptionDropdown").textContent = "Filter by Subscription: " + filter; // Update the label
+            applyFilter(); // Call applyFilter function to filter the table based on the selected option
+        });
+    });
+</script>
+
+<script>
+    function applyAndRefresh() {
+        fetchSubscriptionDetails(getSelectedsubscription('subscription'), getSelectedTimePeriod('duration'), getSelectedUsernames())
+            .finally(() => {
+                location.reload(); // Reload the page regardless of whether fetchSubscriptionDetails succeeds or fails
+            });
+    }
+    
+
+    function getSelectedUsernames() {
+        const checkboxes = document.querySelectorAll('.data-checkbox:checked');
+        const selectedUsernames = Array.from(checkboxes).map(checkbox => checkbox.dataset.username);
+        return selectedUsernames;
+    }
+    
+    function getSelectedsubscription(card) {
+        // Get the selected option from the dropdown menu
+        const dropdown = document.getElementById(card + 'Dropdown');
+        const selectedOption = dropdown.textContent.trim(); // Trim to remove any leading/trailing whitespace
+        console.log(selectedOption);
+        return selectedOption;
+      }
+
+    function getSelectedTimePeriod(card) {
+        // Get the selected option from the dropdown menu
+        const dropdown = document.getElementById('durationDropdown');
+        const selectedOption = dropdown.textContent.trim(); // Trim to remove any leading/trailing whitespace
+        console.log(selectedOption);
+        return selectedOption;
+      }
+  
+      // Function to fetch subscription details based on selected subscription type and time period
+      function fetchSubscriptionDetails(subscriptionType, timePeriod,  selectedUsernames) {
+        let fetchUrl = '/customadmin/active_user/'; // Replace with your Django URL for fetching subscription details
+        const csrftoken = getCookie('csrftoken');
+        const requestBody = {
+            subscriptionType: subscriptionType,
+            timePeriod: timePeriod,
+            selectedUsernames: selectedUsernames
+        };
+  
+        fetch(fetchUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(requestBody)
+        })
+      }
+  
+      // Function to get CSRF token from cookie
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+      }
+</script> 
+
+<script>
     document.getElementById('select-all').addEventListener('change', function () {
     var checkboxes = document.querySelectorAll('.data-checkbox');
     checkboxes.forEach(function (checkbox) {
@@ -791,16 +907,20 @@
 function toggleDropdownVisibility() {
     var dropdownbutton = document.getElementById('dropdown-sub');
     var dropdownbutton2 = document.getElementById('dropdown-dur');
+    var btn3 = document.getElementById('btn-apply');
 
     var checkboxes = document.querySelectorAll('.data-checkbox:checked');
     
     if (checkboxes.length > 0) {
         dropdownbutton.style.display = '';
         dropdownbutton2.style.display = '';
+        btn3.style.display = '';
 
     } else {
         dropdownbutton.style.display = 'none';
         dropdownbutton2.style.display = 'none';
+        btn3.style.display = 'none';
+
 
     }
 }
