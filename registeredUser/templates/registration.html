@@ -87,6 +87,15 @@
                         <div class="invalid-feedback">Please enter your password!</div>
                       </div>
 
+                      <!-- <div class="row">
+                        <div class="col-6">
+                          <label for="yourPassword" class="form-label">Password</label>
+                          <input type="password" name="password" class="form-control" id="yourPassword" required>
+                          <div id="passwordStrength" class="form-text"></div>
+                          <div class="invalid-feedback">Please enter your password!</div>
+                        </div>
+                      </div> -->
+
                       <div class="col-6">
                         <label for="yourPassword" class="form-label">Confirm Password</label>
                         <input type="password" name="cpassword" class="form-control" id="yourPassword" required>
@@ -136,7 +145,44 @@
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   
-
+  <script>
+    document.getElementById('yourPassword').addEventListener('input', function () {
+        var password = this.value;
+        var strengthBadge = document.getElementById('passwordStrength');
+        var strength = 0;
+    
+        if (password.match(/[a-zA-Z0-9][a-zA-Z0-9]+/)) {
+            strength += 1;
+        }
+        if (password.match(/[~<>?]+/)) {
+            strength += 1;
+        }
+        if (password.match(/[!@#$%^&*()]+/)) {
+            strength += 1;
+        }
+        if (password.length >= 8) {
+            strength += 1;
+        }
+    
+        switch (strength) {
+            case 0:
+                strengthBadge.textContent = "Weak";
+                break;
+            case 1:
+                strengthBadge.textContent = "Moderate";
+                break;
+            case 2:
+                strengthBadge.textContent = "Fair";
+                break;
+            case 3:
+                strengthBadge.textContent = "Strong";
+                break;
+            case 4:
+                strengthBadge.textContent = "Very Strong";
+                break;
+        }
+    });
+    </script>
 </body>
 {% endblock body %}
  
