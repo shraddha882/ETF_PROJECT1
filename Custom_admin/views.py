@@ -38,7 +38,15 @@ def Logout(request):
     return redirect('Userlogin')
 
 
-
+def admin_profile(request):
+    admin_details = {
+        'full_name': 'Yashika Thakur',
+        'job': 'Web Developer',
+        'phone': '123-456-7890',
+        'email': 'yashiksthriya31@gmail.com',
+    }
+    context = {'admin_details': admin_details}
+    return render(request, 'admin_profile.html', context)
 
 
 def delete_profile(request, profile_id):
@@ -416,8 +424,7 @@ def adminbuyhistory(request):
 # def commodities(request):
 #     return render(request, 'commodities.html')
 
-def admin_profile(request):
-    return render(request, 'admin_profile.html')
+ 
 
 
 # def active_user(request):

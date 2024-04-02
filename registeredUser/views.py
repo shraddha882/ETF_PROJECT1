@@ -85,6 +85,60 @@ def send_email_after_registration(email, token):
     send_mail(subject=subject, message=message, from_email=from_email, recipient_list=recipient_list)
 
 
+# def register(request):
+#     current_date = datetime.datetime.now().date()
+#     min_birth_date = (current_date - timedelta(days=365 * 18 + 4)).isoformat()
+
+#     if request.method == 'POST':
+#         # Retrieve form data from request.POST
+#         username = request.POST.get('username')
+#         name = request.POST.get('Fname')
+#         email = request.POST.get('email')
+#         date_of_birth = request.POST.get('dob')
+#         phone_number = request.POST.get('phone')
+#         password = request.POST.get('password')
+#         cpassword = request.POST.get('cpassword')
+
+#         # Regular expression to check for special characters and numbers in the full name
+#         if re.search(r'[!@#$%^&*()_+=[\]{};:"\\|,.<>/?\d]', str(name)):
+#             messages.error(request, 'Full Name cannot contain special characters or numbers.')
+#         # Limit the phone number to 10 digits
+#         elif not re.match(r'^\d{10}$', phone_number):
+#             messages.error(request, 'Phone number should be 10 digits long and contain only numbers.')
+#         else:
+#             birth_date = datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() if date_of_birth else None
+
+#             if birth_date and birth_date > current_date:
+#                 messages.error(request, 'Invalid birth date. Please enter a valid date of birth.')
+#             elif RegisteredUser.objects.filter(email=email).exists():
+#                 messages.error(request, 'Email is already in use. Please choose a different one.')
+#             elif password != cpassword:
+#                 messages.error(request, 'Passwords do not match. Registration failed.')
+#             else:
+#                 email_token = str(uuid.uuid4())
+
+#                 data = RegisteredUser.objects.create(username=username, name=name, email=email, password=password,
+#                                                       date_of_birth=date_of_birth, phone_number=phone_number,
+#                                                       token=email_token)
+#                 data.login_status = False
+#                 data.sub_status = 'Unsubscribed'
+#                 data.save()
+
+#                 user = User.objects.create_user(username=username, password=password)
+#                 user.save()
+
+#                 wallet = Wallet.objects.create(user = data)
+#                 wallet.save()
+                
+#                 send_email_after_registration(email, email_token)
+#                 messages.success(request, 'Registration Link sent. Please click on link to verify your account')
+#                 return redirect('Userlogin')
+
+#     context = {
+#         'min_birth_date': min_birth_date
+#     }
+#     return render(request, 'Registration.html', context)  
+
 def register(request):
     current_date = datetime.datetime.now().date()
     min_birth_date = (current_date - timedelta(days=365 * 18 + 4)).isoformat()
@@ -105,6 +159,12 @@ def register(request):
         # Limit the phone number to 10 digits
         elif not re.match(r'^\d{10}$', phone_number):
             messages.error(request, 'Phone number should be 10 digits long and contain only numbers.')
+        # Check if passwords match
+        elif password != cpassword:
+            messages.error(request, 'Passwords do not match. Registration failed.')
+        # Check if password is strong enough
+        elif not is_strong_password(password):
+            messages.error(request, 'Password is not strong. Please use a stronger password.')
         else:
             birth_date = datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date() if date_of_birth else None
 
@@ -112,8 +172,6 @@ def register(request):
                 messages.error(request, 'Invalid birth date. Please enter a valid date of birth.')
             elif RegisteredUser.objects.filter(email=email).exists():
                 messages.error(request, 'Email is already in use. Please choose a different one.')
-            elif password != cpassword:
-                messages.error(request, 'Passwords do not match. Registration failed.')
             else:
                 email_token = str(uuid.uuid4())
 
@@ -137,10 +195,11 @@ def register(request):
     context = {
         'min_birth_date': min_birth_date
     }
-    return render(request, 'Registration.html', context)  
-
- 
-
+    return render(request, 'Registration.html', context)
+def is_strong_password(password):
+    # Define your password strength criteria here
+    # For example, you can check length, presence of uppercase letters, lowercase letters, numbers, and special characters
+    return len(password) >= 8 and any(c.isupper() for c in password) and any(c.islower() for c in password) and any(c.isdigit() for c in password) and any(c in '!@#$%^&*()-_+=' for c in password)
 
 def accout_verify(request,token):
     pf = RegisteredUser.objects.filter(token=token).first()
