@@ -98,12 +98,12 @@
       {% endif %}
     </div>
     <div class='container justify-content-end'>
-      <button id="Subscription" type="button" class="btn btn-sm btn-success mt-3" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
+      <button id="Subscription-cards" type="button" class="btn btn-sm btn-success mt-3" data-bs-toggle="modal" data-bs-target="#ExtralargeModal">
         Subscription Cards
       </button>
     </div>
     <div class='container justify-content-end'>
-      <button id="Subscription" type="button" class="btn btn-sm btn-success mt-3" data-bs-toggle="modal" data-bs-target="#Modal">
+      <button id="buy-Subscription" type="button" class="btn btn-sm btn-success mt-3" data-bs-toggle="modal" data-bs-target="#Modal">
         Buy Subscriptions
       </button>
     </div>
@@ -143,15 +143,15 @@
                         <div class="col-lg-4 mb-5 mb-lg-0">
                             <div class="bg-white p-5 rounded-lg shadow pricing-card">
                                 <h1 class="h6 text-uppercase font-weight-bold mb-4">Silver</h1>
-                                <h2 class="h1 font-weight-bold">₹<span id="silver-price">0</span>/<div class="dropdown my-4">
+                                <h2 class="h1 font-weight-bold">₹<span id="silver-price">100</span>/<div class="dropdown my-4">
                                     <button class="btn btn-secondary dropdown-toggle dropdown-button" type="button" id="silver-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        1 Month
+                                        1 month
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="silver-dropdown">
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 0, '1 Month')">1 Month</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 0, '3 Months')">3 Months</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 0, '6 Months')">6 Months</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 0, '1 Year')">1 Year</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 100, '1 month')">1 Month</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 200, '3 months')">3 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 300, '6 months')">6 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('silver', 500, '1 year')">1 Year</a>
                                     </div>
                                 </div></h2>
                                 <div class="custom-separator my-4 mx-auto bg-primary"></div>
@@ -179,7 +179,9 @@
                                         <del>Feature 6</del>
                                     </li>
                                 </ul>
-                                <a href="#" class="btn btn-primary btn-block p-2 shadow rounded-pill">Subscribe</a>
+                                <!-- Inside each pricing card -->
+                                <a class="btn btn-primary btn-block p-2 shadow rounded-pill" onclick="fetchSubscriptionDetails('Silver', getSelectedTimePeriod('silver'))" data-bs-dismiss="modal">Subscribe</a>
+
                             </div>
                         </div>
                         <!-- END -->
@@ -189,15 +191,15 @@
                         <div class="col-lg-4 mb-5 mb-lg-0">
                             <div class="bg-white p-5 rounded-lg shadow pricing-card">
                                 <h1 class="h6 text-uppercase font-weight-bold mb-4">Gold</h1>
-                                <h2 class="h1 font-weight-bold">₹<span id="gold-price">399</span>/<div class="dropdown my-4">
+                                <h2 class="h1 font-weight-bold">₹<span id="gold-price">200</span>/<div class="dropdown my-4">
                                     <button class="btn btn-secondary dropdown-toggle dropdown-button" type="button" id="gold-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        1 Month
+                                        1 month
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="gold-dropdown">
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 399, '1 Month')">1 Month</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 999, '3 Months')">3 Months</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 1799, '6 Months')">6 Months</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 3499, '1 Year')">1 Year</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 200, '1 month')">1 Month</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 300, '3 months')">3 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 500, '6 months')">6 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('gold', 800, '1 year')">1 Year</a>
                                     </div>
                                 </div></h2>
                                 <div class="custom-separator my-4 mx-auto bg-primary"></div>
@@ -221,7 +223,7 @@
                                         <del>Feature 6</del>
                                     </li>
                                 </ul>
-                                <a href="#" class="btn btn-primary btn-block p-2 shadow rounded-pill">Subscribe</a>
+                                <a class="btn btn-primary btn-block p-2 shadow rounded-pill" onclick="fetchSubscriptionDetails('Gold', getSelectedTimePeriod('gold'))" data-bs-dismiss="modal">Subscribe</a>
                             </div>
                         </div>
                         <!-- END -->
@@ -230,16 +232,16 @@
                         <!-- Pricing Table-->
                         <div class="col-lg-4">
                             <div class="bg-white p-5 rounded-lg shadow pricing-card">
-                                <h1 class="h6 text-uppercase font-weight-bold mb-4">Platinum</h1>
-                                <h2 class="h1 font-weight-bold">₹<span id="platinum-price">899</span>/<div class="dropdown my-4">
-                                    <button class="btn btn-secondary dropdown-toggle dropdown-button" type="button" id="platinum-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        1 Month
+                                <h1 class="h6 text-uppercase font-weight-bold mb-4">Diamond</h1>
+                                <h2 class="h1 font-weight-bold">₹<span id="Diamond-price">300</span>/<div class="dropdown my-4">
+                                    <button class="btn btn-secondary dropdown-toggle dropdown-button" type="button" id="Diamond-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        1 month
                                     </button>
-                                    <div class="dropdown-menu" aria-labelledby="platinum-dropdown">
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('platinum', 899, '1 Month')">1 Month</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('platinum', 2399, '3 Months')">3 Months</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('platinum', 4499, '6 Months')">6 Months</a>
-                                        <a class="dropdown-item" href="#" onclick="updatePrice('platinum', 8699, '1 Year')">1 Year</a>
+                                    <div class="dropdown-menu" aria-labelledby="Diamond-dropdown">
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('Diamond', 300, '1 month')">1 Month</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('Diamond', 500, '3 months')">3 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('Diamond', 800, '6 months')">6 Months</a>
+                                        <a class="dropdown-item" href="#" onclick="updatePrice('Diamond', 1200, '1 year')">1 Year</a>
                                     </div>
                                 </div></h2>
                                 <div class="custom-separator my-4 mx-auto bg-primary"></div>
@@ -257,7 +259,7 @@
                                     <li class="mb-3">
                                         <i class="fa fa-check mr-2 text-primary"></i> Feature 6</li>
                                 </ul>
-                                <a href="#" class="btn btn-primary btn-block p-2 shadow rounded-pill">Subscribe</a>
+                                <a class="btn btn-primary btn-block p-2 shadow rounded-pill" onclick="fetchSubscriptionDetails('Diamond', getSelectedTimePeriod('Diamond'))" data-bs-dismiss="modal">Subscribe</a>
                             </div>
                         </div>
                         <!-- END -->
@@ -355,5 +357,51 @@
         document.getElementById(card + '-price').textContent = price;
         document.getElementById(card + '-dropdown').textContent = label;
     }
+
+    // Function to retrieve the selected time period from the dropdown menu
+    function getSelectedTimePeriod(card) {
+      // Get the selected option from the dropdown menu
+      const dropdown = document.getElementById(card + '-dropdown');
+      const selectedOption = dropdown.textContent.trim(); // Trim to remove any leading/trailing whitespace
+      console.log(selectedOption);
+      return selectedOption;
+    }
+
+    // Function to fetch subscription details based on selected subscription type and time period
+    function fetchSubscriptionDetails(subscriptionType, timePeriod) {
+      let fetchUrl = '/registereduser/subs/'; // Replace with your Django URL for fetching subscription details
+      const csrftoken = getCookie('csrftoken');
+      const requestBody = {
+          subscriptionType: subscriptionType,
+          timePeriod: timePeriod
+      };
+
+      fetch(fetchUrl, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken
+          },
+          body: JSON.stringify(requestBody)
+      })
+    }
+
+    // Function to get CSRF token from cookie
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    }
+
 </script>
   {% endblock body %}

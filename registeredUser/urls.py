@@ -19,6 +19,7 @@ urlpatterns = [
     path('userallhistory/', views.useralldetails, name='useralldetails'),
     path('usersellhistory/', views.userselldetails, name='userselldetails'),
     path('selletf/', views.usersell, name = 'sell_etf'),
+    path('subs/', views.subs, name = 'subs'),
     # path('buy_sell/', views.buy_sell, name = 'buy_sell'),
     
 ]

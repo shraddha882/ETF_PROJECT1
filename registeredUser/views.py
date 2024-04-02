@@ -121,13 +121,14 @@ def register(request):
                                                       date_of_birth=date_of_birth, phone_number=phone_number,
                                                       token=email_token)
                 data.login_status = False
-                data.sub_status = 'Unsubscribed'
                 data.save()
 
                 user = User.objects.create_user(username=username, password=password)
                 user.save()
 
                 wallet = Wallet.objects.create(user = data)
+                wallet.sub_status = 'Unsubscribed'
+                wallet.period = '1 month'
                 wallet.save()
                 
                 send_email_after_registration(email, email_token)
@@ -302,7 +303,63 @@ def modify_data(aggregated_data):
 
     return modified_data
 
-
+def subs(request):
+    if request.method == 'POST':
+        # Load the request body as JSON
+        data = json.loads(request.body)
+        user = request.user.username
+        # Extract subscriptionType and timePeriod from the JSON data
+        subscription_type = data.get('subscriptionType')
+        time_period = data.get('timePeriod')
+        print(subscription_type, time_period)
+        
+        reg = RegisteredUser.objects.get(username=user)
+        wallet = Wallet.objects.get(user=reg)
+        
+        # Use the start_date to calculate the end_date
+        start_date = timezone.now()
+        wallet.start_date = start_date
+        end_date = None  # Initialize end_date variable
+        
+        if time_period == '1 month':
+            end_date = start_date + timezone.timedelta(days=30)
+        elif time_period == '3 months':
+            end_date = start_date + timezone.timedelta(days=90)
+        elif time_period == '6 months':
+            end_date = start_date + timezone.timedelta(days=180)
+        elif time_period == '1 year':
+            end_date = start_date + timezone.timedelta(days=365)
+        
+        # Calculate remaining days if end_date is defined
+        remaining_days = None
+        if end_date:
+            remaining_days = (end_date - timezone.now()).days
+            if remaining_days < 0:
+                remaining_days = 0
+        
+        # Update subscription status, period, end_date, and remaining_days
+        wallet.sub_status = subscription_type
+        wallet.period = time_period
+        wallet.end_date = end_date
+        wallet.remaining_days = remaining_days
+        
+        # Save the changes to the wallet
+        wallet.save()
+        
+        # Check if current date is equal to end date
+        if end_date and timezone.now().date() == end_date.date():
+            # Revert subscription status and period to default values
+            wallet.sub_status = 'Unsubscribed'
+            wallet.period = '1 month'
+            wallet.end_date = None
+            wallet.remaining_days = None
+            # Other fields can be set to None or default values as needed
+            
+            # Save the changes to the wallet
+            wallet.save()
+        
+        # Return a JSON response indicating success
+        return JsonResponse({'message': 'Subscription updated successfully'})
 
 def userbuydetails(request):
     if request.method == 'POST':
