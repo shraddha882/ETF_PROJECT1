@@ -143,10 +143,17 @@
                                   
                                   {% comment %} <td class="text-center">
                                     <label class="switch">
-                                        <!-- Add a class to the checkbox -->
-                                        <input type="checkbox"    {% if user.login_status %}checked{% endif %} onclick="toggleStatus(this.checked, '{{ user.username }}');">
+                                        <input type="checkbox" {% if user.login_status %}checked{% endif %} onclick="window.location.href='{% if user.login_status %}{% url 'decline' user.username %}{% else %}{% url 'approve' user.username %}{% endif %}'">
                                         <span class="slider round {% if user.login_status %}green{% else %}red{% endif %}"></span>
                                     </label>
+<<<<<<< HEAD
+                                  </td>
+                                {% for wallet in wallet %}
+                                    {% if user.username == wallet.user.username %}
+                                        <td>{{ wallet.sub_status }}</td>
+                                    {% endif %}
+                                {% endfor %}
+=======
                                   </td> {% endcomment %}
                                   <td class="text-center">
                                     <label class="switch">
@@ -155,6 +162,7 @@
                                     </label>
                                   </td>
                                   <td>{{ user.sub_status }}</td>
+>>>>>>> 74062c5bed9bada892d0853c84a7e37daefc7063
                               </tr>
                               {% endfor %}
                           </tbody>
