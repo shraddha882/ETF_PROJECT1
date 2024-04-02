@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
-from registeredUser.models import RegisteredUser
+from registeredUser.models import RegisteredUser, Wallet
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import user_passes_test
 from Custom_admin.models import *
@@ -66,7 +66,8 @@ def update(request, id):
 # @login_required
 def users_data(request):
         users = RegisteredUser.objects.all()
-        return render(request, 'users_data.html', {'users': users})
+        wallet = Wallet.objects.all()
+        return render(request, 'users_data.html', {'users': users,'wallet':wallet})
     
 from django.db import transaction
 # @login_required
