@@ -130,14 +130,73 @@ def delete_selected_users(request):
  
 
 
- 
 def active_user(request):
-    active_registered_users = RegisteredUser.objects.filter(login_status=True,is_verified=True)
+    active_registered_users = RegisteredUser.objects.filter(login_status=True, is_verified=True)
+    wallet = Wallet.objects.all()
 
+    if request.method == 'POST':
+        # Load the request body as JSON
+        data = json.loads(request.body)
+        subscription_type = data.get('subscriptionType')
+        time_period = data.get('timePeriod')
+        selected_usernames = data.get('selectedUsernames', [])  # Get selected usernames
+        
+        # Loop through selected usernames
+        for username in selected_usernames:
+            reg = RegisteredUser.objects.get(username=username)
+            wallet_instance, created = Wallet.objects.get_or_create(user=reg)
+            
+            # Check if subscriptionType or timePeriod is provided
+            if subscription_type is not None or subscription_type != 'Select Subscriptions':
+                wallet_instance.sub_status = subscription_type
+                
+            if time_period is not None or time_period != 'Select Months':
+                # Use the start_date to calculate the end_date
+                start_date = timezone.now()
+                wallet_instance.start_date = start_date
+                end_date = None
+                
+                if time_period == '1 month':
+                    end_date = start_date + timezone.timedelta(days=30)
+                elif time_period == '3 months':
+                    end_date = start_date + timezone.timedelta(days=90)
+                elif time_period == '6 months':
+                    end_date = start_date + timezone.timedelta(days=180)
+                elif time_period == '1 year':
+                    end_date = start_date + timezone.timedelta(days=365)
+                
+                # Calculate remaining days if end_date is defined
+                remaining_days = None
+                if end_date:
+                    remaining_days = (end_date - timezone.now()).days
+                    if remaining_days < 0:
+                        remaining_days = 0
+                
+                # Update period and end_date
+                wallet_instance.period = time_period
+                wallet_instance.end_date = end_date
+                wallet_instance.remaining_days = remaining_days
+                
+            # Save the changes to the wallet
+            wallet_instance.save()
+            
+            # Check if current date is equal to end date
+            if wallet_instance.end_date and timezone.now().date() == wallet_instance.end_date.date():
+                # Revert subscription status and period to default values
+                wallet_instance.sub_status = 'Unsubscribed'
+                wallet_instance.period = '1 month'
+                wallet_instance.end_date = None
+                wallet_instance.remaining_days = None
+                # Other fields can be set to None or default values as needed
+                
+                # Save the changes to the wallet
+                wallet_instance.save()
+                
+        return redirect('active_user')  # Redirect back to the same view after saving changes
     
     context = {
-        'data' : active_registered_users,
-        
+        'data': active_registered_users,
+        'wallet': wallet,
     }
  
     return render(request, 'active_user.html', context)
