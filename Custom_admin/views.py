@@ -27,6 +27,8 @@ import json, datetime
 from django.db.models import Sum, Avg, Max, Case, When, F,FloatField, Value
 from django.db.models.functions import Coalesce, Cast
 from django.http import HttpResponseRedirect
+import datetime
+
 
 def admindashboard(request):
         return render(request, 'admindashboard.html')
@@ -506,6 +508,52 @@ def error_404(request):
 def contact(request):
     return render(request, 'contact.html')
 
+# def niftybeesns(request):
+#     table_name = 'NIFTYBEES'
+#     category = 'Stocks'
+#     alldata = NIFTYBEES_NS.objects.all()
+#     data = list(alldata)
+#     calculate_percentage_diff(data)
+
+#     if request.method == 'POST':
+#         start_date_str = request.POST.get('start_date')
+#         end_date_str = request.POST.get('end_date')
+#         print(start_date_str, end_date_str)
+
+#         if start_date_str and end_date_str:
+#             # Convert string dates to datetime objects
+#             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+#             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+#             queryset = alldata.filter(date__range=[start_date, end_date])
+#             data = list(queryset)
+#             calculate_percentage_diff(data)
+#             print(start_date, end_date)
+#             context = {
+#                 'data': queryset,
+#                   'table_name':table_name,
+#                     'category':category
+                
+#             }
+#             return render(request, 'adminNifty.html', context)
+#         else:
+#             # If start_date or end_date is not provided, show all data
+#             context = {
+#                 'data': alldata,
+#                   'table_name':table_name,
+#                     'category':category
+#             }
+#             return render(request, 'adminNifty.html', context)
+
+#     # Default behavior: show all data
+#     context = {
+#                 'data': alldata,
+#                'table_name':table_name,
+#                  'category':category
+               
+#                }
+#     return render(request,'adminNifty.html',context)
+
 def niftybeesns(request):
     table_name = 'NIFTYBEES'
     category = 'Stocks'
@@ -520,8 +568,8 @@ def niftybeesns(request):
 
         if start_date_str and end_date_str:
             # Convert string dates to datetime objects
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
             queryset = alldata.filter(date__range=[start_date, end_date])
             data = list(queryset)
@@ -529,28 +577,26 @@ def niftybeesns(request):
             print(start_date, end_date)
             context = {
                 'data': queryset,
-                  'table_name':table_name,
-                    'category':category
-                
+                'table_name': table_name,
+                'category': category
             }
             return render(request, 'adminNifty.html', context)
         else:
             # If start_date or end_date is not provided, show all data
             context = {
                 'data': alldata,
-                  'table_name':table_name,
-                    'category':category
+                'table_name': table_name,
+                'category': category
             }
             return render(request, 'adminNifty.html', context)
 
     # Default behavior: show all data
     context = {
-                'data': alldata,
-               'table_name':table_name,
-                 'category':category
-               
-               }
-    return render(request,'adminNifty.html',context)
+        'data': alldata,
+        'table_name': table_name,
+        'category': category
+    }
+    return render(request, 'adminNifty.html', context)
 
 def itbeesns(request):
     table_name = 'ITBEES'
