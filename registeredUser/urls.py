@@ -21,5 +21,6 @@ urlpatterns = [
     path('selletf/', views.usersell, name = 'sell_etf'),
     path('subs/', views.subs, name = 'subs'),
     # path('buy_sell/', views.buy_sell, name = 'buy_sell'),
+    path('payment/', views.payment_gateway, name='payment'),
     
 ]

@@ -46,5 +46,6 @@ urlpatterns = [
     path('admintransdetails/', adminbuydetails, name='adminbuydetails'),
     path('adminallhistory/', adminalldetails, name='adminalldetails'),
     path('adminsellhistory/', adminselldetails, name='adminselldetails'),
+    path('change-password/',change_password, name='change-password'),
     
 ]

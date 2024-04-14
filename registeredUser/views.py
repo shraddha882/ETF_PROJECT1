@@ -1027,7 +1027,8 @@ def calculate_percentage_diff(data):
 #     # Get today's date
 #     today = date.today()
     
-
+def payment_gateway(request):
+    return render(request, 'payment.html')
  
 
 
