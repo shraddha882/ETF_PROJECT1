@@ -491,7 +491,30 @@ def adminbuyhistory(request):
 
 # def active_user(request):
 #     return render(request, 'active_user.html')
-
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('currentPassword')
+        new_password = request.POST.get('newPassword')
+        reentered_password = request.POST.get('renewPassword')
+        
+        # Validate current password
+        user = authenticate(username=request.user.username, password=current_password)
+        if user is None:
+            return JsonResponse({'error': 'Invalid current password'}, status=400)
+        
+        # Validate new password
+        if new_password != reentered_password:
+            return JsonResponse({'error': 'New passwords do not match'}, status=400)
+        if len(new_password) < 8:  # Example: Minimum length is 8 characters
+            return JsonResponse({'error': 'New password is too short'}, status=400)
+        
+        # Change password
+        user.set_password(new_password)
+        user.save()
+        
+        return JsonResponse({'message': 'Password changed successfully'}, status=200)
+    else:
+        return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
 
 def faq(request):
     return render(request, 'faq.html')
